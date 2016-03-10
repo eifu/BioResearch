@@ -186,7 +186,6 @@ def createRandomHistoneList(percentage=50,A=1,
                                      K_MINUS=K_MINUS,
                                      K_ACE=K_ACE,
                                      A_bool=A,percentage=percentage))
-        # dstList[i-1].display()
 
 
         dstList[i-1].set_adjHistone(dstList[i])
@@ -237,18 +236,14 @@ def trackingHistone(histoneList,
           so acetylated histones will be dominant if non-acetilated histones are less than 5.
         """
         Eext = ((not T) and (not A)) or R
-        # print("{}   t:{}    a:{}   :r{}".format(Eext,T,A,R))
         TEextTrackerList.append((T,Eext))
         
         numAcetylated = 0
         no_M_in_Sequence = True
         prev = False
         if(Eext == True):
-            # print (t+" :eext is 0  \n ")
             histoneList[len(histoneList)//2] = MHistone(copy=True,copy_histone=histoneList[len(histoneList)//2])
-            # print(histoneList[BEFORE_PROMOTER].display())
-    # for i in range(NUM_OF_HISTONE):
-    #     print(histoneList[i].display())
+
     return trackerList,TEextTrackerList
 
 def trackingHistones2(histoneList,
@@ -274,7 +269,6 @@ def trackingHistones2(histoneList,
         if(t==TIME1):
             R = secR
             A = secA
-#             print(333)
             for i in range(len(histoneList)):
                 histoneList[i].set_K_ACE(A)
         
@@ -299,16 +293,12 @@ def trackingHistones2(histoneList,
         so acetylated histones will be dominant if non-acetylated histones are less than 5.
         """
         Eext = ((not T) and (not A)) or R
-        # print("{}   t:{}    a:{}   :r{}".format(Eext,T,A,R))
         TEextTrackerList.append([T,Eext])
         
         numAcetylated = 0
         no_M_in_Sequence = True
         prev = False
         if(Eext == True):
-            # print (t+" :eext is 0  \n ")
             histoneList[len(histoneList)//2] = MHistone(copy=True,copy_histone=histoneList[len(histoneList)//2])
-            # print(histoneList[BEFORE_PROMOTER].display())
-    # for i in range(NUM_OF_HISTONE):
-    #     print(histoneList[i].display())
+
     return trackerList,TEextTrackerList
