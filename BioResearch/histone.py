@@ -6,7 +6,7 @@
 ##
 ##########################
 from numpy.random import sample
-
+import numpy as np
 
 class Histone(object):
     """
@@ -14,8 +14,8 @@ class Histone(object):
     methylation modeling. This class allows users to create
     a histone object.
     """
-    K_PLUS_DEFAULT= 0.12
-    K_PLUS2_DEFAULT= 0.12
+    K_PLUS_DEFAULT= 0.176
+    K_PLUS2_DEFAULT= 0.17
     K_MINUS_DEFAULT= 0.117
     K_ACE_DEFAULT = 0.12
 
@@ -153,8 +153,8 @@ class AHistone(Histone):
         self.status="a"
 
     def k_plus(self):
-        if(self.preNode.status == "m" and sample() < Histone.K_PLUS2):return UHistone(copy=True,copy_histone=self)
-        if(self.nextNode.status == "m" and sample() < Histone.K_PLUS2):return UHistone(copy=True,copy_histone=self)
+        if(self.preNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
+        if(self.nextNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
         return self
 
 
@@ -302,3 +302,53 @@ def trackingHistones2(histoneList,
             histoneList[len(histoneList)//2] = MHistone(copy=True,copy_histone=histoneList[len(histoneList)//2])
 
     return trackerList,TEextTrackerList
+
+def nextGen(histoneList,A,R,NUM_OF_HISTONE, WINDOW):
+    """
+    taking the list of histone, 
+    and 
+    """
+    result = [None for _ in range(NUM_OF_HISTONE)]
+    start = len(histoneList)//2 - WINDOW//2
+    end = len(histoneList)//2 + WINDOW//2
+    num_acetylated_in_window = 0
+    prev_was_methylated = False
+    no_M_in_sequence_in_window = True
+    for i in range(len(histoneList)):
+        temp_histone = histoneList[i]
+        if(start <= i and i<= end):
+            if(temp_histone.status == "a"):
+                num_acetylated_in_window += 1
+                prev_was_methylated = False
+            else:
+                if(prev_was_methylated == True):
+                    no_M_in_sequence_in_window = False
+                else:
+                    prev_was_methylated = True
+        
+        temp_histone = temp_histone.k_plus()
+        temp_histone = temp_histone.k_ace()
+        result[i] = temp_histone.k_minus()
+            
+    T = A and (num_acetylated_in_window > 5) and no_M_in_sequence_in_window
+    """
+    WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
+    so acetylated histones will be dominant if non-acetylated histones are less than 5.
+    """
+    Eext = ((not T) and (not A)) or R
+        
+    num_acetylated_in_window = 0
+    no_M_in_sequence_in_window = True
+    prev_was_methylated = False
+    if(Eext == True):
+        result[len(histoneList)//2] = MHistone(copy=True,copy_histone=histoneList[len(histoneList)//2])
+    return result
+
+def bitvec(histoneList):
+    v_mlist = [1 if h.status == "m" else 0 for h in histoneList]
+    v_alist = [1 if h.status == "a" else 0 for h in histoneList]
+    v_ulist = [1 if h.status == "u" else 0 for h in histoneList]
+    
+    return np.array([v_mlist,
+                     v_alist,
+                     v_ulist],np.int32)
