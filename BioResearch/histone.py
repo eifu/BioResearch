@@ -107,6 +107,25 @@ class Histone(object):
         """
         return self
 
+    def __lt__(self, other):
+        """
+        return true when the position of self is smaller than that of other
+        """
+        return self.position < other.position
+
+    def __str__(self):
+        """
+        return all info about the instantce of this object.
+        """
+        st=''
+        if(self.status=='m'):
+            st = "methylated"
+        elif(self.status=='a'):
+            st = "acetilated"
+        else:
+            st = "unmethylated"
+        sentence = "pos: {}  status: {}".format(self.position,st)
+        return sentence
 
     def display(self):
         sentence = "address: {}\nposition: {}\nstatus: {}\n".format(self,self.position,self.status)
@@ -303,48 +322,42 @@ def trackingHistones2(histoneList,
 
     return trackerList,TEextTrackerList
 
-def nextGen(histoneList,A,R,NUM_OF_HISTONE, WINDOW):
+def nextGen(histoneList,A,R,window):
     """
-    taking the list of histone, 
-    and 
+    this method takes histone list and returns the next generation of them.
     """
-    result = [None for _ in range(NUM_OF_HISTONE)]
-    start = len(histoneList)//2 - WINDOW//2
-    end = len(histoneList)//2 + WINDOW//2
+    result = [None for _ in range(len(histoneList))]
+    start = len(histoneList)//2 - window//2
+    end = len(histoneList)//2 + window//2
     num_acetylated_in_window = 0
-    prev_was_methylated = False
-    no_M_in_sequence_in_window = True
+
     for i in range(len(histoneList)):
         temp_histone = histoneList[i]
         if(start <= i and i<= end):
             if(temp_histone.status == "a"):
                 num_acetylated_in_window += 1
-                prev_was_methylated = False
-            else:
-                if(prev_was_methylated == True):
-                    no_M_in_sequence_in_window = False
-                else:
-                    prev_was_methylated = True
         
-        temp_histone = temp_histone.k_plus()
+        
+        temp_histone = temp_histone.k_minus()
         temp_histone = temp_histone.k_ace()
-        result[i] = temp_histone.k_minus()
+        result[i] = temp_histone.k_plus()
             
-    T = A and (num_acetylated_in_window > 5) and no_M_in_sequence_in_window
+    T = A and (num_acetylated_in_window > 5) 
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     Eext = ((not T) and (not A)) or R
-        
-    num_acetylated_in_window = 0
-    no_M_in_sequence_in_window = True
-    prev_was_methylated = False
     if(Eext == True):
-        result[len(histoneList)//2] = MHistone(copy=True,copy_histone=histoneList[len(histoneList)//2])
-    return result
+        result[len(histoneList)//2] = MHistone(copy=True,copy_histone=result[len(histoneList)//2])
+        
+    return {"list":result,"T":T,"Eext":Eext}
 
 def bitvec(histoneList):
+    """
+    this method takes a list of histone objects, and returns three dimention numpy array
+    in which three bit vectors are stored. 
+    """
     v_mlist = [1 if h.status == "m" else 0 for h in histoneList]
     v_alist = [1 if h.status == "a" else 0 for h in histoneList]
     v_ulist = [1 if h.status == "u" else 0 for h in histoneList]
@@ -352,3 +365,17 @@ def bitvec(histoneList):
     return np.array([v_mlist,
                      v_alist,
                      v_ulist],np.int32)
+
+def trackingHist(histoneList,time,A,R,T,window):
+    for i in range(len(histoneList)):
+                histoneList[i].set_K_ACE(A)
+    toBeListOfBitVec = []
+    toBeListOfT = []
+    for _ in range(time):        
+        toBeListOfBitVec.append(bitvec(histoneList))
+        toBeListOfT.append(T)
+        dictH = nextGen(histoneList, A, R,window)
+        histoneList = dictH["list"]
+        T = dictH["T"]
+
+    return {"bitvec":np.array(toBeListOfBitVec),"histList":histoneList,"TList":toBeListOfT}
