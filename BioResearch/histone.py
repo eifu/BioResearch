@@ -330,13 +330,15 @@ def nextGen(histoneList,A,R,window):
     start = len(histoneList)//2 - window//2
     end = len(histoneList)//2 + window//2
     num_acetylated_in_window = 0
+    num_methylated_in_window = 0
 
     for i in range(len(histoneList)):
         temp_histone = histoneList[i]
         if(start <= i and i<= end):
             if(temp_histone.status == "a"):
                 num_acetylated_in_window += 1
-        
+            elif(temp_histone.status == "m"):
+                num_methylated_in_window += 1
         
         temp_histone = temp_histone.k_minus()
         temp_histone = temp_histone.k_ace()
@@ -347,7 +349,10 @@ def nextGen(histoneList,A,R,window):
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
-    Eext = ((not T) and (not A)) or R
+    if(R == 1):    
+        Eext = ((not T) and (not A)) 
+    else:
+        Eext = num_methylated_in_window > 1;
     if(Eext == True):
         result[len(histoneList)//2] = MHistone(copy=True,copy_histone=result[len(histoneList)//2])
         
