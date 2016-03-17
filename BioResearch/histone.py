@@ -48,10 +48,10 @@ class Histone(object):
             self.position = copy_histone.position
 
             self.preNode = copy_histone.preNode  # doubly-linked
-            copy_histone.preNode.nextNode = self
+            if(copy_histone.preNode != None): copy_histone.preNode.nextNode = self 
 
             self.nextNode = copy_histone.nextNode # doubly-linked
-            copy_histone.nextNode.preNode = self
+            if(copy_histone.nextNode !=None): copy_histone.nextNode.preNode = self 
             
             
             self.CpGislandlist = copy_histone.CpGislandlist
@@ -171,8 +171,8 @@ class UHistone(Histone):
 
     
     def k_plus(self):
-        if(self.preNode.status == "m" and sample() < Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
-        if(self.nextNode.status == "m" and sample() < Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
+        if(self.preNode != None and self.preNode.status == "m" and sample() < Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
+        if(self.nextNode != None and self.nextNode.status == "m" and sample() < Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
         return self
 
     def k_minus(self): return self
@@ -188,8 +188,8 @@ class AHistone(Histone):
       
             
     def k_plus(self):
-        if(self.preNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
-        if(self.nextNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
+        if(self.preNode != None and self.preNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
+        if(self.nextNode != None and self.nextNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
         return self
 
 
@@ -222,120 +222,11 @@ def createRandomHistoneList(percentage=50,A=1,
                                      K_ACE=K_ACE,
                                      A_bool=A,percentage=percentage))
 
-
+        dstList[i-1].set_adjHistone(dstList[i])
     
     return dstList
 
 
-def trackingHistone(histoneList,
-                    R,A,T,Eext, #necessary
-                    TIME,
-                    WINDOW=10): 
-    """
-    returns one histone trackerList and one T,Eext trackerList.
-    """
-
-    trackerList = [[] for i in range(len(histoneList))]
-    """
-    tracker List is a two dimentional list,
-    intuitively, the first element in the trackerList is a list that only tracks the 1st histone chronically, and
-    the second element in the trackerList is a list that only tracks the 2nd histone.
-    """
-    TEextTrackerList=[]
-    TEextTrackerList.append((T,Eext))
-    start = len(histoneList)//2 - WINDOW//2
-    end = len(histoneList)//2 + WINDOW//2
-    numAcetylated = 0
-    no_M_in_Sequence = True
-    prev = False ## this is for checking M in sequence or not.
-    for _ in range(TIME):
-        for i in range(len(histoneList)):
-            trackerList[i].append(histoneList[i].status)    
-            if(start <= i and i<= end):
-                if(histoneList[i].status == "a"):
-                    numAcetylated += 1
-                    prev = False
-                else:
-                    if(prev == True):
-                        no_M_in_Sequence = False
-                    else:
-                        prev = True
-            histoneList[i] = histoneList[i].k_minus()
-            histoneList[i] = histoneList[i].k_ace()
-            histoneList[i] = histoneList[i].k_plus()
-
-        T = A and (numAcetylated > 5) and no_M_in_Sequence 
-        """
-        # WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)),
-          so acetylated histones will be dominant if non-acetilated histones are less than 5.
-        """
-        Eext = ((not T) and (not A)) or R
-        TEextTrackerList.append((T,Eext))
-        
-        numAcetylated = 0
-        no_M_in_Sequence = True
-        prev = False
-        if(Eext == True):
-            histoneList[len(histoneList)//2] = MHistone(copy=True,copy_histone=histoneList[len(histoneList)//2])
-
-    return trackerList,TEextTrackerList
-
-def trackingHistones2(histoneList,
-                      A,R,secA,secR,T,Eext,TIME1,TIME2, #necessary
-                      WINDOW=10): #safficient
-    """
-    returns one histone trackerList and one T,Eext trackerList.
-    """
-    trackerList = [[] for i in range(len(histoneList))]
-    """
-    tracker List is a two dimentional list,
-    intuitively, the first element in the trackerList is a list that only tracks the 1st histone chronically, and
-    the second element in the trackerList is a list that only tracks the 2nd histone.
-    """
-    TEextTrackerList=[]
-    TEextTrackerList.append([T,Eext])
-    start = len(histoneList)//2 - WINDOW//2 # len(histoneList) is the same as BEFORE_PROMOTER
-    end = len(histoneList)//2 + WINDOW/2
-    numAcetylated = 0
-    no_M_in_Sequence = True
-    prev = False ## this is for checking M in sequence or not.
-    for t in range(TIME1+TIME2):
-        if(t==TIME1):
-            R = secR
-            A = secA
-            for i in range(len(histoneList)):
-                histoneList[i].set_K_ACE(A)
-        
-        for i in range(len(histoneList)):
-            trackerList[i].append(histoneList[i].status)    
-            if(start <= i and i<= end):
-                if(histoneList[i].status == "a"):
-                    numAcetylated += 1
-                    prev = False
-                else:
-                    if(prev == True):
-                        no_M_in_Sequence = False
-                    else:
-                        prev = True
-            histoneList[i] = histoneList[i].k_minus()
-            histoneList[i] = histoneList[i].k_ace()
-            histoneList[i] = histoneList[i].k_plus()
-
-        T = A and (numAcetylated > 5) and no_M_in_Sequence
-        """
-        WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
-        so acetylated histones will be dominant if non-acetylated histones are less than 5.
-        """
-        Eext = ((not T) and (not A)) or R
-        TEextTrackerList.append([T,Eext])
-        
-        numAcetylated = 0
-        no_M_in_Sequence = True
-        prev = False
-        if(Eext == True):
-            histoneList[len(histoneList)//2] = MHistone(copy=True,copy_histone=histoneList[len(histoneList)//2])
-
-    return trackerList,TEextTrackerList
 
 def nextGen(histoneList,A,R,window):
     """
@@ -358,33 +249,15 @@ def nextGen(histoneList,A,R,window):
             for index in range(len(temp_histone.CpGislandlist)):
                 
                 if(temp_histone.status=='m' and sample()<0.001133): # p on probability
-#                     print("happened!")
-#                     print(temp_histone.CpGislandlist)
                     temp_histone.CpGislandlist[index] = 1
-#                     print(temp_histone.CpGislandlist)
+                    
                 if(sample()<0.001179): # p off probability
-#                     print("whaaat!?")
-#                     print(temp_histone.CpGislandlist)
                     temp_histone.CpGislandlist[index] = 0   
-#                     print(temp_histone.CpGislandlist)
         
         temp_histone = temp_histone.k_minus()
         temp_histone = temp_histone.k_ace()
         temp_histone = temp_histone.k_plus()
-#         if(temp_histone.CpGislandpoints > 2000):
-#             if(sample()<0.5):
-#                 result[i] = MHistone(copy=True,copy_histone=temp_histone)
-#             else:
-#                 result[i] = temp_histone
-#         elif(temp_histone.CpGislandpoints > 400):
-#             if(sample()<0.2):
-#                 result[i] = MHistone(copy=True,copy_histone=temp_histone)
-#             else:
-#                 result[i] = temp_histone
-#         if(1 in temp_histone.CpGislandlist):
-#             print(temp_histone.position)
-#             print("daahahhahahha")
-#             result[i] = MHistone(copy=True,copy_histone=temp_histone)
+
         result[i] = temp_histone
             
     T = A and (num_acetylated_in_window > 5) 
