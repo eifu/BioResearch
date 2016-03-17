@@ -223,8 +223,7 @@ def createRandomHistoneList(percentage=50,A=1,
                                      A_bool=A,percentage=percentage))
 
 
-        dstList[i-1].set_adjHistone(dstList[i])
-    dstList[NUM_OF_HISTONE-1].set_adjHistone(dstList[0]) ## Connect the head to tail
+    
     return dstList
 
 
