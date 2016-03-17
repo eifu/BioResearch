@@ -52,8 +52,11 @@ class Histone(object):
 
             self.nextNode = copy_histone.nextNode # doubly-linked
             copy_histone.nextNode.preNode = self
-
-
+            
+            
+            self.CpGislandlist = copy_histone.CpGislandlist
+           
+                
 
         else:
             self.position = position
@@ -66,9 +69,17 @@ class Histone(object):
             Histone.K_PLUS = K_PLUS
             Histone.K_PLUS2 = K_PLUS2
             Histone.K_MINUS = K_MINUS
-
-
-
+            
+            if position ==-2:
+                self.CpGislandlist = [0,0,0,0]
+            elif position == -1:
+                self.CpGislandlist = [0,0,0,0]
+            elif position == 0:
+                self.CpGislandlist = [0,0]
+            else:
+                self.CpGislandlist = []
+            
+            
     def set_adjHistone(self,nextNode):
         """
         Set the input to self.nextNode, one of its instance variables.
@@ -96,6 +107,9 @@ class Histone(object):
         the acetilated histone will be get unacetylated by K_MINUS probability
         return unmethylated histone object if the histone will get unmethylated
         """
+        if(1 in self.CpGislandlist):
+            return self
+        
         if(sample()<Histone.K_MINUS):return UHistone(copy=True,copy_histone=self)
         return self
 
@@ -148,6 +162,7 @@ class MHistone(Histone):
         super().__init__(**kwarg)
         self.status="m"
 
+        
 
 class UHistone(Histone):
     def __init__(self,**kwarg):
@@ -170,7 +185,8 @@ class AHistone(Histone):
     def __init__(self,**kwarg):
         super().__init__(**kwarg)
         self.status="a"
-
+      
+            
     def k_plus(self):
         if(self.preNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
         if(self.nextNode.status == "m" and sample() < Histone.K_PLUS2):return MHistone(copy=True,copy_histone=self)
@@ -339,10 +355,38 @@ def nextGen(histoneList,A,R,window):
                 num_acetylated_in_window += 1
             elif(temp_histone.status == "m"):
                 num_methylated_in_window += 1
+                
+            for index in range(len(temp_histone.CpGislandlist)):
+                
+                if(temp_histone.status=='m' and sample()<0.001133): # p on probability
+#                     print("happened!")
+#                     print(temp_histone.CpGislandlist)
+                    temp_histone.CpGislandlist[index] = 1
+#                     print(temp_histone.CpGislandlist)
+                if(sample()<0.001179): # p off probability
+#                     print("whaaat!?")
+#                     print(temp_histone.CpGislandlist)
+                    temp_histone.CpGislandlist[index] = 0   
+#                     print(temp_histone.CpGislandlist)
         
         temp_histone = temp_histone.k_minus()
         temp_histone = temp_histone.k_ace()
-        result[i] = temp_histone.k_plus()
+        temp_histone = temp_histone.k_plus()
+#         if(temp_histone.CpGislandpoints > 2000):
+#             if(sample()<0.5):
+#                 result[i] = MHistone(copy=True,copy_histone=temp_histone)
+#             else:
+#                 result[i] = temp_histone
+#         elif(temp_histone.CpGislandpoints > 400):
+#             if(sample()<0.2):
+#                 result[i] = MHistone(copy=True,copy_histone=temp_histone)
+#             else:
+#                 result[i] = temp_histone
+#         if(1 in temp_histone.CpGislandlist):
+#             print(temp_histone.position)
+#             print("daahahhahahha")
+#             result[i] = MHistone(copy=True,copy_histone=temp_histone)
+        result[i] = temp_histone
             
     T = A and (num_acetylated_in_window > 5) 
     """
@@ -350,9 +394,9 @@ def nextGen(histoneList,A,R,window):
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     if(R == 1):    
-        Eext = ((not T) and (not A)) 
+        Eext = (not T)  
     else:
-        Eext = num_methylated_in_window > 1;
+        Eext = num_methylated_in_window > 2;
     if(Eext == True):
         result[len(histoneList)//2] = MHistone(copy=True,copy_histone=result[len(histoneList)//2])
         
