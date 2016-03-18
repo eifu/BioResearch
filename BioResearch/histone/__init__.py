@@ -89,6 +89,9 @@ class Histone(object):
         else:
             Histone.K_ACE = 0
     
+    def DNAmethylation(self):
+        return self
+    
     def k_plus(self):
         """
         the unmethylated histone will get methylated by K_PLUS probability
@@ -103,8 +106,6 @@ class Histone(object):
         the acetilated histone will be get unacetylated by K_MINUS probability
         return unmethylated histone object if the histone will get unmethylated
         """
-        if(1 in self.CpGislandlist):
-            return self
         
         if(sample()<Histone.K_MINUS):return UHistone(copy=True,copy_histone=self)
         return self
@@ -125,7 +126,7 @@ class Histone(object):
 
     def __str__(self):
         """
-        return all info about the instantce of this object.
+        return all info about the instance of this object.
         """
         st=''
         if(self.status=='m'):
@@ -174,8 +175,18 @@ class UHistone(Histone):
     def k_minus(self): return self
 
     def k_ace(self):
+        if(1 in self.CpGislandlist):
+            return self
+        
         if(sample()<Histone.K_ACE):return AHistone(copy=True,copy_histone=self)
         return self
+
+    def DNAmethylation(self):
+        if(self.preNode != None and self.preNode.status == "m" and sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
+        if(self.nextNode != None and self.nextNode.status == "m" and sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
+
+        return self
+
 
 class AHistone(Histone):
     def __init__(self,**kwarg):
@@ -187,6 +198,7 @@ class AHistone(Histone):
         if(self.preNode != None and self.preNode.status == "m" and sample() < Histone.K_PLUS2):return UHistone(copy=True,copy_histone=self)
         if(self.nextNode != None and self.nextNode.status == "m" and sample() < Histone.K_PLUS2):return UHistone(copy=True,copy_histone=self)
         return self
+
 
 
 def createRandomHistoneList(percentage=50,A=1,
@@ -223,6 +235,7 @@ def createRandomHistoneList(percentage=50,A=1,
     dstList[0].preNode = None
     return dstList
 
+        
 
 
 def nextGen(histoneList,A,R,window,p_off=0.001179):
@@ -231,7 +244,7 @@ def nextGen(histoneList,A,R,window,p_off=0.001179):
     """
     result = [None for _ in range(len(histoneList))]
     start = len(histoneList)//2 - window//2
-    end = len(histoneList)//2 + window//2
+    end   = len(histoneList)//2 + window//2
     num_acetylated_in_window = 0
     num_methylated_in_window = 0
 
@@ -250,10 +263,13 @@ def nextGen(histoneList,A,R,window,p_off=0.001179):
                     
                 if(sample()<p_off): # p off probability
                     temp_histone.CpGislandlist[index] = 0   
+                            
         
         temp_histone = temp_histone.k_minus()
         temp_histone = temp_histone.k_ace()
         temp_histone = temp_histone.k_plus()
+        
+        temp_histone = temp_histone.DNAmethylation()
 
         result[i] = temp_histone
             
@@ -266,6 +282,8 @@ def nextGen(histoneList,A,R,window,p_off=0.001179):
         Eext = (not T)  
     else:
         Eext = num_methylated_in_window > 2;
+        
+        
     if(Eext == True):
         result[len(histoneList)//2] = MHistone(copy=True,copy_histone=result[len(histoneList)//2])
         
@@ -276,11 +294,14 @@ def bitvec(histoneList):
     this method takes a list of histone objects, and returns three dimention numpy array
     in which three bit vectors are stored. 
     """
-    v_mlist = [1 if h.status == "m" else 0 for h in histoneList]
-    v_alist = [1 if h.status == "a" else 0 for h in histoneList]
-    v_ulist = [1 if h.status == "u" else 0 for h in histoneList]
+    v_mlist = np.array([1 if h.status == "m" else 0 for h in histoneList])
+    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
+    v_ulist = np.array([1 if h.status == "u" else 0 for h in histoneList])
     v_cpg = [sum(histone.CpGislandlist) for histone in histoneList]
-
+    """
+    v_cpg is not stored in an efficient way
+    @todo: change when we do not stick to Oct4
+    """
     return np.array([v_mlist,
                      v_alist,
                      v_ulist,
@@ -299,3 +320,13 @@ def trackingHist(histoneList,time,A,R,T,window):
         T = dictH["T"]
 
     return {"bitvec":np.array(toBeListOfBitVec),"histList":histoneList,"TList":toBeListOfT}
+
+def getTimeDiedOut(ls_of_bitvec):
+    
+    for time in range(len(ls_of_bitvec)):
+        if(ls_of_bitvec[time][0][40]==0):
+            for else_in_window in range(35,45):
+                if(ls_of_bitvec[time][0][else_in_window]==1):
+                    break
+                return time
+    return -1
