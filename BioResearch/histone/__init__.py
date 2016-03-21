@@ -135,7 +135,7 @@ class Histone(object):
             st = "acetilated"
         else:
             st = "unmethylated"
-        sentence = "pos: {}\tstatus: {}".format(self.position,st)
+        sentence = "pos: {} \tstatus: {}".format(self.position,st)
         return sentence
 
     def display(self):
@@ -182,8 +182,8 @@ class UHistone(Histone):
         return self
 
     def DNAmethylation(self):
-        if(self.preNode != None and self.preNode.status == "m" and sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
-        if(self.nextNode != None and self.nextNode.status == "m" and sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
+        if( sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
+        if( sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
 
         return self
 
@@ -242,36 +242,34 @@ def nextGen(histoneList,A,R,window,p_off=0.001179):
     """
     this method takes histone list and returns the next generation of them.
     """
-    result = [None for _ in range(len(histoneList))]
-    start = len(histoneList)//2 - window//2
-    end   = len(histoneList)//2 + window//2
+    result = []
     num_acetylated_in_window = 0
     num_methylated_in_window = 0
 
-    for i in range(len(histoneList)):
-        temp_histone = histoneList[i]
-        if(start <= i and i<= end):
-            if(temp_histone.status == "a"):
+    for hist in histoneList:
+        
+        if(-5 <= hist.position and hist.position<= 5):
+            if(hist.status == "a"):
                 num_acetylated_in_window += 1
-            elif(temp_histone.status == "m"):
+            elif(hist.status == "m"):
                 num_methylated_in_window += 1
                 
-            for index in range(len(temp_histone.CpGislandlist)):
+            for index in range(len(hist.CpGislandlist)):
                 
-                if(temp_histone.status=='m' and sample()<0.001133): # p on probability
-                    temp_histone.CpGislandlist[index] = 1
+                if(hist.status=='m' and sample()<0.001133): # p on probability
+                    hist.CpGislandlist[index] = 1
                     
                 if(sample()<p_off): # p off probability
-                    temp_histone.CpGislandlist[index] = 0   
+                    hist.CpGislandlist[index] = 0   
                             
         
-        temp_histone = temp_histone.k_minus()
-        temp_histone = temp_histone.k_ace()
-        temp_histone = temp_histone.k_plus()
+        hist = hist.k_minus()
+        hist = hist.k_ace()
+        hist = hist.k_plus()
         
-        temp_histone = temp_histone.DNAmethylation()
+        hist = hist.DNAmethylation()
 
-        result[i] = temp_histone
+        result.append(hist)
             
     T = A and (num_acetylated_in_window > 5) 
     """
