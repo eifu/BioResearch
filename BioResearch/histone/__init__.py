@@ -10,19 +10,19 @@ class Histone(object):
     methylation modeling. This class allows users to create
     a histone object.
     """
-    K_PLUS_DEFAULT= 0.176
-    K_PLUS2_DEFAULT= 0.17
-    K_MINUS_DEFAULT= 0.117
-    K_ACE_DEFAULT = 0.12
+
 
     def __init__(self,position=0,
-                 K_PLUS     =   K_PLUS_DEFAULT,
-                 K_PLUS2    =   K_PLUS2_DEFAULT,
-                 K_MINUS    =   K_MINUS_DEFAULT,
+                 K_PLUS     =   0.176,
+                 K_PLUS2    =   0.17,
+                 K_MINUS    =   0.117,
                  A_bool     =   False,
-                 K_ACE      =   K_ACE_DEFAULT,
-                 nextNode=None,preNode=None,
-                 percentage=50,copy=False,copy_histone=None):
+                 K_ACE      =   0.12,
+                 nextNode=None,
+                 preNode=None,
+                 percentage=50,
+                 copy=False,
+                 copy_histone=None):
         """
         Initialize the histone. The position must be
         specified, but K_PLUS, K_MINUS, nextNode, preNode,
@@ -48,10 +48,7 @@ class Histone(object):
 
             self.nextNode = copy_histone.nextNode # doubly-linked
             if(copy_histone.nextNode !=None): copy_histone.nextNode.preNode = self 
-            
-            
-            self.CpGislandlist = copy_histone.CpGislandlist
-           
+                       
                 
 
         else:
@@ -66,14 +63,7 @@ class Histone(object):
             Histone.K_PLUS2 = K_PLUS2
             Histone.K_MINUS = K_MINUS
             
-            if position ==-2:
-                self.CpGislandlist = [0,0,0,0]
-            elif position == -1:
-                self.CpGislandlist = [0,0,0,0]
-            elif position == 0:
-                self.CpGislandlist = [0,0]
-            else:
-                self.CpGislandlist = []
+
             
             
     def set_adjHistone(self,nextNode):
@@ -85,7 +75,7 @@ class Histone(object):
     
     def set_K_ACE(self,A):
         if(A==True):
-            Histone.K_ACE = Histone.K_ACE_DEFAULT
+            Histone.K_ACE = 0.12 # K_ace default value
         else:
             Histone.K_ACE = 0
     
@@ -135,7 +125,7 @@ class Histone(object):
             st = "acetilated"
         else:
             st = "unmethylated"
-        sentence = "pos: {} \tstatus: {}".format(self.position,st)
+        sentence = "pos: {}  status: {}\t".format(self.position,st)
         return sentence
 
     def display(self):
@@ -158,7 +148,7 @@ class MHistone(Histone):
     def __init__(self,**kwarg):
         super().__init__(**kwarg)
         self.status="m"
-
+    
         
 
 class UHistone(Histone):
@@ -175,20 +165,9 @@ class UHistone(Histone):
     def k_minus(self): return self
 
     def k_ace(self):
-        if(1 in self.CpGislandlist):
-            return self
-        """
-        if histone has CpG island on it, then it wont be accetilated.
-        """
-        
         if(sample()<Histone.K_ACE):return AHistone(copy=True,copy_histone=self)
         return self
 
-    def DNAmethylation(self):
-        if( sample() < sum(self.CpGislandlist)*Histone.K_PLUS): 
-            return MHistone(copy=True,copy_histone=self)
-        else:   
-            return self
 
 
 class AHistone(Histone):
@@ -203,45 +182,202 @@ class AHistone(Histone):
         return self
 
 
+class Histone_Oct4(Histone):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        if(kwargs.pop('copy',None)==True):
+            self.CpGislandlist = kwargs.pop('copy_histone',None).CpGislandlist
+        else:
+            position = kwargs.pop('position',0)
+            if position ==-2:
+                self.CpGislandlist = [0,0,0,0]
+            elif position == -1:
+                self.CpGislandlist = [0,0,0,0]
+            elif position == 0:
+                self.CpGislandlist = [0,0]
+            else:
+                self.CpGislandlist = []
 
-def createRandomHistoneList(percentage=50,A=1,
-                            NUM_OF_HISTONE=81,BEFORE_PROMOTER=40,
-                            K_PLUS=0.12,
-                            K_MINUS=0.117,
-                            K_PLUS2=0.12,
-                            K_ACE=0.12):
+class MHistone_Oct4(Histone_Oct4):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.status = "m"
+        
+    def k_minus(self):
+        if(sample()<Histone.K_MINUS):return UHistone_Oct4(copy=True,copy_histone=self)
+        return self
+
+class UHistone_Oct4(Histone_Oct4):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.status = "u"
+    def k_plus(self):
+        if(self.preNode != None and self.preNode.status == "m" and sample() < Histone.K_PLUS): return MHistone_Oct4(copy=True,copy_histone=self)
+        if(self.nextNode != None and self.nextNode.status == "m" and sample() < Histone.K_PLUS): return MHistone_Oct4(copy=True,copy_histone=self)
+        return self
+
+    def k_minus(self): return self
+
+    def k_ace(self):
+        if(1 in self.CpGislandlist):
+            return self
+        """
+        if histone has CpG island on it, then it wont be accetilated.
+        """
+        
+        if(sample()<Histone.K_ACE):
+            return AHistone_Oct4(copy=True,copy_histone=self)
+        else:
+            return self
+
+    def DNAmethylation(self):
+        if( sample() < sum(self.CpGislandlist)*Histone.K_PLUS): 
+            return MHistone_Oct4(copy=True,copy_histone=self)
+        else:   
+            return self
+        
+class AHistone_Oct4(Histone_Oct4):
+    
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.status = "a"
+        
+    def k_plus(self):
+        
+        if(self.preNode != None and 
+           self.preNode.status == "m" and sample() < Histone.K_PLUS2):
+            return UHistone_Oct4(copy=True,copy_histone=self)
+        
+        if(self.nextNode != None and
+            self.nextNode.status == "m" and sample() < Histone.K_PLUS2):
+            return UHistone_Oct4(copy=True,copy_histone=self)
+        
+        return self
+
+def createRandomHistoneList(percentage=50,
+                            A=1,
+                            NUM_OF_HISTONE=81,
+                            K_PLUS = 0.176,
+                            K_PLUS2 = 0.17,
+                            K_MINUS = 0.117,
+                            K_ACE = 0.12):
     """
     percentage ... the probability of having methylated hitone.
     this method returns a list of histone randomly generated with respect to
     the inputs.
     """
-    dstList = []
+    before_promoter = NUM_OF_HISTONE//2
+    dstList = [] ## dstList stores histones
     ratio = percentage/100  ## ratio should be float number between 0 and 1
 
     for i in range(NUM_OF_HISTONE):
 
-        if(sample() < ratio):dstList.append(MHistone(position=i-BEFORE_PROMOTER,
-                                                     K_PLUS=K_PLUS,
-                                                     K_PLUS2=K_PLUS2,
-                                                     K_MINUS=K_MINUS,
-                                                     K_ACE=K_ACE,
-                                                     A_bool=A,percentage=percentage))
-        else:dstList.append(AHistone(position=i-BEFORE_PROMOTER,
+        if(sample() < ratio):
+            dstList.append(MHistone(position=i-before_promoter,
+                                    K_PLUS=K_PLUS,
+                                    K_PLUS2=K_PLUS2,
+                                    K_MINUS=K_MINUS,
+                                    K_ACE=K_ACE,
+                                    A_bool=A,
+                                    percentage=percentage))
+        else:
+            dstList.append(AHistone(position=i-before_promoter,
                                      K_PLUS=K_PLUS,
                                      K_PLUS2=K_PLUS2,
                                      K_MINUS=K_MINUS,
                                      K_ACE=K_ACE,
-                                     A_bool=A,percentage=percentage))
+                                     A_bool=A,
+                                     percentage=percentage))
 
         dstList[i-1].set_adjHistone(dstList[i])
     
-    dstList[0].preNode = None
+    dstList[0].preNode = None # disjoint the edge histone to itself.
     return dstList
 
         
+def createRandomHistoneList_Oct4(percentage=50,
+                            A=1,
+                            NUM_OF_HISTONE=81,
+                            BEFORE_PROMOTER=40,
+                            K_PLUS = 0.176,
+                            K_PLUS2 = 0.17,
+                            K_MINUS = 0.117,
+                            K_ACE = 0.12):
+    """
+    this method is a modified version of createRandomHistoneList
+    used for Oct4 histones.
+    """
+    before_promoter = NUM_OF_HISTONE//2
+    hstList = [] ## dstList stores histones
+    ratio = percentage/100  ## ratio should be float number between 0 and 1
 
+    for i in range(NUM_OF_HISTONE):
 
-def nextGen(histoneList,A,R,window,p_off=0.001179):
+        if(sample() < ratio):
+            hstList.append(MHistone_Oct4(position=i-before_promoter,
+                                         K_PLUS=K_PLUS,
+                                         K_PLUS2=K_PLUS2,
+                                         K_MINUS=K_MINUS,
+                                         K_ACE=K_ACE,
+                                         A_bool=A,
+                                         percentage=percentage)
+                           )
+        else:
+            hstList.append(AHistone_Oct4(position=i-before_promoter,
+                                         K_PLUS=K_PLUS,
+                                         K_PLUS2=K_PLUS2,
+                                         K_MINUS=K_MINUS,
+                                         K_ACE=K_ACE,
+                                         A_bool=A,
+                                         percentage=percentage)
+                           )
+
+        hstList[i-1].set_adjHistone(hstList[i])
+    
+    hstList[0].preNode = None
+    return hstList
+
+def nextGen(histoneList, A, R, window):
+    """
+    this method takes histone list and returns the next generation out of them.
+    """
+    result = []
+    num_acetylated_in_window = 0
+    num_methylated_in_window = 0
+
+    for hist in histoneList:
+        
+        if(-window//2 <= hist.position and hist.position<= window//2):
+            if(hist.status == "a"):
+                num_acetylated_in_window += 1
+            elif(hist.status == "m"):
+                num_methylated_in_window += 1
+                
+                            
+        
+        hist = hist.k_minus()
+        hist = hist.k_ace()
+        hist = hist.k_plus()
+        
+        result.append(hist)
+            
+    T = A and (num_acetylated_in_window > 5) 
+    """
+    WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
+    so acetylated histones will be dominant if non-acetylated histones are less than 5.
+    """
+    if(R == 1):    
+        Eext = (not T)  
+    else:
+        Eext = num_methylated_in_window > 2;
+        
+        
+    if(Eext == True):
+        result[len(histoneList)//2] = MHistone(copy=True,copy_histone=result[len(histoneList)//2])
+        
+    return {"list":result,"T":T,"Eext":Eext}
+
+def nextGen_Oct4(histoneList,A,R,window,p_off=0.001179):
     """
     this method takes histone list and returns the next generation of them.
     """
@@ -286,7 +422,7 @@ def nextGen(histoneList,A,R,window,p_off=0.001179):
         
         
     if(Eext == True):
-        result[len(histoneList)//2] = MHistone(copy=True,copy_histone=result[len(histoneList)//2])
+        result[len(histoneList)//2] = MHistone_Oct4(copy=True,copy_histone=result[len(histoneList)//2])
         
     return {"list":result,"T":T,"Eext":Eext}
 
@@ -298,15 +434,22 @@ def bitvec(histoneList):
     v_mlist = np.array([1 if h.status == "m" else 0 for h in histoneList])
     v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
     v_ulist = np.array([1 if h.status == "u" else 0 for h in histoneList])
-    v_cpg = [sum(histone.CpGislandlist) for histone in histoneList]
-    """
-    v_cpg is not stored in an efficient way
-    @todo: change when we do not stick to Oct4
-    """
+
+    return np.array([v_mlist,
+                     v_alist,
+                     v_ulist],
+                    np.int32)
+
+def bitvec_Oct4(histoneList):
+    v_mlist = np.array([1 if h.status == "m" else 0 for h in histoneList])
+    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
+    v_ulist = np.array([1 if h.status == "u" else 0 for h in histoneList])
+    v_cpg = [sum(h.CpGislandlist) for h in histoneList]
+
     return np.array([v_mlist,
                      v_alist,
                      v_ulist,
-                     v_cpg],np.int32)
+                     v_cpg],np.int32)    
 
 def trackingHist(histoneList,time,A,R,T,window):
     for i in range(len(histoneList)):

@@ -1,10 +1,14 @@
 '''
-Created on Mar 18, 2016
-
+Created on May 23, 2016
 @author: eifu
 '''
 import unittest
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 import histone
+
+
 class TestHistone(unittest.TestCase):
     
     def testInitiate(self):
