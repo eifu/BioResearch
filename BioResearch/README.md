@@ -15,7 +15,7 @@ You need numpy library to run this module.
 
 ## Contributors
 
-* Eifu Tomita([eifu](https://github.com/eifu))
+* Eifu Tomita([@eifu](https://github.com/eifu))
 
 ## License
 
