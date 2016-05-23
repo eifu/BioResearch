@@ -432,24 +432,25 @@ def bitvec(histoneList):
     in which three bit vectors are stored. 
     """
     v_mlist = np.array([1 if h.status == "m" else 0 for h in histoneList])
-    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
     v_ulist = np.array([1 if h.status == "u" else 0 for h in histoneList])
-
+    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
+    
     return np.array([v_mlist,
-                     v_alist,
-                     v_ulist],
+                     v_ulist,
+                     v_alist],
                     np.int32)
 
 def bitvec_Oct4(histoneList):
     v_mlist = np.array([1 if h.status == "m" else 0 for h in histoneList])
-    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
     v_ulist = np.array([1 if h.status == "u" else 0 for h in histoneList])
+    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
     v_cpg = [sum(h.CpGislandlist) for h in histoneList]
 
     return np.array([v_mlist,
-                     v_alist,
                      v_ulist,
-                     v_cpg],np.int32)    
+                     v_alist,
+                     v_cpg],
+                    np.int32)    
 
 def trackingHist(histoneList,time,A,R,T,window):
     for i in range(len(histoneList)):

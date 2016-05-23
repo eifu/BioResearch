@@ -60,12 +60,13 @@ class TestHistone_Oct4(unittest.TestCase):
         
     
     def testbitvec(self):
-        histList = histone.createRandomHistoneList()
-        bitvec = histone.bitvec(histList)
+        histList = histone.createRandomHistoneList_Oct4()
+        bitvec = histone.bitvec_Oct4(histList)
         
         
         self.assertTrue(len(bitvec[0])==81, 'bitvec num failure')
         self.assertTrue(sum(bitvec[0])+sum(bitvec[1])+sum(bitvec[2])==81,'bitvec distri failure')
+        self.assertTrue(sum(bitvec[3])==0,'something wrong in CpG island site')
         
 if __name__ == 'main':
     unittest.main()
