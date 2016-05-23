@@ -48,9 +48,7 @@ class TestHistone_Oct4(unittest.TestCase):
     
     def testNextGen(self):
         hstList = histone.createRandomHistoneList_Oct4(percentage = 100,
-                                                       NUM_OF_HISTONE=10)
-        ## hstList contains only methylated histones
-        
+                                                       NUM_OF_HISTONE=10)        
         dict = histone.nextGen_Oct4(hstList,1,1,2)
         
         hstList2 = dict['list']
@@ -62,8 +60,6 @@ class TestHistone_Oct4(unittest.TestCase):
     def testbitvec(self):
         histList = histone.createRandomHistoneList_Oct4()
         bitvec = histone.bitvec_Oct4(histList)
-        
-        
         self.assertTrue(len(bitvec[0])==81, 'bitvec num failure')
         self.assertTrue(sum(bitvec[0])+sum(bitvec[1])+sum(bitvec[2])==81,'bitvec distri failure')
         self.assertTrue(sum(bitvec[3])==0,'something wrong in CpG island site')

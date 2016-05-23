@@ -394,7 +394,6 @@ def nextGen_Oct4(histoneList,A,R,window,p_off=0.001179):
                 num_methylated_in_window += 1
                 
             for index in range(len(hist.CpGislandlist)):
-                
                 if(hist.status=='m' and sample()<0.001133): # p on probability
                     hist.CpGislandlist[index] = 1
                     
