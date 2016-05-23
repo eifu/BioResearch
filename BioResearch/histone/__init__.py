@@ -177,15 +177,18 @@ class UHistone(Histone):
     def k_ace(self):
         if(1 in self.CpGislandlist):
             return self
+        """
+        if histone has CpG island on it, then it wont be accetilated.
+        """
         
         if(sample()<Histone.K_ACE):return AHistone(copy=True,copy_histone=self)
         return self
 
     def DNAmethylation(self):
-        if( sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
-        if( sample() < sum(self.CpGislandlist)*Histone.K_PLUS): return MHistone(copy=True,copy_histone=self)
-
-        return self
+        if( sample() < sum(self.CpGislandlist)*Histone.K_PLUS): 
+            return MHistone(copy=True,copy_histone=self)
+        else:   
+            return self
 
 
 class AHistone(Histone):
