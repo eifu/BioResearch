@@ -70,7 +70,7 @@ class TestHistone(unittest.TestCase):
     def testNextGen(self):
         histList = histone.createRandomHistoneList()
         dictH = histone.nextGen(histList, 0, 1, 10)
-        histList2 = dictH["list"]
+        histList2 = dictH["hstL"]
         for hist1, hist2 in zip(histList,histList2):
             print(str(hist1) +"   --> " + str(hist2))
         self.assertEqual(dictH["Eext"], 1, 'R1 does not work correctly')
@@ -84,10 +84,8 @@ class TestHistone(unittest.TestCase):
         histL = [m1,m2,m3,m4,m5]
         
         dictH = histone.nextGen(histL, 1, 1 , 3)
-        histL2 = dictH["list"]
-#         self.assertNotEqual(histL2[2].status, 'm', 'K+ will not go beyond one neighbor at one time')
-#         self.assertNotEqual(histL2[3].status, 'm', 'K+ will not go beyond one neighbor at one time')
-#         self.assertNotEqual(histL2[4].status, 'm', 'K+ will not go beyond one neighbor at one time')
+        histL2 = dictH["hstL"]
+
         
         
 if __name__ == 'main':
