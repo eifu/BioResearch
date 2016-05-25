@@ -286,7 +286,7 @@ class AHistone_Oct4(Histone_Oct4):
 
 def createRandomHistoneList(percentage=50,
                             A_bool=1,
-                            NUM_OF_HISTONE=81,
+                            nHst=81,
                             K_PLUS = 0.176,
                             K_PLUS2 = 0.17,
                             K_MINUS = 0.117,
@@ -296,11 +296,11 @@ def createRandomHistoneList(percentage=50,
     this method returns a list of histone randomly generated with respect to
     the inputs.
     """
-    before_promoter = NUM_OF_HISTONE//2
+    before_promoter = nHst//2
     hstList = [] # hstList stores histones
     ratio = percentage/100  ## ratio should be float number between 0 and 1
 
-    for i in range(NUM_OF_HISTONE):
+    for i in range(nHst):
 
         if sample() < ratio:
             hstList.append(MHistone(position=i-before_promoter,
@@ -329,7 +329,7 @@ def createRandomHistoneList(percentage=50,
         
 def createRandomHistoneList_Oct4(percentage=50,
                             A_bool=1,
-                            NUM_OF_HISTONE=81,
+                            nHst=81,
                             K_PLUS = 0.176,
                             K_PLUS2 = 0.17,
                             K_MINUS = 0.117,
@@ -338,11 +338,11 @@ def createRandomHistoneList_Oct4(percentage=50,
     this method is a modified version of createRandomHistoneList
     used for Oct4 histones.
     """
-    before_promoter = NUM_OF_HISTONE//2
+    before_promoter = nHst//2
     hstList = [] # hstList stores histones
     ratio = percentage/100  # ratio should be float number between 0 and 1
 
-    for i in range(NUM_OF_HISTONE):
+    for i in range(nHst):
 
         if sample() < ratio:
             hstList.append(MHistone_Oct4(position=i-before_promoter,
@@ -368,121 +368,118 @@ def createRandomHistoneList_Oct4(percentage=50,
     hstList[0].preNode = None # disjoint the edge histone to itself.
     return hstList
 
-def nextGen(histoneList, A, R, window):
+def nextGen(hstList, A_bool, R_bool, window):
     """
     this method takes histone list and returns the next generation out of them.
     """
-    result = []
-    num_acetylated_in_window = 0
-    num_methylated_in_window = 0
+    nexthstL = []
+    num_aHst_in_w = 0
+    num_mHst_in_w = 0
 
-    for hist in histoneList:
+    for hst in hstList:
         
-        if -window//2 <= hist.position and hist.position<= window//2:
-            if hist.status == "a":
-                num_acetylated_in_window += 1
-            elif hist.status == "m":
-                num_methylated_in_window += 1
+        if -window//2 <= hst.position and hst.position<= window//2:
+            if hst.status == "a":
+                num_aHst_in_w += 1
+            elif hst.status == "m":
+                num_mHst_in_w += 1
                 
                             
         
-        hist = hist.k_minus()
-        hist = hist.k_ace() 
-        hist = hist.k_plus()
+        hst = hst.k_minus()
+        hst = hst.k_ace() 
+        hst = hst.k_plus()
         
-        result.append(hist)
+        nexthstL.append(hst)
             
-    T = A and (num_acetylated_in_window>5) 
+    T_bool = A_bool and (num_aHst_in_w>5) 
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
-    if R == 1:    
-        Eext = not T
+    if R_bool == 1:    
+        Eext_bool = not T_bool
     else:
-        Eext = num_methylated_in_window > 2;
+        Eext_bool = num_mHst_in_w > 2;
         
         
-    if Eext == True:
-        center = len(histoneList)//2
-        result[center] = MHistone(copy=True,copy_histone=result[center])
+    if Eext_bool == True:
+        center = len(hstL)//2
+        nexthstL[center] = MHistone(copy=True,copy_histone=nexthstL[center])
         
-    return {"hstL":result,"T":T,"Eext":Eext}
+    return {"hstL":nexthstL,"T":T_bool,"Eext":Eext_bool}
 
-def nextGen_Oct4(histoneList,A,R,window,p_off):
+def nextGen_Oct4(hstList,A_bool,R_bool,window,p_off):
     """
     this method takes histone list and returns the next generation of them.
     """
-    result = []
-    num_acetylated_in_window = 0
-    num_methylated_in_window = 0
+    nexthstL = []
+    num_aHst_in_w = 0
+    num_mHst_in_w = 0
 
-    for hist in histoneList:
-        if -window//2 <= hist.position and hist.position<= window//2:
-            if hist.status == "a":
-                num_acetylated_in_window += 1
-            elif hist.status == "m":
-                num_methylated_in_window += 1
+    for hst in hstList:
+        if -window//2 <= hst.position and hst.position<= window//2:
+            if hst.status == "a":
+                num_aHst_in_w += 1
+            elif hst.status == "m":
+                num_mHst_in_w += 1
                 
-            for index in range(len(hist.CpGislandlist)):
+            for index in range(len(hst.CpGislandlist)):
                 print("donedone!!")
 
                 # p_on probability
-                s = sample()
-                if hist.status == 'm' and s< 0.001133: 
-                    hist.CpGislandlist[index] = 1
-                    print("donedone!!")
-                else:
-                    print(s)
+                if hst.status == 'm' and sample() < 0.001133: 
+                    hst.CpGislandlist[index] = 1
+
                 # p_off probability   
                 if sample() < p_off: 
-                    hist.CpGislandlist[index] = 0   
+                    hst.CpGislandlist[index] = 0   
                             
         
-        hist = hist.k_minus()
-        hist = hist.k_ace()
-        hist = hist.k_plus()
+        hst = hst.k_minus()
+        hst = hst.k_ace()
+        hst = hst.k_plus()
         
-        hist = hist.DNAmethylation()
+        hst = hst.DNAmethylation()
 
-        result.append(hist)
+        nexthstL.append(hst)
             
-    T = A and (num_acetylated_in_window>window//2) 
+    T_bool = A_bool and (num_aHst_in_w>window//2) 
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
-    if R == 1:    
-        Eext = (not T)  
+    if R_bool == 1:    
+        Eext_bool = (not T_bool)  
     else:
-        Eext = num_methylated_in_window > 2;
+        Eext_bool = num_mHst_in_w > 2;
         
         
-    if Eext == True:
+    if Eext_bool == True:
         center = len(histoneList)//2
-        result[center] = MHistone_Oct4(copy=True,copy_histone=result[center])
+        nexthstL[center] = MHistone_Oct4(copy=True,copy_histone=nexthstL[center])
         
-    return {"hstL":result,"T":T,"Eext":Eext}
+    return {"hstL":nexthstL,"T":T_bool,"Eext":Eext_bool}
 
-def vectorize(histoneList):
+def vectorize(hstL):
     """
     this method takes a list of histone objects, and returns three dimention numpy array
     in which three bit vectors are stored. 
     """
-    v_mlist = np.array([1 if h.status == "m" else 0 for h in histoneList])
-    v_ulist = np.array([1 if h.status == "u" else 0 for h in histoneList])
-    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
+    v_mlist = np.array([1 if h.status == "m" else 0 for h in hstL])
+    v_ulist = np.array([1 if h.status == "u" else 0 for h in hstL])
+    v_alist = np.array([1 if h.status == "a" else 0 for h in hstL])
     
     return np.array([v_mlist,
                      v_ulist,
                      v_alist],
                     np.int32)
 
-def vectorize_Oct4(histoneList):
-    v_mlist = np.array([1 if h.status == "m" else 0 for h in histoneList])
-    v_ulist = np.array([1 if h.status == "u" else 0 for h in histoneList])
-    v_alist = np.array([1 if h.status == "a" else 0 for h in histoneList])
-    v_cpg = [sum(h.CpGislandlist) for h in histoneList]
+def vectorize_Oct4(hstL):
+    v_mlist = np.array([1 if h.status == "m" else 0 for h in hstL])
+    v_ulist = np.array([1 if h.status == "u" else 0 for h in hstL])
+    v_alist = np.array([1 if h.status == "a" else 0 for h in hstL])
+    v_cpg = [sum(h.CpGislandlist) for h in hstL]
 
     return np.array([v_mlist,
                      v_ulist,
@@ -490,27 +487,27 @@ def vectorize_Oct4(histoneList):
                      v_cpg],
                     np.int32)    
 
-def trackingHist(histoneList, # initial histone list
+def trackingHist(hstL, # initial histone list
                  time, # time for tracking (in hour)
                  A_bool, # activator bool
                  R_bool, # repressor bool
                  T_bool, # transcription bool
                  window=10 # default is 10
                 ):
-    for i in range(len(histoneList)):
-        histoneList[i].set_K_ACE(A_bool)
-    toBeListOfBitVec = [] # array of compressed data of vectors
-    toBeListOfT = [] # one dimension array 
+    for i in range(len(hstL)):
+        hstL[i].set_K_ACE(A_bool)
+    tobeVecL = [] # array of compressed data of vectors
+    tobeTList = [] # one dimension array 
     for _ in range(time):        
-        toBeListOfBitVec.append(vectorize(histoneList))
-        toBeListOfT.append(T_bool)
-        dictH = nextGen(histoneList,A_bool,R_bool,window)
-        histoneList = dictH["hstL"]
+        tobeVecL.append(vectorize(hstL))
+        tobeTList.append(T_bool)
+        dictH = nextGen(hstL,A_bool,R_bool,window)
+        hstL = dictH["hstL"]
         T_bool = dictH["T"]
 
-    return {"vectorize":np.array(toBeListOfBitVec),"hstL":histoneList,"TList":toBeListOfT}
+    return {"vectorize":np.array(tobeVecL),"hstL":hstL,"TList":tobeTList}
 
-def trackingHist_Oct4(histoneList, # initial histone list 
+def trackingHist_Oct4(hstL, # initial histone list 
                       time, # time for tracking (in hour)
                       A_bool, # activator bool 
                       R_bool, # repressor bool
@@ -520,16 +517,16 @@ def trackingHist_Oct4(histoneList, # initial histone list
                      ):
     for i in range(len(histoneList)):
         histoneList[i].set_K_ACE(A_bool)
-    toBeListOfBitVec = [] # array of compressed data of vectors
-    toBeListOfT = [] # one dimension array 
+    tobeVecL = [] # array of compressed data of vectors
+    tobeTList = [] # one dimension array 
     for _ in range(time):        
-        toBeListOfBitVec.append(vectorize_Oct4(histoneList))
-        toBeListOfT.append(T_bool)
-        dictH = nextGen_Oct4(histoneList,A_bool,R_bool,window,p_off)
-        histoneList = dictH["hstL"]
+        tobeVecL.append(vectorize_Oct4(hstL))
+        tobeTList.append(T_bool)
+        dictH = nextGen_Oct4(hstL,A_bool,R_bool,window,p_off)
+        hstL = dictH["hstL"]
         T_bool = dictH["T"]
 
-    return {"vectorize":np.array(toBeListOfBitVec),"hstL":histoneList,"TList":toBeListOfT} 
+    return {"vectorize":np.array(tobeVecL),"hstL":hstL,"TList":tobeTList} 
 
 def getTimeDiedOut(ls_of_bitvec):
     for time in range(len(ls_of_bitvec)):
