@@ -37,7 +37,7 @@ class TestHistone_Oct4(unittest.TestCase):
         self.assertEqual(tes3.status, 'a', 'status failue3')
 
     def testRandomGenerator(self):
-        hstList = histone.createRandomHistoneList_Oct4(NUM_OF_HISTONE=10)
+        hstList = histone.createRandomHistoneList_Oct4(nHst=10)
         
         self.assertEqual(len(hstList),10,"failure create appropriate length of list")
         self.assertEqual(hstList[3].CpGislandlist, [0,0,0,0], "failure set up CpG island1")
@@ -48,8 +48,8 @@ class TestHistone_Oct4(unittest.TestCase):
     
     def testNextGen(self):
         hstList = histone.createRandomHistoneList_Oct4(percentage = 100,
-                                                       NUM_OF_HISTONE=10)        
-        dict = histone.nextGen_Oct4(hstList,1,1,2)
+                                                       nHst=10)        
+        dict = histone.nextGen_Oct4(hstList,1,1,2,0.01)
         
         hstList2 = dict['hstL']
         for hst1, hst2 in zip(hstList,hstList2):
@@ -66,7 +66,7 @@ class TestHistone_Oct4(unittest.TestCase):
         self.assertTrue(sum(vect[3])==0,'something wrong in CpG island site')
         
     def testTrackingHist(self):
-        hstL = histone.createRandomHistoneList_Oct4(NUM_OF_HISTONE=10)
+        hstL = histone.createRandomHistoneList_Oct4(nHst=10)
         dictH = histone.trackingHist_Oct4(hstL,
                                          20, # time
                                          1, # activator
@@ -75,7 +75,7 @@ class TestHistone_Oct4(unittest.TestCase):
                                          2,# window
                                          0.001 # p_off
                                         )
-        bit = dictH['bitvec']
+        bit = dictH['vectorize']
         for b in bit:
             print(str(b[0])+"  "+str(b[1])+ "  "+str(b[2]))
         

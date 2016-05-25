@@ -57,14 +57,14 @@ class TestHistone(unittest.TestCase):
 
     def testbitvec(self):
         histList = histone.createRandomHistoneList()
-        bitvec = histone.bitvec(histList)
+        bitvec = histone.vectorize(histList)
         self.assertTrue(len(bitvec[0])==81, 'bitvec num failure')
         self.assertTrue(sum(bitvec[0])+sum(bitvec[1])+sum(bitvec[2])==81,'bitvec distri failure')
         hs2 = histone.createRandomHistoneList(percentage=100)
-        bitvec2 = histone.bitvec(hs2)
+        bitvec2 = histone.vectorize(hs2)
         self.assertTrue(sum(bitvec2[0])==81,'methylated histone list failure')
         hs3 = histone.createRandomHistoneList(percentage=0)
-        bitvec3 = histone.bitvec(hs3)
+        bitvec3 = histone.vectorize(hs3)
         self.assertTrue(sum(bitvec3[2])==81,'acetylated histone list failure')
 
     def testNextGen(self):

@@ -368,7 +368,7 @@ def createRandomHistoneList_Oct4(percentage=50,
     hstList[0].preNode = None # disjoint the edge histone to itself.
     return hstList
 
-def nextGen(hstList, A_bool, R_bool, window):
+def nextGen(hstL, A_bool, R_bool, window):
     """
     this method takes histone list and returns the next generation out of them.
     """
@@ -376,7 +376,7 @@ def nextGen(hstList, A_bool, R_bool, window):
     num_aHst_in_w = 0
     num_mHst_in_w = 0
 
-    for hst in hstList:
+    for hst in hstL:
         
         if -window//2 <= hst.position and hst.position<= window//2:
             if hst.status == "a":
@@ -409,7 +409,7 @@ def nextGen(hstList, A_bool, R_bool, window):
         
     return {"hstL":nexthstL,"T":T_bool,"Eext":Eext_bool}
 
-def nextGen_Oct4(hstList,A_bool,R_bool,window,p_off):
+def nextGen_Oct4(hstL,A_bool,R_bool,window,p_off):
     """
     this method takes histone list and returns the next generation of them.
     """
@@ -417,7 +417,7 @@ def nextGen_Oct4(hstList,A_bool,R_bool,window,p_off):
     num_aHst_in_w = 0
     num_mHst_in_w = 0
 
-    for hst in hstList:
+    for hst in hstL:
         if -window//2 <= hst.position and hst.position<= window//2:
             if hst.status == "a":
                 num_aHst_in_w += 1
@@ -456,7 +456,7 @@ def nextGen_Oct4(hstList,A_bool,R_bool,window,p_off):
         
         
     if Eext_bool == True:
-        center = len(histoneList)//2
+        center = len(hstL)//2
         nexthstL[center] = MHistone_Oct4(copy=True,copy_histone=nexthstL[center])
         
     return {"hstL":nexthstL,"T":T_bool,"Eext":Eext_bool}
@@ -515,8 +515,8 @@ def trackingHist_Oct4(hstL, # initial histone list
                       p_off, # prob of CpG island site gets OFF
                       window=10 # default is 10
                      ):
-    for i in range(len(histoneList)):
-        histoneList[i].set_K_ACE(A_bool)
+    for i in range(len(hstL)):
+        hstL[i].set_K_ACE(A_bool)
     tobeVecL = [] # array of compressed data of vectors
     tobeTList = [] # one dimension array 
     for _ in range(time):        
