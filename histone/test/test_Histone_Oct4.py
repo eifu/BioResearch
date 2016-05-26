@@ -37,24 +37,23 @@ class TestHistone_Oct4(unittest.TestCase):
         self.assertEqual(tes3.status, 'a', 'status failue3')
 
     def testRandomGenerator(self):
-        hstList = histone.createRandomHistoneList_Oct4(nHst=10)
+        hstList = histone.createRandomHistoneList_Oct4(hst_n=10)
         
         self.assertEqual(len(hstList),10,"failure create appropriate length of list")
         self.assertEqual(hstList[3].CpGislandlist, [0,0,0,0], "failure set up CpG island1")
         self.assertEqual(hstList[4].CpGislandlist, [0,0,0,0], "failure set up CpG island2")
         self.assertEqual(hstList[5].CpGislandlist, [0,0], "failure set up CpG island3")
         self.assertEqual(hstList[6].CpGislandlist, [], "failure set up CpG island4")
-        
-    
+
     def testNextGen(self):
-        hstList = histone.createRandomHistoneList_Oct4(percentage = 100,
-                                                       nHst=10)        
+        hstList = histone.createRandomHistoneList_Oct4(percentage=100,
+                                                       hst_n=10)
         dict = histone.nextGen_Oct4(hstList,1,1,2,0.01)
         
         hstList2 = dict['hstL']
         for hst1, hst2 in zip(hstList,hstList2):
             print(str(hst1) +" "+ str(hst1.CpGislandlist)+ "  --> " + str(hst2)+ " "+str(hst2.CpGislandlist))
-            # todo it should not do multiple transaction like methylated histone to acetyplated histone
+            # todo it should not do multiple transaction like methylated histone to acetylated histone
 #             self.assertNotEqual(hst2.status, 'a', "something wrong")
         
     
@@ -66,7 +65,7 @@ class TestHistone_Oct4(unittest.TestCase):
         self.assertTrue(sum(vect[3])==0,'something wrong in CpG island site')
         
     def testTrackingHist(self):
-        hstL = histone.createRandomHistoneList_Oct4(nHst=10)
+        hstL = histone.createRandomHistoneList_Oct4(hst_n=10)
         dictH = histone.trackingHist_Oct4(hstL,
                                          20, # time
                                          1, # activator

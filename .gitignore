@@ -1,5 +1,6 @@
-/.DS_Store
-/exp*/
-/model*.py
-/s_*.py
-/*__pycache__/
+.DS_Store
+exp*/
+model*.py
+s_*.py
+*__pycache__/
+.idea/
