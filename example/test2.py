@@ -26,12 +26,12 @@ delta = 5
 
 def main():
     testnum = 0
-    for A in range(2):
-        for R in range(2):
-            submain(A,R)
-            testnum += 1
-            print(A*50+R*25)
-#     submain(1,1)    ## test case   
+    # for A in range(2):
+    #     for R in range(2):
+    #         submain(A,R)
+    #         testnum += 1
+    #         print(A*50+R*25)
+    submain(1,1)    ## test case
 
 
 def submain(A,R):
@@ -49,22 +49,22 @@ def subsubmain(A,R,secondA,secondR):
     submain1(fig,trackerList,R,A,secondR,secondA)
     submain3(fig,trackerList)
     submain4(fig,time,TEextTrackerList)
-#     submain1(fig,trackerList,R,A,secondR,secondA)
-    title = "exp1/exp1_1_histonesA{}R{}_to_A{}R{}.pdf".format(A,R,secondA,secondR)
+
+    title = "fig_test2/fig_test2_histonesA{}R{}_to_A{}R{}.pdf".format(A,R,secondA,secondR)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
 #     pyplot.show()
     
-def setHistones(A,R,secondA,secondR):
-    histoneList = histone.createRandomHistoneList(A=A)
+def setHistones(A,R):
+    histoneList = histone.init_genome(a_bool=A)
     T = 0
-    Eext = 0
-    return histone.trackingHistones2(histoneList=histoneList,
-                                   R=R,A=A,
-                                   secR =secondR,
-                                   secA =secondA,
-                                   T=T, Eext=Eext,TIME1=TIME1, TIME2=TIME2)
+    return histone.init_genome(hst_list=histoneList,
+                               a_bool=A,
+                               r_bool=R,
+                               t_bool=T,
+                               time=TIME1
+                               )
     
 def submain1(fig,trackerList,R,A,secondR,secondA):
     """
