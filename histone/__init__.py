@@ -284,7 +284,7 @@ class AHistoneOct4(HistoneOct4):
         return self
 
 
-def createRandomHistoneList(percentage=50,
+def init_genome(percentage=50,
                             a_bool=1,
                             hst_n=81,
                             kp=0.176,
@@ -327,7 +327,7 @@ def createRandomHistoneList(percentage=50,
     return hst_list
 
 
-def createRandomHistoneList_Oct4(percentage=50,
+def init_genome_oct4(percentage=50,
                                  a_bool=1,
                                  hst_n=81,
                                  kp=0.176,
@@ -369,7 +369,7 @@ def createRandomHistoneList_Oct4(percentage=50,
     return hst_list
 
 
-def nextGen(hst_list, a_bool, r_bool, window):
+def next_genome(hst_list, a_bool, r_bool, window):
     """
     this method takes histone list and returns the next generation out of them.
     """
@@ -408,7 +408,7 @@ def nextGen(hst_list, a_bool, r_bool, window):
     return {"hstL": nexthst_list, "T": t_bool, "Eext": eext_bool}
 
 
-def nextGen_Oct4(hst_list, a_bool, r_bool, window, p_off):
+def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
     """
     this method takes histone list and returns the next generation of them.
     """
@@ -493,13 +493,13 @@ def track_epigenetic_process(hst_list,  # initial histone list
                              window=10  # default is 10
                              ):
     for i in range(len(hst_list)):
-        hst_list[i].set_K_ACE(a_bool)
+        hst_list[i].set_ka(a_bool)
     vectorizedgene_list = []  # array of compressed data of vectors
     t_list = []  # one dimension array
     for _ in range(time):
         vectorizedgene_list.append(vectorize(hst_list))
         t_list.append(t_bool)
-        dict_hst = nextGen(hst_list, a_bool, r_bool, window)
+        dict_hst = next_genome(hst_list, a_bool, r_bool, window)
         hst_list = dict_hst["hstL"]
         t_bool = dict_hst["T"]
 
@@ -521,7 +521,7 @@ def track_epigenetic_process_oct4(hst_list,  # initial histone list
     for _ in range(time):
         vectorizedgene_list.append(vectorize_oct4(hst_list))
         t_list.append(t_bool)
-        dict_hst = nextGen_Oct4(hst_list, a_bool, r_bool, window, p_off)
+        dict_hst = next_genome_oct4(hst_list, a_bool, r_bool, window, p_off)
         hst_list = dict_hst["hstL"]
         t_bool = dict_hst["T"]
 

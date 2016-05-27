@@ -28,29 +28,31 @@ delta = 5
 def main():
     testnum = 0
     fig= pyplot.figure()
-    for A in range(2):
-        for R in range(2):
-            submain(fig,A,R,testnum)
-            testnum += 1
-            print(A*50+R*25)
-            
-#     submain(1,1)
+    # for A in range(2):
+    #     for R in range(2):
+    #         submain(fig,A,R,testnum)
+    #         testnum += 1
+    #         print(A*50+R*25)
 
-    fig.text(0.03,0.19,"$R+,A+$")
-    fig.text(0.03,0.39,"$R-,A+$")
-    fig.text(0.03,0.59,"$R+,A-$")
-    fig.text(0.03,0.79,"$R-,A-$")
+    submain(fig,1,1,1)
+
+    # fig.text(0.03,0.19,"$R+,A+$")
+    # fig.text(0.03,0.39,"$R-,A+$")
+    # fig.text(0.03,0.59,"$R+,A-$")
+    # fig.text(0.03,0.79,"$R-,A-$")
+    #
+    # fig.text(0.19,0.95,"$R-,A-$")
+    # fig.text(0.39,0.95,"$R+,A-$")
+    # fig.text(0.59,0.95,"$R-,A+$")
+    # fig.text(0.79,0.95,"$R+,A+$")
     
-    fig.text(0.19,0.95,"$R-,A-$")
-    fig.text(0.39,0.95,"$R+,A-$")
-    fig.text(0.59,0.95,"$R-,A+$")
-    fig.text(0.79,0.95,"$R+,A+$")
     
-    
-    title = "exp1/exp1_histones.pdf"
-    pp = PdfPages(title)
-    pp.savefig(fig)
-    pp.close()
+    # title = "figure1/fig1_histones.pdf"
+    # pp = PdfPages(title)
+    # pp.savefig(fig)
+    # pp.close()
+
+    pyplot.show()
 
 
 def submain(fig,A,R,num):
@@ -62,27 +64,28 @@ def submain(fig,A,R,num):
             print("   done")
 
 def subsubmain(fig,A,R,secondA,secondR,testnum):
-
-    trackerList, TEextTrackerList = setHistones(A, R, secondA, secondR)
+    dicth = setHistones(A,R)
+    vectorize, TTrackerList = dicth['vectorize'], dicth['TList']
     time = np.linspace(0,TIME1+TIME2-1,TIME1+TIME2)
     
 #     submain1(fig, trackerList,R,A,secondR,secondA)
 #     submain4(fig,time,finalTEextTrackerList,avg_first_T_on,testnum)
-    submain1(fig,trackerList,R,A,secondR,secondA,testnum)
+    submain1(fig,vectorize,R,A,testnum)
 
 #     pyplot.show()
     
-def setHistones(A,R,secondA,secondR):
-    histoneList = histone.createRandomHistoneList(A=A)
+def setHistones(A,R):
+    histoneList = histone.init_genome(a_bool=A)
     T = 0
     Eext = 0
-    return histone.trackingHistones2(histoneList=histoneList,
-                                   R=R,A=A,
-                                   secR =secondR,
-                                   secA =secondA,
-                                   T=T, Eext=Eext,TIME1=TIME1, TIME2=TIME2)
+    return histone.track_epigenetic_process(hst_list=histoneList,
+                                            a_bool=A,
+                                            r_bool=R,
+                                            t_bool=T,
+                                            time=TIME1
+                                            )
     
-def submain1(fig,trackerList,R,A,secondR,secondA,num):
+def submain1(fig,vectorize,R,A,num):
     """
     this function is to create a graph of all histones status
     """
@@ -90,10 +93,10 @@ def submain1(fig,trackerList,R,A,secondR,secondA,num):
     bx.tick_params(left ="off",labelleft="off")
 
     for h in range(NUM_OF_HISTONE):
-        trackerM = [i for i in range(TIME1+TIME2) if trackerList[h][i] == "m"]
+        trackerM = [i for i in range(TIME1) if vectorize[i][0][h] == 1]
         y = [h for i in range(len(trackerM))]
         bx.plot(trackerM,y,",",color = "blue")
-        trackerA = [i for i in range(TIME1+TIME2) if trackerList[h][i] == "a"]
+        trackerA = [i for i in range(TIME1) if vectorize[i][2][h] == 1]
         y = [h for i in range(len(trackerA))]
         bx.plot(trackerA,y,",",color = "red")
 
