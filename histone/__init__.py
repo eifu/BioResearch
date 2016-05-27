@@ -75,7 +75,7 @@ class Histone(object):
     def set_ka(self, a_bool):
         # set K_ace default value if A_bool is True
         if a_bool:
-            self.K_ACE = 0.12
+                self.K_ACE = 0.12
         else:
             self.K_ACE = 0
 

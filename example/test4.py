@@ -7,11 +7,15 @@ plot the histone data according to the environment change.
 """
 
 import histone
+from histone.figure import plotHist
+from histone.figure import plotWindow
+from histone.figure import plotT
+from histone.figure import plotStatistics
+from histone.figure import plotStatistics2
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 import matplotlib
-import math
 NUM_OF_HISTONE = 81
 WINDOW = 10
 TIME1 = 1000
@@ -45,12 +49,21 @@ def main():
 
     fig = plt.figure()
     
-    dictH = histone.track_epigenetic_process(hst_list=histoneList1,time=TIME1,a_bool=A,r_bool=R,t_bool=T)
+    dictH = histone.track_epigenetic_process(hst_list=histoneList1,
+                                             time=TIME1,
+                                             a_bool=A,
+                                             r_bool=R,
+                                             t_bool=T)
     tracker = dictH["vectorize"]
     hstL = dictH["hstL"]
     TList = dictH["TList"]
     
-    dictH2 = histone.track_epigenetic_process(hst_list=hstL,time=TIME2,a_bool=secA,r_bool=secR,t_bool=TList[-1])
+    dictH2 = histone.track_epigenetic_process(hst_list=hstL,
+                                              time=TIME2,
+                                              a_bool=secA,
+                                              r_bool=secR,
+                                              t_bool=TList[-1]
+                                              )
     tracker2 = dictH2["vectorize"]
     histL = dictH2["hstL"]
     TList2 = dictH2["TList"]
@@ -59,8 +72,8 @@ def main():
     plotHist(fig,finalTracker)
     plotT(fig, TList+TList2)
     plotWindow(fig, finalTracker)
-    dictStat1 = plotStatistics(fig, finalTracker)
-    dictStat2 = plotStatistics2(fig,finalTracker)
+    dictStat1 = plotStatistics(fig, tracker)
+    dictStat2 = plotStatistics2(fig,tracker2)
     plotTsum5days(fig, TList+TList2)
     
     plt.suptitle(r"R:{0}, A:{1} $\rightarrow$ R:{2}, A:{3}".format(R,A,secR,secA)
@@ -72,65 +85,6 @@ def main():
     pp.savefig(fig)
     pp.close()
 
-def plotStatistics(fig,l_of_bitvec):
-    bx = fig.add_subplot(9,4,22)
-
-    count_m = [0 for _ in range(WINDOW+1)]
-    count = 0
-    for h in range(NUM_OF_HISTONE//2- WINDOW//2,NUM_OF_HISTONE//2+ WINDOW//2+1):
-        for time in range(TIME1//2,TIME1,DELTA):
-            if(l_of_bitvec[time][0][h] == 1):
-                count_m[count] = count_m[count] + 1
-
-        count = count + 1
-    xaxis = [i for i in range(-WINDOW//2,WINDOW//2+1)]
-    bx.barh(xaxis,count_m,align="center")
-    bx.set_xticks([])
-    bx.set_yticks([])
-
-
-    print(count_m)
-    acc = 0
-    for i in range(WINDOW+1):
-        acc = acc + count_m[i]
-    AM = acc / len(count_m)
-
-    acc =0
-    for i in range(WINDOW+1):
-        acc = acc + (count_m[i] - AM)**2
-    SD = math.sqrt(acc/len(count_m))
-    return {"AM":AM,"SD":SD}
-
-
-
-def plotStatistics2(fig,l_of_bitvec):
-    bx = fig.add_subplot(9,4,24)
-
-    count_m = [0 for _ in range(WINDOW+1)]
-    count = 0
-    for h in range(NUM_OF_HISTONE//2- WINDOW//2,NUM_OF_HISTONE//2+ WINDOW//2+1):
-        for time in range(TIME1+(TIME2//2),TIME1+TIME2,DELTA):
-            if(l_of_bitvec[time][0][h] == 1):
-                count_m[count] = count_m[count] + 1
-
-        count = count + 1
-    xaxis = [i for i in range(-WINDOW//2,WINDOW//2+1)]
-    bx.barh(xaxis,count_m,align="center")
-    bx.set_xticks([])
-    bx.set_yticks([])
-
-    acc = 0
-    for i in range(WINDOW+1):
-        acc = acc + count_m[i]
-    AM = acc / len(count_m)
-
-    acc =0
-    for i in range(WINDOW+1):
-        acc = acc + (count_m[i] - AM)**2
-    SD = math.sqrt(acc/len(count_m))
-
-
-    return {"AM":AM,"SD":SD}
 
 def plotTsum5days(fig,TList):
     ax = fig.add_subplot(6,1,5)
@@ -174,68 +128,13 @@ def plotTsum5days(fig,TList):
         firstT2 = "none"
         
     ax.set_xlabel("initial T in the first half is " + str(firstT1)+"\n initial T in the second half is " + str(firstT2))
-    
-
-def plotT(fig,list_of_T):
-    ax = fig.add_subplot(9,1,4)
-    time = [i for i in range(len(list_of_T))]
-    ax.plot(time, list_of_T,"-", color="red")
-    ax.set_yticks([])
-    ax.set_ylim(-0.5,1.5)
-    ax.set_xlim(-0.5,TIME1+TIME2+0.5)
-    ax.set_xticks([])
 
 
-def getFirstT(list_of_T):
-    for i in range(len(list_of_T)):
-        if(list_of_T[i]==1):
+def getFirstT(TList):
+    for i,t in enumerate(TList):
+        if t == 1:
             return i
     return -1
-
-
-def plotWindow(fig, l_of_bitvec):
-    ax = fig.add_subplot(9,1,5)
-    for time in range(len(l_of_bitvec)):
-        y_position_m = [i-40 for i in range(NUM_OF_HISTONE//2-WINDOW//2,NUM_OF_HISTONE//2+WINDOW//2) if l_of_bitvec[time][0][i]==1]
-        x_position_m = np.array([1]*len(y_position_m))
-        
-        ax.plot(x_position_m*time,
-                y_position_m,
-                ",",color="blue")
-        
-        y_position_a = [i-40 for i in range(NUM_OF_HISTONE//2-WINDOW//2,NUM_OF_HISTONE//2+WINDOW//2) if l_of_bitvec[time][2][i]==1]
-        x_position_a = np.array([2]*len(y_position_a))
-        
-        ax.plot(x_position_a*time,
-                y_position_a,
-                ",",color="red")
-    
-    ax.set_xlim(-0.5,len(l_of_bitvec))
-    ax.set_ylim(-5,5)
-    ax.set_yticks([])
-    ax.set_xticks([])
-
-
-def plotHist(fig,list_of_bitvec_of_histoneList):
-    
-    ax = fig.add_subplot(3,1,1)
-    for time in range(len(list_of_bitvec_of_histoneList)):
-        y_position_m = [i-40 for i in range(NUM_OF_HISTONE) if list_of_bitvec_of_histoneList[time][0][i] == 1]
-        x_position_m = np.array([1]*np.sum(list_of_bitvec_of_histoneList[time][0]))
-                  
-        ax.plot(x_position_m*time,   ## time implies the x coordinates.
-                 y_position_m,         
-                 ",",color="blue")
-        
-        y_position_a = [i-40 for i in range(NUM_OF_HISTONE) if list_of_bitvec_of_histoneList[time][2][i] == 1]
-        x_position_a = np.array([1]*np.sum(list_of_bitvec_of_histoneList[time][2]))
-                  
-        ax.plot(x_position_a*time,
-                 y_position_a,
-                 ",",color="red")
-    
-    ax.set_xlim(-0.5,len(list_of_bitvec_of_histoneList)-0.5)
-    ax.set_ylim(-40.5,40.5)
 
 if __name__ == "__main__":
     main()
