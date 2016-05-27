@@ -4,3 +4,4 @@ model*.py
 s_*.py
 *__pycache__/
 .idea/
+test*.py
