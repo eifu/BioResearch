@@ -13,7 +13,6 @@ import numpy as np
 import matplotlib
 import math
 NUM_OF_HISTONE = 81
-BEFORE_PROMOTER= 40
 WINDOW = 10
 TIME1 = 1000
 TIME2 = 1000
@@ -21,39 +20,39 @@ DELTA = 5
 
 
 def main():
-    count = 0
-    for R in [0,1]:
-        for A in [0,1]:
-            for secR in [0,1]:
-                for secA in [0,1]:
-                    submain(R, A, secR, secA)
-                    print(count)
-                    count += 1
-    
-def submain(R,A,secR,secA):
+#     count = 0
+#     for R in [0,1]:
+#         for A in [0,1]:
+#             for secR in [0,1]:
+#                 for secA in [0,1]:
+#                     submain(R, A, secR, secA)
+#                     print(count)
+#                     count += 1
+#
+# def submain(R,A,secR,secA):
     #test case (A,R) 1,0 => 0,1
-#     R = 0
-#     A = 1
-#     secR = 1
-#     secA =  0
+    R = 0
+    A = 1
+    secR = 1
+    secA =  0
     
     T = 0
     plt.style.use('ggplot') 
-    font = {'family' : 'meiryo'}
+    font = {'family' : 'sans-serif'}
     matplotlib.rc('font', **font)
     
-    histoneList1 = histone.createRandomHistoneList(50, A, NUM_OF_HISTONE, BEFORE_PROMOTER)
+    histoneList1 = histone.init_genome(percentage=50, a_bool=A, hst_n=NUM_OF_HISTONE)
 
     fig = plt.figure()
     
-    dictH = trackingHist(histoneList1, TIME1, A,R,T)
-    tracker = dictH["bitvec"]
-    histL = dictH["histList"]
+    dictH = histone.track_epigenetic_process(hst_list=histoneList1,time=TIME1,a_bool=A,r_bool=R,t_bool=T)
+    tracker = dictH["vectorize"]
+    hstL = dictH["hstL"]
     TList = dictH["TList"]
     
-    dictH2=trackingHist(histL,TIME2,secA,secR,TList[-1])
-    tracker2 = dictH2["bitvec"]
-    histL = dictH2["histList"]
+    dictH2 = histone.track_epigenetic_process(hst_list=hstL,time=TIME2,a_bool=secA,r_bool=secR,t_bool=TList[-1])
+    tracker2 = dictH2["vectorize"]
+    histL = dictH2["hstL"]
     TList2 = dictH2["TList"]
     
     finalTracker = np.concatenate((tracker,tracker2))
@@ -68,53 +67,10 @@ def submain(R,A,secR,secA):
                   + "\n" + 
                   r"AM:{0:.3f} SD:{1:.3f} $\rightarrow$ AM:{2:.3f} SD:{3:.3f}".format(dictStat1["AM"], dictStat1["SD"],dictStat2["AM"], dictStat2["SD"] ))
 #     plt.show()
-    title = "exp3/exp3_R{}A{}__R{}A{}.pdf".format(R,A,secR,secA)
+    title = "fig_test4/test4_R{}A{}__R{}A{}.pdf".format(R,A,secR,secA)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
-
-    
-def trackingHist(histoneList,time,A,R,T):
-    for i in range(len(histoneList)):
-                histoneList[i].set_K_ACE(A)
-    toBeListOfBitVec = []
-    toBeListOfT = []
-    for _ in range(time):        
-        toBeListOfBitVec.append(histone.bitvec(histoneList))
-        toBeListOfT.append(T)
-        dictH = nextGen(histoneList, A, R)
-        histoneList = dictH["list"]
-        T = dictH["T"]
-
-    return {"bitvec":np.array(toBeListOfBitVec),"histList":histoneList,"TList":toBeListOfT}
-    
-def nextGen(histoneList,A,R):
-    result = [None for _ in range(NUM_OF_HISTONE)]
-    start = len(histoneList)//2 - WINDOW//2
-    end = len(histoneList)//2 + WINDOW//2
-    num_acetylated_in_window = 0
-
-    for i in range(len(histoneList)):
-        temp_histone = histoneList[i]
-        if(start <= i and i<= end):
-            if(temp_histone.status == "a"):
-                num_acetylated_in_window += 1
-        
-        
-        temp_histone = temp_histone.k_minus()
-        temp_histone = temp_histone.k_ace()
-        result[i] = temp_histone.k_plus()
-            
-    T = A and (num_acetylated_in_window > 5) 
-    """
-    WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
-    so acetylated histones will be dominant if non-acetylated histones are less than 5.
-    """
-    Eext = ((not T) and (not A)) or R
-    if(Eext == True):
-        result[len(histoneList)//2] = histone.MHistone(copy=True,copy_histone=result[len(histoneList)//2])
-        
-    return {"list":result,"T":T,"Eext":Eext}
 
 def plotStatistics(fig,l_of_bitvec):
     bx = fig.add_subplot(9,4,22)
@@ -229,11 +185,14 @@ def plotT(fig,list_of_T):
     ax.set_xlim(-0.5,TIME1+TIME2+0.5)
     ax.set_xticks([])
 
+
 def getFirstT(list_of_T):
     for i in range(len(list_of_T)):
         if(list_of_T[i]==1):
             return i
     return -1
+
+
 def plotWindow(fig, l_of_bitvec):
     ax = fig.add_subplot(9,1,5)
     for time in range(len(l_of_bitvec)):
@@ -244,8 +203,8 @@ def plotWindow(fig, l_of_bitvec):
                 y_position_m,
                 ",",color="blue")
         
-        y_position_a = [i-40 for i in range(NUM_OF_HISTONE//2-WINDOW//2,NUM_OF_HISTONE//2+WINDOW//2) if l_of_bitvec[time][1][i]==1]
-        x_position_a = np.array([1]*len(y_position_a))
+        y_position_a = [i-40 for i in range(NUM_OF_HISTONE//2-WINDOW//2,NUM_OF_HISTONE//2+WINDOW//2) if l_of_bitvec[time][2][i]==1]
+        x_position_a = np.array([2]*len(y_position_a))
         
         ax.plot(x_position_a*time,
                 y_position_a,
@@ -268,8 +227,8 @@ def plotHist(fig,list_of_bitvec_of_histoneList):
                  y_position_m,         
                  ",",color="blue")
         
-        y_position_a = [i-40 for i in range(NUM_OF_HISTONE) if list_of_bitvec_of_histoneList[time][1][i] == 1]
-        x_position_a = np.array([1]*np.sum(list_of_bitvec_of_histoneList[time][1]))
+        y_position_a = [i-40 for i in range(NUM_OF_HISTONE) if list_of_bitvec_of_histoneList[time][2][i] == 1]
+        x_position_a = np.array([1]*np.sum(list_of_bitvec_of_histoneList[time][2]))
                   
         ax.plot(x_position_a*time,
                  y_position_a,
@@ -278,8 +237,5 @@ def plotHist(fig,list_of_bitvec_of_histoneList):
     ax.set_xlim(-0.5,len(list_of_bitvec_of_histoneList)-0.5)
     ax.set_ylim(-40.5,40.5)
 
-
-    
-    
 if __name__ == "__main__":
     main()
