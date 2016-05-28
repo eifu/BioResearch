@@ -7,11 +7,7 @@ plot the histone data according to the environment change.
 """
 
 import histone
-from histone.figure import plotHist
-from histone.figure import plotWindow
-from histone.figure import plotT
-from histone.figure import plotStatistics
-from histone.figure import plotStatistics2
+import histone.figure as figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
@@ -38,7 +34,7 @@ def main():
     R = 0
     A = 1
     secR = 1
-    secA =  0
+    secA = 0
     
     T = 0
     plt.style.use('ggplot') 
@@ -69,11 +65,11 @@ def main():
     TList2 = dictH2["TList"]
     
     finalTracker = np.concatenate((tracker,tracker2))
-    plotHist(fig,finalTracker)
-    plotT(fig, TList+TList2)
-    plotWindow(fig, finalTracker)
-    dictStat1 = plotStatistics(fig, tracker)
-    dictStat2 = plotStatistics2(fig,tracker2)
+    figure.sequence(fig,finalTracker)
+    figure.transcription(fig, TList+TList2)
+    figure.window(fig, finalTracker)
+    dictStat1 = figure.m_stat(fig, tracker)
+    dictStat2 = figure.m_stat2(fig,tracker2)
     plotTsum5days(fig, TList+TList2)
     
     plt.suptitle(r"R:{0}, A:{1} $\rightarrow$ R:{2}, A:{3}".format(R,A,secR,secA)
