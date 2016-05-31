@@ -286,8 +286,8 @@ class AHistoneOct4(HistoneOct4):
 def init_genome(percentage=50,
                 a_bool=1,
                 hst_n=81,
-                kp=0.12,
-                kp2=0.12,
+                kp=0.176,
+                kp2=0.17,
                 km=0.117,
                 ka=0.12):
     """

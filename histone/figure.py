@@ -1,9 +1,5 @@
-import numpy as np
-import math
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.collections import PolyCollection
 from matplotlib.colors import colorConverter
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -103,7 +99,7 @@ def m_stat(fig, vectorizedgenome_timeseries):
 
     for each in count_m:
         acc += (each - AM) ** 2
-    SD = math.sqrt(acc / len(count_m))
+    SD = np.sqrt(acc / len(count_m))
     return {"AM": AM, "SD": SD}
 
 
@@ -137,7 +133,7 @@ def m_stat2(fig, vectorizedgenome_timeseries):
     for each in count_m:
         acc += (each - AM) ** 2
 
-    SD = math.sqrt(acc / len(count_m))
+    SD = np.sqrt(acc / len(count_m))
 
     return {"AM": AM, "SD": SD}
 
@@ -268,3 +264,53 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
     ax.set_zlim3d(0, example_n)
     ax.set_zticks([i for i in range(0, example_n + 1, example_n // 5)])
     ax.set_zticklabels(("0%", "20%", "40%", "60%", "80%", "100%"))
+
+
+def kineticmodel(fig, list_vectorized_gene_timeseries):
+    hst_n = len(list_vectorized_gene_timeseries[0][0][0])  # default 81
+    w = 11  # window default 11
+    time = len(list_vectorized_gene_timeseries[0])
+    example_n = len(list_vectorized_gene_timeseries)
+
+    ax = fig.add_subplot(1,1,1)
+
+    """
+    looking only at locus
+    """
+    genome_acc = []
+    list_am = []
+    list_sd = []
+    hours = np.arange(8*24)
+    "@todo should be 8*24 for hours"
+    for h in hours:
+        # genome_acc += list_vectorized_gene_timeseries[e]
+        container_m = np.array([0 for _ in range(0, w)])
+
+        for vectorized_gene_timeseries in list_vectorized_gene_timeseries:
+            print(h," hour  " ,vectorized_gene_timeseries[time // 2 + h][0][35:46])
+            container_m += vectorized_gene_timeseries[time // 2 + h][0][35:46]
+
+        # # print(container_m, sum(container_m)/10)
+        am = sum(container_m)/example_n
+        list_am.append(am)
+        acc_err = 0
+        for vectorized_gene_timeseries in list_vectorized_gene_timeseries:
+            print(am, sum(vectorized_gene_timeseries[time // 2 + h][0][35:46]), )
+            acc_err += pow(abs(am-sum(vectorized_gene_timeseries[time // 2 + h][0][35:46])), 2)
+        sd = np.sqrt(acc_err/example_n)
+        print("acc_err,  ",acc_err,"  sd ", sd)
+        list_sd.append(sd)
+
+    print(list_am)
+    print(list_sd)
+
+    ax.errorbar(hours, list_am, fmt='o-', label="data", mfc="tomato",
+                color="red", yerr=list_sd, ecolor="black")
+    ax.set_ylim(0,10)
+    ax.set_yticks(range(11))
+    ax.set_yticklabels((str(i)+"%" for i in range(0,101,10)))
+    ax.set_ylabel("Enrichment at locus")
+    ax.set_xlim(0,8*24)
+    ax.set_xticks([i for i in range(0,8*24+1,2*24)])
+    ax.set_xticklabels((i for i in range(0,9,2)))
+    ax.set_xlabel("time(day)")

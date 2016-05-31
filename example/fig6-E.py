@@ -14,7 +14,6 @@ NUM_OF_HISTONE = 81
 WINDOW = 10
 TIME1 = 1008 # 6 week
 TIME2 = 1008 # 6 week
-DELTA = 1
 
 NUMEXAMPLE = 500
 
@@ -28,15 +27,14 @@ def main():
 
     fig = plt.figure()
 
-    figure.dynamic_change(fig, list_tracker,DELTA)
+    figure.kineticmodel(fig, list_tracker)
 
     plt.show()
 
-    title = "figD/fig_test6__{}examples__{}delta.pdf".format(NUMEXAMPLE,DELTA)
+    title = "fig6-E/fig_test1__{}examples.pdf".format(NUMEXAMPLE)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
-
 
 def submain(count, list_tracker):
     R = 0
