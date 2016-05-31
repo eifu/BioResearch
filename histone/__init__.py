@@ -6,8 +6,8 @@ import numpy as np
 
 class Histone(object):
     def __init__(self, position=0,
-                 kp=0.176,
-                 kp2=0.17,
+                 kp=0.12,
+                 kp2=0.12,
                  km=0.117,
                  a_bool=False,
                  ka=0.12,
@@ -119,7 +119,6 @@ class Histone(object):
         """
         return all info about the instance of this object.
         """
-        st = ''
         if self.status == 'm':
             st = "methylated"
         elif self.status == 'a':
@@ -285,12 +284,12 @@ class AHistoneOct4(HistoneOct4):
 
 
 def init_genome(percentage=50,
-                            a_bool=1,
-                            hst_n=81,
-                            kp=0.176,
-                            kp2=0.17,
-                            km=0.117,
-                            ka=0.12):
+                a_bool=1,
+                hst_n=81,
+                kp=0.12,
+                kp2=0.12,
+                km=0.117,
+                ka=0.12):
     """
     percentage ... the probability of having methylated hitone.
     this method returns a list of histone randomly generated with respect to
@@ -432,9 +431,10 @@ def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
                 if sample() < p_off:
                     hst.CpGislandlist[index] = 0
 
-        hst = hst.k_minus()
         hst = hst.k_ace()
         hst = hst.k_plus()
+        hst = hst.k_minus()
+
 
         hst = hst.DNAmethylation()
 

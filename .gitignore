@@ -1,4 +1,7 @@
-/.DS_Store
+*~
+#*
+*.DS_Store*
 .idea/
 *__pycache__/
-/example/fig*
+/example/*test*
+/example/figD/*
