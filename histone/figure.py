@@ -28,7 +28,6 @@ def sequence(fig, vectgene_timeseries):
 
     ax.set_xlim(-0.5, len(vectgene_timeseries) - 0.5)
     ax.set_ylim(-40.5, 40.5)
-    # print(len(vectgene_timeseries)+1)
     ax.set_xticks([w for w in range(0, 2017, 168)])
     ax.set_xticklabels(("week" + str(w) for w in range(1, len(vectgene_timeseries) // 168 + 1)))
 
@@ -147,57 +146,85 @@ def cc(arg):
     return colorConverter.to_rgba(arg, alpha=0.6)
 
 
-def dynamic_change(fig, list_vectorized_gene_timeseries):
+def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
     hst_n = len(list_vectorized_gene_timeseries[0][0][0])  # default 81
     w = 10  # window default 10
     time = len(list_vectorized_gene_timeseries[0])
     example_n = len(list_vectorized_gene_timeseries)
 
     table_m = []
+    table_m_am = []
+    table_m_sd = []
     table_a = []
-    days = [0,3,5]
-    for day in days:
-        container_m = np.array([0 for _ in range(hst_n)])
-        container_a = np.array([0 for _ in range(hst_n)])
-        for vectorized_gene_timeseries in list_vectorized_gene_timeseries:
-            container_m += vectorized_gene_timeseries[time // 2 + day * 24][0]
-            container_a += vectorized_gene_timeseries[time // 2 + day * 24][2]
-        table_m.append(container_m)
-        table_a.append(container_a)
+    table_a_am = []
+    table_a_sd = []
 
-    x = [i for i in range(hst_n)]
+    days = [0, 3, 5]
+    for day in days:
+        container_m = np.array([0 for _ in range(0, hst_n, delta)])
+        container_a = np.array([0 for _ in range(0, hst_n, delta)])
+
+        for vectorized_gene_timeseries in list_vectorized_gene_timeseries:
+            container_m += vectorized_gene_timeseries[time // 2 + day * 24][0][0::delta]
+            container_a += vectorized_gene_timeseries[time // 2 + day * 24][2][0::delta]
+
+        m_am = container_m / example_n
+        a_am = container_a / example_n
+        container_m_err = np.array([0.0 for _ in range(0, hst_n, delta)])
+        container_a_err = np.array([0.0 for _ in range(0, hst_n, delta)])
+        for vectorized_gene_timeseries in list_vectorized_gene_timeseries:
+            container_m_err += pow(abs(m_am - vectorized_gene_timeseries[time // 2 + day * 24][0][0::delta]), 2)
+            container_a_err += pow(abs(a_am - vectorized_gene_timeseries[time // 2 + day * 24][2][0::delta]), 2)
+        m_sd = np.sqrt(container_m_err / example_n)
+        a_sd = np.sqrt(container_a_err / example_n)
+        table_m.append(container_m)
+        table_m_am.append(m_am)
+        table_m_sd.append(m_sd)
+        table_a.append(container_a)
+        table_a_am.append(a_am)
+        table_a_sd.append(a_sd)
+
+    print("am")
+    for am in table_a_am:
+        print(am)
+    print("sd")
+    for sd in table_a_sd:
+        print(sd)
+
+    x = np.arange(0, hst_n, delta)
     pos_m = [3, 5, 7]
     pos_a = [4, 6, 8]
     for i in [0, 1, 2]:
         bx = fig.add_subplot(4, 2, pos_m[i])
-        bx.plot(x, table_m[i], 'o-', color="blue")
+        bx.fill_between(x, table_m[i], 0, color="blue")
+        bx.errorbar(x, table_m[i], fmt=',-', elinewidth=0.2, capsize=1, label="data", mfc="lightblue",linestyle="none", color="blue", yerr=table_m_sd[i], ecolor="black")
 
         bx.set_yticks([i for i in range(0, example_n + 1, example_n // 5)])
         bx.set_yticklabels(("0%", "20%", "40%", "60%", "80%", "100%"))
         bx.set_ylim(0, example_n + 1)
         bx.set_xticks([0, 35, 40, 45, 81])
         bx.set_xticklabels((-40, -5, 0, 5, 40))
-        bx.set_ylabel("day "+str(days[i]))
+        bx.set_ylabel("day " + str(days[i]))
+        bx.legend(loc='upper right', fontsize="x-small")
 
         bx = fig.add_subplot(4, 2, pos_a[i])
-        bx.plot(x, table_a[i], 'o-', color="red")
+        bx.fill_between(x, table_a[i], 0, color="red")
+        bx.errorbar(x, table_a[i], fmt=',-', elinewidth=0.2, capsize=1, label="data", mfc="tomato", linestyle="none", color="red", yerr=table_a_sd[i], ecolor="black")
 
         bx.set_yticks([i for i in range(0, example_n + 1, example_n // 5)])
         bx.set_yticklabels(("0%", "20%", "40%", "60%", "80%", "100%"))
         bx.set_ylim(0, example_n + 1)
         bx.set_xticks([0, 35, 40, 45, 81])
         bx.set_xticklabels((-40, -5, 0, 5, 40))
+        bx.legend(loc='upper right', fontsize='x-small')
 
     ax = fig.add_subplot(4, 2, 1, projection='3d')
-    xs = np.arange(0, 81)
     zs = [0, 3, 5]
-
     verts = []
-
     for i in [0, 1, 2]:
         ys = table_m[i]
         ys[0], ys[-1] = 0, 0
-        verts.append(list(zip(xs, ys)))
+        verts.append(list(zip(x, ys)))
 
     poly = PolyCollection(verts, facecolors=[cc('b'), cc('b'), cc('b')])
 
@@ -210,28 +237,23 @@ def dynamic_change(fig, list_vectorized_gene_timeseries):
     ax.set_xticklabels((-40, -5, 0, 5, 40))
     ax.set_ylabel('Y days')
     ax.set_ylim3d(-1, 6)
-    ax.set_yticks([0,3,5])
-    ax.set_yticklabels((0,3,5))
+    ax.set_yticks([0, 3, 5])
+    ax.set_yticklabels((0, 3, 5))
     ax.set_zlabel('Z freq')
     ax.set_zlim3d(0, example_n)
     ax.set_zticks([i for i in range(0, example_n + 1, example_n // 5)])
     ax.set_zticklabels(("0%", "20%", "40%", "60%", "80%", "100%"))
 
     ax = fig.add_subplot(4, 2, 2, projection='3d')
-    xs = np.arange(0, 81)
-    zs = [0, 3, 5]
-
     verts = []
-
     for i in [0, 1, 2]:
-        print(table_a[i])
         ys = table_a[i]
         ys[0], ys[-1] = 0, 0
-        verts.append(list(zip(xs, ys)))
+        verts.append(list(zip(x, ys)))
 
     poly = PolyCollection(verts, facecolors=[cc('r'), cc('r'), cc('r')])
 
-    poly.set_alpha(0.7)
+    poly.set_alpha(0.4)
     ax.add_collection3d(poly, zs=zs, zdir='y')
 
     ax.set_xlabel('X genome')
@@ -240,8 +262,8 @@ def dynamic_change(fig, list_vectorized_gene_timeseries):
     ax.set_xticklabels((-40, -5, 0, 5, 40))
     ax.set_ylabel('Y days')
     ax.set_ylim3d(-1, 6)
-    ax.set_yticks([0,3,5])
-    ax.set_yticklabels((0,3,5))
+    ax.set_yticks([0, 3, 5])
+    ax.set_yticklabels((0, 3, 5))
     ax.set_zlabel('Z freq')
     ax.set_zlim3d(0, example_n)
     ax.set_zticks([i for i in range(0, example_n + 1, example_n // 5)])

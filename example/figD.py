@@ -12,11 +12,11 @@ import matplotlib
 
 NUM_OF_HISTONE = 81
 WINDOW = 10
-TIME1 = 1008
-TIME2 = 1008
-DELTA = 5
+TIME1 = 1008 # 6 week
+TIME2 = 1008 # 6 week
+DELTA = 1
 
-NUMEXAMPLE = 20
+NUMEXAMPLE = 500
 
 
 def main():
@@ -28,11 +28,11 @@ def main():
 
     fig = plt.figure()
 
-    figure.dynamic_change(fig, list_tracker)
+    figure.dynamic_change(fig, list_tracker,DELTA)
 
     plt.show()
 
-    title = "figD/fig_test4__{}examples.pdf".format(NUMEXAMPLE)
+    title = "figD/fig_test6__{}examples__{}delta.pdf".format(NUMEXAMPLE,DELTA)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
