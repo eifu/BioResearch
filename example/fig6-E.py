@@ -12,10 +12,10 @@ import matplotlib
 
 NUM_OF_HISTONE = 81
 WINDOW = 10
-TIME1 = 1008 # 6 week
-TIME2 = 1008 # 6 week
+TIME1 = 252 # 1.5 week
+TIME2 = 252 # 1.5 week
 
-NUMEXAMPLE = 500
+NUMEXAMPLE = 1000
 
 
 def main():

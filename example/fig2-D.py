@@ -13,11 +13,11 @@ import matplotlib
 
 NUM_OF_HISTONE = 81
 WINDOW = 10
-TIME1 = 1008 # 6 week
-TIME2 = 1008 # 6 week
+TIME1 = 504 # 1.5 week
+TIME2 = 504 # 1.5 week
 DELTA = 1
 
-NUMEXAMPLE = 500
+NUMEXAMPLE = 50
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
 
     plt.show()
 
-    title = "fig2-D/fig_test7__{}examples__{}delta.pdf".format(NUMEXAMPLE,DELTA)
+    title = "fig2-D/fig_test9__{}examples__{}delta.pdf".format(NUMEXAMPLE, DELTA)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()

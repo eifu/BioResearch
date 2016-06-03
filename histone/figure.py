@@ -3,24 +3,24 @@ from matplotlib.colors import colorConverter
 import numpy as np
 
 
-def sequence(fig, vectgene_timeseries):
+def sequence(fig, vectgene_timeseries, row, col, num):
 
     hst_n = len(vectgene_timeseries[0][0])
     time = len(vectgene_timeseries)
 
-    ax = fig.add_subplot(3, 1, 1)
+    ax = fig.add_subplot(row, col, num)
     for t, vectgene in enumerate(vectgene_timeseries):
         y_position_m = [i - 40 for i in range(hst_n) if vectgene[0][i] == 1]
-        x_position_m = np.array([1] * np.sum(vectgene[0]))
+        x_position_m = np.ones(np.sum(vectgene[0])) * t
 
-        ax.plot(x_position_m * t,  # time implies the x coordinates.
+        ax.plot(x_position_m,  # time implies the x coordinates.
                 y_position_m,
                 ",", color="blue")
 
         y_position_a = [i - 40 for i in range(hst_n) if vectgene[2][i] == 1]
-        x_position_a = np.array([1] * np.sum(vectgene[2]))
+        x_position_a = np.ones(np.sum(vectgene[2])) * t
 
-        ax.plot(x_position_a * t,
+        ax.plot(x_position_a,
                 y_position_a,
                 ",", color="red")
 
@@ -30,38 +30,41 @@ def sequence(fig, vectgene_timeseries):
     ax.set_xticklabels(("week" + str(w) for w in range(1, time // 168 + 1)))
 
 
-def window(fig, vectorizedgenome_timeseries):
-    hst_n = len(vectorizedgenome_timeseries[0][0])
+def window(fig, vectgene_timeseries, row, col, num):
+    hst_n = len(vectgene_timeseries[0][0])
+    time = len(vectgene_timeseries)
     w = 10
 
-    ax = fig.add_subplot(9, 1, 5)
-    for time in range(len(vectorizedgenome_timeseries)):
+    ax = fig.add_subplot(row, col, num)
+    for t, vectgene in enumerate(vectgene_timeseries):
         y_position_m = [i - 40 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1)
-                        if vectorizedgenome_timeseries[time][0][i] == 1]
-        x_position_m = np.array([1] * len(y_position_m))
+                        if vectgene[0][i] == 1]
+        x_position_m = np.ones(len(y_position_m)) * t
 
-        ax.plot(x_position_m * time,
+        ax.plot(x_position_m,
                 y_position_m,
                 ",", color="blue")
 
         y_position_a = [i - 40 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1)
-                        if vectorizedgenome_timeseries[time][2][i] == 1]
-        x_position_a = np.array([1] * len(y_position_a))
+                        if vectgene[2][i] == 1]
+        x_position_a = np.ones(len(y_position_a)) * t
 
-        ax.plot(x_position_a * time,
+        ax.plot(x_position_a,
                 y_position_a,
                 ",", color="red")
 
-        ax.set_xlim(-0.5, len(vectorizedgenome_timeseries))
-        ax.set_ylim(-5, 5)
-        ax.set_yticks([])
+        ax.set_xlim(-0.5, time)
         ax.set_xticks([])
 
+        ax.set_ylim(-6, 6)
+        ax.set_yticks([-5,0,5])
+        ax.set_yticklabels((-5, 0, 5))
 
-def transcription(fig, TList):
+
+def transcription(fig, TList, row, col, num):
     total_time = len(TList)
-    ax = fig.add_subplot(9, 1, 4)
-    time = [i for i in range(len(TList))]
+    ax = fig.add_subplot(row, col, num)
+    time = np.arange(total_time)
     ax.plot(time, TList, "-", color="red")
     ax.set_yticks([])
     ax.set_ylim(-0.5, 1.5)
@@ -69,24 +72,26 @@ def transcription(fig, TList):
     ax.set_xticks([])
 
 
-def m_stat(fig, vectorizedgenome_timeseries):
-    bx = fig.add_subplot(9, 4, 22)
+def m_stat(fig, vectorizedgenome_timeseries, row, col, num):
+    bx = fig.add_subplot(row, col, num)
 
-    w = 10
+    w = 11
     hst_n = len(vectorizedgenome_timeseries[0][0])
     time = len(vectorizedgenome_timeseries)
     delta = 5
 
-    count_m = [0 for _ in range(w + 1)]
+    count_m = np.zeros(w)
 
     count = 0
+    # TODO complicated and not intuitive (probably not efficient)
     for h in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1):
         for time in range(time // 2, time, delta):
             if vectorizedgenome_timeseries[time][0][h] == 1:
                 count_m[count] += 1
 
         count += 1
-    xaxis = [i for i in range(-w // 2, w // 2 + 1)]
+    xaxis = [i for i in range(-5, 5+1)]
+
     bx.barh(xaxis, count_m, align="center")
     bx.set_xticks([])
     bx.set_yticks([])
@@ -102,41 +107,6 @@ def m_stat(fig, vectorizedgenome_timeseries):
     for each in count_m:
         acc += (each - AM) ** 2
     SD = np.sqrt(acc / len(count_m))
-    return {"AM": AM, "SD": SD}
-
-
-def m_stat2(fig, vectorizedgenome_timeseries):
-    bx = fig.add_subplot(9, 4, 24)
-
-    w = 10
-    count_m = [0 for _ in range(w + 1)]
-    hst_n = len(vectorizedgenome_timeseries[0][0])
-    time = len(vectorizedgenome_timeseries)
-    delta = 5
-
-    count = 0
-    for h in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1):
-        for time in range(time // 2, time, delta):
-            if vectorizedgenome_timeseries[time][0][h] == 1:
-                count_m[count] += 1
-
-        count += 1
-    xaxis = [i for i in range(-w // 2, w // 2 + 1)]
-    bx.barh(xaxis, count_m, align="center")
-    bx.set_xticks([])
-    bx.set_yticks([])
-
-    acc = 0
-    for each in count_m:
-        acc += each
-    AM = acc / len(count_m)
-
-    acc = 0
-    for each in count_m:
-        acc += (each - AM) ** 2
-
-    SD = np.sqrt(acc / len(count_m))
-
     return {"AM": AM, "SD": SD}
 
 
@@ -168,7 +138,7 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
 
         m_am = container_m / example_n
         a_am = container_a / example_n
-        container_m_err = np.array([0.0 for _ in range(0, hst_n, delta)])
+        container_m_err = np.array([0.0 for _ in range(0, hst_n, delta)]) # TODO use np arange
         container_a_err = np.array([0.0 for _ in range(0, hst_n, delta)])
         for vectorized_gene_timeseries in list_vectorized_gene_timeseries:
             container_m_err += pow(abs(m_am - vectorized_gene_timeseries[time // 2 + day * 24][0][0::delta]), 2)
@@ -182,12 +152,12 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
         table_a_am.append(a_am)
         table_a_sd.append(a_sd)
 
-    print("am")
-    for am in table_a_am:
-        print(am)
-    print("sd")
-    for sd in table_a_sd:
-        print(sd)
+    # print("am")
+    # for am in table_a_am:
+    #     print(am)
+    # print("sd")
+    # for sd in table_a_sd:
+    #     print(sd)
 
     x = np.arange(0, hst_n, delta)
     pos_m = [3, 5, 7]
@@ -217,7 +187,6 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
         bx.legend(loc='upper right', fontsize='x-small')
 
     ax = fig.add_subplot(4, 2, 1, projection='3d')
-    zs = [0, 3, 5]
     verts = []
     for i in [0, 1, 2]:
         ys = table_m[i]
@@ -227,7 +196,7 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
     poly = PolyCollection(verts, facecolors=[cc('b'), cc('b'), cc('b')])
 
     poly.set_alpha(0.7)
-    ax.add_collection3d(poly, zs=zs, zdir='y')
+    ax.add_collection3d(poly, zs=days, zdir='y')
 
     ax.set_xlabel('X genome')
     ax.set_xlim3d(0, 81)
@@ -235,8 +204,8 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
     ax.set_xticklabels((-40, -5, 0, 5, 40))
     ax.set_ylabel('Y days')
     ax.set_ylim3d(-1, 6)
-    ax.annotate('', xy=(0, -0.1), xycoords='axes fraction', xytext=(1, -0.1),
-                arrowprops=dict(arrowstyle="<->", color='b'))
+    # ax.annotate('', xy=(0, -0.1), xycoords='axes fraction', xytext=(1, -0.1),
+    #             arrowprops=dict(arrowstyle="<->", color='b'))
     ax.set_yticks([0, 3, 5])
     ax.set_yticklabels((0, 3, 5))
     ax.set_zlabel('Z freq')
@@ -254,7 +223,7 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
     poly = PolyCollection(verts, facecolors=[cc('r'), cc('r'), cc('r')])
 
     poly.set_alpha(0.4)
-    ax.add_collection3d(poly, zs=zs, zdir='y')
+    ax.add_collection3d(poly, zs=days, zdir='y')
 
     ax.set_xlabel('X genome')
     ax.set_xlim3d(0, 81)
@@ -281,13 +250,10 @@ def kineticmodel(fig, list_vectorized_gene_timeseries):
     """
     looking only at locus
     """
-    genome_acc = []
     list_am = []
     list_sd = []
     hours = np.arange(8*24)
-    "@todo should be 8*24 for hours"
     for h in hours:
-        # genome_acc += list_vectorized_gene_timeseries[e]
         container_m = np.array([0 for _ in range(0, w)])
 
         for vectorized_gene_timeseries in list_vectorized_gene_timeseries:
@@ -315,6 +281,6 @@ def kineticmodel(fig, list_vectorized_gene_timeseries):
     ax.set_yticklabels((str(i)+"%" for i in range(0,101,10)))
     ax.set_ylabel("Enrichment at locus")
     ax.set_xlim(0,8*24)
-    ax.set_xticks([i for i in range(0,8*24+1,2*24)])
-    ax.set_xticklabels((i for i in range(0,9,2)))
+    ax.set_xticks([i for i in range(0, 8*24+1, 2*24)])
+    ax.set_xticklabels((i for i in range(0, 9, 2)))
     ax.set_xlabel("time(day)")
