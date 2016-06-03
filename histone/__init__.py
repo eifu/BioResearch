@@ -362,7 +362,7 @@ def init_genome_oct4(percentage=50,
                                          )
                             )
 
-        hst_list[i - 1].set_adjHistone(hst_list[i])
+        hst_list[i - 1].set_adjhistone(hst_list[i])
 
     hst_list[0].prenode = None  # disjoint the edge histone to itself.
     return hst_list
@@ -384,9 +384,14 @@ def next_genome(hst_list, a_bool, r_bool, window):
             elif hst.status == "m":
                 mhst_n += 1
 
-        hst = hst.k_minus()
-        hst = hst.k_ace()
-        hst = hst.k_plus()
+        f_list = [hst.k_plus,hst.k_minus,hst.k_ace]
+        np.random.shuffle(f_list)
+        for f in f_list:
+            hst = f()
+            print(hst,f)
+        # hst = hst.k_minus()
+        # hst = hst.k_ace()
+        # hst = hst.k_plus()
 
         nexthst_list.append(hst)
 
@@ -431,12 +436,17 @@ def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
                 if sample() < p_off:
                     hst.CpGislandlist[index] = 0
 
-        hst = hst.k_ace()
-        hst = hst.k_plus()
-        hst = hst.k_minus()
+        f_list = [hst.k_plus,hst.k_minus,hst.k_ace]
+        np.random.shuffle(f_list)
+        for f in f_list:
+            hst = f()
+            print(hst,f)
+        # hst = hst.k_ace()
+        # hst = hst.k_plus()
+        # hst = hst.k_minus()
 
 
-        hst = hst.DNAmethylation()
+        hst = hst.dna_methylation()
 
         nexthst_list.append(hst)
 
@@ -515,7 +525,7 @@ def track_epigenetic_process_oct4(hst_list,  # initial histone list
                                   window=10  # default is 10
                                   ):
     for i in range(len(hst_list)):
-        hst_list[i].set_K_ACE(a_bool)
+        hst_list[i].set_ka(a_bool)
     vectorizedgene_list = []  # array of compressed data of vectors
     t_list = []  # one dimension array
     for _ in range(time):
