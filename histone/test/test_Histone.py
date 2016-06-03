@@ -64,12 +64,20 @@ class TestHistone(unittest.TestCase):
         bitvec3 = histone.vectorize(hs3)
         self.assertTrue(sum(bitvec3[2]) == 81, 'acetylated histone list failure')
 
+    def test_vect(self):
+        for _ in range(10):
+            histList = histone.init_genome()
+            bitvec = histone.vectorize(histList)
+
+        # print(bitvec.shape)
+
+
     def testNextGen(self):
         histList = histone.init_genome()
         dictH = histone.next_genome(histList, 0, 1, 10)
         histList2 = dictH["hstL"]
-        for hist1, hist2 in zip(histList, histList2):
-            print(str(hist1) + "   --> " + str(hist2))
+        # for hist1, hist2 in zip(histList, histList2):
+        #     print(str(hist1) + "   --> " + str(hist2))
         self.assertEqual(dictH["Eext"], 1, 'R1 does not work correctly')
 
     def testNextGen2(self):
@@ -87,8 +95,8 @@ class TestHistone(unittest.TestCase):
         histList = histone.init_genome()
         dictH = histone.next_genome(histList, 0, 1, 10)
         histList2 = dictH["hstL"]
-        for hist1, hist2 in zip(histList, histList2):
-            print(str(hist1) + "   --> " + str(hist2))
+        # for hist1, hist2 in zip(histList, histList2):
+        #     print(str(hist1) + "   --> " + str(hist2))
         self.assertEqual(dictH["Eext"], 1, 'R1 does not work correctly')
 
 if __name__ == 'main':

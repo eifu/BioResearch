@@ -13,8 +13,8 @@ class Histone(object):
                  ka=0.12,
                  nextnode=None,
                  prenode=None,
-                 copy=False,
-                 copy_histone=None):
+                 inherited=False,
+                 inherited_hst=None):
         """
         Initialize the histone. The position must be
         specified, but K_PLUS, K_MINUS, nextNode, preNode,
@@ -33,24 +33,25 @@ class Histone(object):
         """
 
         self.status = ""
-        self.k_list = {0:self.k_plus, 1:self.k_minus, 2:self.k_ace}
+        self.k_list = {0: self.k_plus, 1: self.k_minus, 2: self.k_ace}
 
-        # copy the info of histone object
-        if copy:
-            self.position = copy_histone.position
+        # inherited the info of histone object
+        if inherited:
+            assert inherited_hst is not None
+            self.position = inherited_hst.position
 
-            self.prenode = copy_histone.prenode  # doubly-linked
-            if copy_histone.prenode is not None:
-                copy_histone.prenode.nextnode = self
+            self.prenode = inherited_hst.prenode  # doubly-linked
+            if inherited_hst.prenode is not None:
+                inherited_hst.prenode.nextnode = self
 
-            self.nextnode = copy_histone.nextnode  # doubly-linked
-            if copy_histone.nextnode is not None:
-                copy_histone.nextnode.prenode = self
+            self.nextnode = inherited_hst.nextnode  # doubly-linked
+            if inherited_hst.nextnode is not None:
+                inherited_hst.nextnode.prenode = self
 
-            self.K_ACE = copy_histone.K_ACE
-            self.K_PLUS = copy_histone.K_PLUS
-            self.K_PLUS2 = copy_histone.K_PLUS2
-            self.K_MINUS = copy_histone.K_MINUS
+            self.K_ACE = inherited_hst.K_ACE
+            self.K_PLUS = inherited_hst.K_PLUS
+            self.K_PLUS2 = inherited_hst.K_PLUS2
+            self.K_MINUS = inherited_hst.K_MINUS
 
         # create new histone object based on the arguments
         else:
@@ -93,7 +94,6 @@ class Histone(object):
 
         return hst
 
-
     def k_plus(self):
         """
         the unmethylated histone will get methylated by K_PLUS probability
@@ -110,7 +110,7 @@ class Histone(object):
         """
 
         if sample() < self.K_MINUS:
-            return UHistone(copy=True, copy_histone=self)
+            return UHistone(inherited=True, inherited_hst=self)
         else:
             return self
 
@@ -171,11 +171,11 @@ class UHistone(Histone):
         if (self.prenode is not None and self.prenode.status == "m"
             and sample() < self.K_PLUS):
             # preNode is methylated and sample() gets smaller than K_PLUS
-            return MHistone(copy=True, copy_histone=self)
+            return MHistone(inherited=True, inherited_hst=self)
         if (self.nextnode is not None and self.nextnode.status == "m"
             and sample() < self.K_PLUS):
             # nextNode is methylated and sample() gets smaller than K_PLUS
-            return MHistone(copy=True, copy_histone=self)
+            return MHistone(inherited=True, inherited_hst=self)
         return self
 
     def k_minus(self):
@@ -183,7 +183,7 @@ class UHistone(Histone):
 
     def k_ace(self):
         if sample() < self.K_ACE:
-            return AHistone(copy=True, copy_histone=self)
+            return AHistone(inherited=True, inherited_hst=self)
         else:
             return self
 
@@ -197,22 +197,22 @@ class AHistone(Histone):
         if (self.prenode is not None and self.prenode.status == "m"
             and sample() < self.K_PLUS2):
             # preNode is methylated and sample() gets smaller than KPLUS2
-            return UHistone(copy=True, copy_histone=self)
+            return UHistone(inherited=True, inherited_hst=self)
         if (self.nextnode is not None and self.nextnode.status == "m"
             and sample() < self.K_PLUS2):
             # nextNode is methylated and sample() gets smaller than KPLUS2
-            return UHistone(copy=True, copy_histone=self)
+            return UHistone(inherited=True, inherited_hst=self)
         return self
 
 
 class HistoneOct4(Histone):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.k_list = {0:self.k_plus, 1:self.k_minus, 2:self.k_ace, 3:self.dna_methylation}
+        self.k_list = {0:self.k_plus, 1: self.k_minus, 2: self.k_ace, 3: self.dna_methylation}
 
         # copy histone info from copy_histone
-        if kwargs.pop('copy', None):
-            self.CpGislandlist = kwargs.pop('copy_histone', None).CpGislandlist
+        if kwargs.pop('inherited', None):
+            self.CpGislandlist = kwargs.pop('inherited_hst', None).CpGislandlist
 
         # create new histone object based on the argument
         else:
@@ -228,14 +228,14 @@ class HistoneOct4(Histone):
 
     def k_minus(self):
         if sample() < self.K_MINUS:
-            return UHistoneOct4(copy=True, copy_histone=self)
+            return UHistoneOct4(inherited=True, inherited_hst=self)
         else:
             return self
 
     def dna_methylation(self):
         if sample() < sum(self.CpGislandlist) * self.K_PLUS:
             # the chance gets higher, depends on the num of CpG island sites
-            return MHistoneOct4(copy=True, copy_histone=self)
+            return MHistoneOct4(inherited=True, inherited_hst=self)
         else:
             return self
 
@@ -265,11 +265,11 @@ class UHistoneOct4(HistoneOct4):
         if (self.prenode is not None and self.prenode.status == "m"
             and sample() < self.K_PLUS):
             # preNode is methylated and sample() gets smaller than K_PLUS
-            return MHistoneOct4(copy=True, copy_histone=self)
+            return MHistoneOct4(inherited=True, inherited_hst=self)
         if (self.nextnode is not None and self.nextnode.status == "m"
             and sample() < self.K_PLUS):
             # nextNode is methylated and sample() gets smaller than KPLUS
-            return MHistoneOct4(copy=True, copy_histone=self)
+            return MHistoneOct4(inherited=True, inherited_hst=self)
         return self
 
     def k_minus(self):
@@ -283,7 +283,7 @@ class UHistoneOct4(HistoneOct4):
 
         else:
             if sample() < self.K_ACE:
-                return AHistoneOct4(copy=True, copy_histone=self)
+                return AHistoneOct4(inherited=True, inherited_hst=self)
             else:
                 return self
 
@@ -297,12 +297,12 @@ class AHistoneOct4(HistoneOct4):
         if (self.prenode is not None and self.prenode.status == "m"
             and sample() < self.K_PLUS2):
             # preNode is methylated and sample() gets smaller than PLUS2
-            return UHistoneOct4(copy=True, copy_histone=self)
+            return UHistoneOct4(inherited=True, inherited_hst=self)
 
         if (self.nextnode is not None and self.nextnode.status == "m"
             and sample() < self.K_PLUS2):
             # nextNode is methylated and sample() gets smaller  than PLUS2
-            return UHistoneOct4(copy=True, copy_histone=self)
+            return UHistoneOct4(inherited=True, inherited_hst=self)
 
         return self
 
@@ -321,7 +321,7 @@ def init_genome(percentage=50,
     """
     before_promoter = hst_n // 2
     hst_list = []  # hst_list stores histones
-    ratio = percentage / 100  ## ratio should be float number between 0 and 1
+    ratio = percentage / 100  # ratio should be float number between 0 and 1
 
     for i in range(hst_n):
 
@@ -351,12 +351,12 @@ def init_genome(percentage=50,
 
 
 def init_genome_oct4(percentage=50,
-                                 a_bool=1,
-                                 hst_n=81,
-                                 kp=0.176,
-                                 kp2=0.17,
-                                 km=0.117,
-                                 ka=0.12):
+                     a_bool=1,
+                     hst_n=81,
+                     kp=0.176,
+                     kp2=0.17,
+                     km=0.117,
+                     ka=0.12):
     """
     this method is a modified version of createRandomHistoneList
     used for Oct4 histones.
@@ -396,11 +396,10 @@ def next_genome(hst_list, a_bool, r_bool, window):
     """
     this method takes histone list and returns the next generation out of them.
     """
-    nexthst_list = []
     ahst_n = 0
     mhst_n = 0
 
-    for hst in hst_list:
+    for i, hst in enumerate(hst_list):
 
         if -window // 2 <= hst.position <= window // 2:
             if hst.status == "a":
@@ -410,7 +409,7 @@ def next_genome(hst_list, a_bool, r_bool, window):
 
         hst = Histone.k(hst)
 
-        nexthst_list.append(hst)
+        hst_list[i] = hst
 
     t_bool = a_bool and (ahst_n > 5)
     """
@@ -424,9 +423,9 @@ def next_genome(hst_list, a_bool, r_bool, window):
 
     if eext_bool:
         center = len(hst_list) // 2
-        nexthst_list[center] = MHistone(copy=True, copy_histone=nexthst_list[center])
+        hst_list[center] = MHistone(inherited=True, inherited_hst=hst_list[center])
 
-    return {"hstL": nexthst_list, "T": t_bool, "Eext": eext_bool}
+    return {"hstL": hst_list, "T": t_bool, "Eext": eext_bool}
 
 
 def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
@@ -469,7 +468,7 @@ def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
 
     if eext_bool:
         center = len(hst_list) // 2
-        nexthst_list[center] = MHistoneOct4(copy=True, copy_histone=nexthst_list[center])
+        nexthst_list[center] = MHistoneOct4(inherited=True, inherited_hst=nexthst_list[center])
 
     return {"hstL": nexthst_list, "T": t_bool, "Eext": eext_bool}
 
@@ -479,16 +478,24 @@ def vectorize(hst_list):
     this method takes a list of histone objects, and returns three dimention numpy array
     in which three bit vectors are stored. 
     """
-    v_mlist = np.array([1 if h.status == "m" else 0 for h in hst_list])
-    v_ulist = np.array([1 if h.status == "u" else 0 for h in hst_list])
-    v_alist = np.array([1 if h.status == "a" else 0 for h in hst_list])
+    hst_n = len(hst_list)
+    v_mlist = np.zeros(hst_n, dtype=bool)
+    v_ulist = np.zeros(hst_n, dtype=bool)
+    v_alist = np.zeros(hst_n, dtype=bool)
+    for i, h in enumerate(hst_list):
+        if h.status == "m":
+            v_mlist[i] = 1
+        elif h.status == "u":
+            v_ulist[i] = 1
+        else:
+            v_alist[i] = 1
 
     return np.array([v_mlist,
                      v_ulist,
                      v_alist],
-                    np.int32)
+                    dtype=bool)
 
-
+# TODO change the compound statements to the enumeratative for loop
 def vectorize_oct4(hst_list):
     v_mlist = np.array([1 if h.status == "m" else 0 for h in hst_list])
     v_ulist = np.array([1 if h.status == "u" else 0 for h in hst_list])
@@ -509,18 +516,21 @@ def track_epigenetic_process(hst_list,  # initial histone list
                              t_bool,  # transcription bool
                              window=10  # default is 10
                              ):
-    for i in range(len(hst_list)):
+    hst_n = len(hst_list)
+    for i, hst in enumerate(hst_list):
         hst_list[i].set_ka(a_bool)
-    vectorizedgene_list = []  # array of compressed data of vectors
-    t_list = []  # one dimension array
-    for _ in range(time):
-        vectorizedgene_list.append(vectorize(hst_list))
-        t_list.append(t_bool)
+
+    vectorizedgene_list = np.zeros((time, 3, hst_n))  # array of compressed data of vectors
+    t_list = np.zeros(time, dtype=bool)  # one dimension array
+
+    for t in range(time):
+        vectorizedgene_list[t] = vectorize(hst_list)
+        t_list[t] = t_bool
         dict_hst = next_genome(hst_list, a_bool, r_bool, window)
         hst_list = dict_hst["hstL"]
         t_bool = dict_hst["T"]
 
-    return {"vectorize": np.array(vectorizedgene_list), "hstL": hst_list, "TList": t_list}
+    return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
 
 
 def track_epigenetic_process_oct4(hst_list,  # initial histone list
@@ -544,7 +554,7 @@ def track_epigenetic_process_oct4(hst_list,  # initial histone list
 
     return {"vectorize": np.array(vectorizedgene_list), "hstL": hst_list, "TList": t_list}
 
-
+# TODO inefficient implementation
 def gettime_mhst_dieout(vectorizedgene_list):
     for time in range(len(vectorizedgene_list)):
         if vectorizedgene_list[time][0][40] == 0:
