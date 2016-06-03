@@ -33,6 +33,7 @@ class Histone(object):
         """
 
         self.status = ""
+        self.k_list = {0:self.k_plus, 1:self.k_minus, 2:self.k_ace}
 
         # copy the info of histone object
         if copy:
@@ -81,6 +82,17 @@ class Histone(object):
 
     def dna_methylation(self):
         return self
+
+    @staticmethod
+    def k(hst):
+        f_list = [0, 1, 2]
+        np.random.shuffle(f_list)
+        for f in f_list:
+            # print(hst,f,hst.k_list[f])
+            hst = hst.k_list[f]()
+
+        return hst
+
 
     def k_plus(self):
         """
@@ -196,6 +208,8 @@ class AHistone(Histone):
 class HistoneOct4(Histone):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.k_list = {0:self.k_plus, 1:self.k_minus, 2:self.k_ace, 3:self.dna_methylation}
+
         # copy histone info from copy_histone
         if kwargs.pop('copy', None):
             self.CpGislandlist = kwargs.pop('copy_histone', None).CpGislandlist
@@ -224,6 +238,16 @@ class HistoneOct4(Histone):
             return MHistoneOct4(copy=True, copy_histone=self)
         else:
             return self
+
+    @staticmethod
+    def k(hst):
+        f_list = [0, 1, 2, 3]
+        np.random.shuffle(f_list)
+        for f in f_list:
+            print(hst,f,hst.k_list[f])
+            hst = hst.k_list[f]()
+
+        return hst
 
 
 class MHistoneOct4(HistoneOct4):
@@ -384,14 +408,7 @@ def next_genome(hst_list, a_bool, r_bool, window):
             elif hst.status == "m":
                 mhst_n += 1
 
-        f_list = [hst.k_plus,hst.k_minus,hst.k_ace]
-        np.random.shuffle(f_list)
-        for f in f_list:
-            hst = f()
-            print(hst,f)
-        # hst = hst.k_minus()
-        # hst = hst.k_ace()
-        # hst = hst.k_plus()
+        hst = Histone.k(hst)
 
         nexthst_list.append(hst)
 
@@ -436,17 +453,7 @@ def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
                 if sample() < p_off:
                     hst.CpGislandlist[index] = 0
 
-        f_list = [hst.k_plus,hst.k_minus,hst.k_ace]
-        np.random.shuffle(f_list)
-        for f in f_list:
-            hst = f()
-            print(hst,f)
-        # hst = hst.k_ace()
-        # hst = hst.k_plus()
-        # hst = hst.k_minus()
-
-
-        hst = hst.dna_methylation()
+        hst = HistoneOct4.k(hst)
 
         nexthst_list.append(hst)
 

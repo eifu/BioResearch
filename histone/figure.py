@@ -4,28 +4,30 @@ import numpy as np
 
 
 def sequence(fig, vectgene_timeseries):
+
     hst_n = len(vectgene_timeseries[0][0])
+    time = len(vectgene_timeseries)
 
     ax = fig.add_subplot(3, 1, 1)
-    for time in range(len(vectgene_timeseries)):
-        y_position_m = [i - 40 for i in range(hst_n) if vectgene_timeseries[time][0][i] == 1]
-        x_position_m = np.array([1] * np.sum(vectgene_timeseries[time][0]))
+    for t, vectgene in enumerate(vectgene_timeseries):
+        y_position_m = [i - 40 for i in range(hst_n) if vectgene[0][i] == 1]
+        x_position_m = np.array([1] * np.sum(vectgene[0]))
 
-        ax.plot(x_position_m * time,  # time implies the x coordinates.
+        ax.plot(x_position_m * t,  # time implies the x coordinates.
                 y_position_m,
                 ",", color="blue")
 
-        y_position_a = [i - 40 for i in range(hst_n) if vectgene_timeseries[time][2][i] == 1]
-        x_position_a = np.array([1] * np.sum(vectgene_timeseries[time][2]))
+        y_position_a = [i - 40 for i in range(hst_n) if vectgene[2][i] == 1]
+        x_position_a = np.array([1] * np.sum(vectgene[2]))
 
-        ax.plot(x_position_a * time,
+        ax.plot(x_position_a * t,
                 y_position_a,
                 ",", color="red")
 
-    ax.set_xlim(-0.5, len(vectgene_timeseries) - 0.5)
+    ax.set_xlim(-0.5, time)
     ax.set_ylim(-40.5, 40.5)
-    ax.set_xticks([w for w in range(0, 2017, 168)])
-    ax.set_xticklabels(("week" + str(w) for w in range(1, len(vectgene_timeseries) // 168 + 1)))
+    ax.set_xticks([w for w in range(0, time, 168)])
+    ax.set_xticklabels(("week" + str(w) for w in range(1, time // 168 + 1)))
 
 
 def window(fig, vectorizedgenome_timeseries):
@@ -233,6 +235,8 @@ def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
     ax.set_xticklabels((-40, -5, 0, 5, 40))
     ax.set_ylabel('Y days')
     ax.set_ylim3d(-1, 6)
+    ax.annotate('', xy=(0, -0.1), xycoords='axes fraction', xytext=(1, -0.1),
+                arrowprops=dict(arrowstyle="<->", color='b'))
     ax.set_yticks([0, 3, 5])
     ax.set_yticklabels((0, 3, 5))
     ax.set_zlabel('Z freq')
@@ -298,7 +302,7 @@ def kineticmodel(fig, list_vectorized_gene_timeseries):
             print(am, sum(vectorized_gene_timeseries[time // 2 + h][0][35:46]), )
             acc_err += pow(abs(am-sum(vectorized_gene_timeseries[time // 2 + h][0][35:46])), 2)
         sd = np.sqrt(acc_err/example_n)
-        print("acc_err,  ",acc_err,"  sd ", sd)
+        print("acc_err,  ", acc_err, "  sd ", sd)
         list_sd.append(sd)
 
     print(list_am)

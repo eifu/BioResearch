@@ -75,6 +75,13 @@ class TestHistone_Oct4(unittest.TestCase):
         for b in bit:
             print(str(b[0]) + "  " + str(b[1]) + "  " + str(b[2]))
 
+    def testRandom(self):
+        histList = histone.init_genome_oct4()
+        dictH = histone.next_genome_oct4(histList, 0, 1, 10, p_off=0.01)
+        histList2 = dictH["hstL"]
+        for hist1, hist2 in zip(histList, histList2):
+            print(str(hist1) + "   --> " + str(hist2))
+        self.assertEqual(dictH["Eext"], 1, 'R1 does not work correctly')
 
 if __name__ == 'main':
     unittest.main()
