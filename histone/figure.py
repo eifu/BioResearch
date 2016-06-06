@@ -3,7 +3,7 @@ from matplotlib.colors import colorConverter
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import os
+
 
 
 def sequence(fig, vectgene_timeseries, row, col, num):
@@ -339,7 +339,7 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
 
     variation = len(variation_list_vecgenetimeseries)
     example_n = len(variation_list_vecgenetimeseries[0])
-    time = len(variation_list_vecgenetimeseries[0][0])
+    # time = len(variation_list_vecgenetimeseries[0][0])
     hst_n = len(variation_list_vecgenetimeseries[0][0][0][0])
 
     variation_of_kp = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
@@ -347,12 +347,12 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
     x = np.arange(hst_n)
 
     # create list of after 8days
-    list_after8day = np.zeros((variation,hst_n))
+    list_after8day = np.zeros((variation, hst_n))
     hour8day = 24 * 8
-    for i,oneversion_list_vecgenetimeseries in enumerate(variation_list_vecgenetimeseries):
+    for i, oneversion_list_vecgenetimeseries in enumerate(variation_list_vecgenetimeseries):
         after8day = np.zeros(hst_n)
         for vecgenetimeseries in oneversion_list_vecgenetimeseries:
-            after8day += vecgenetimeseries[time//2+hour8day][0]
+            after8day += vecgenetimeseries[hour8day][0]
         list_after8day[i] = after8day
 
     zs = np.arange(variation)
@@ -364,7 +364,10 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
         y_max = max(max(ys), y_max)
         verts.append(list(zip(x, ys)))
 
-    poly = PolyCollection(verts, facecolors=[cm.jet(x) for x in np.arange(variation)/variation])
+    cm_subsection = np.linspace(0.0, 1.0, variation)
+    colors = [cm.jet(x) for x in cm_subsection]
+
+    poly = PolyCollection(verts, facecolors=colors)
 
     poly.set_alpha(0.4)
 
@@ -373,24 +376,22 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
 
     # TODO plot the color bar with custamized style
     ax.view_init(elev=36, azim=-141)
-    ax.set_xlabel('X genome',fontsize=8)
+    ax.set_xlabel('X genome', fontsize=8)
     ax.set_xlim3d(0, 81)
     ax.set_xticks([0, 35, 40, 45, 81])
-    ax.set_xticklabels((-40, -5, 0, 5, 40))
+    ax.set_xticklabels((-40, -5, 0, 5, 40), fontsize=4)
 
-    ax.set_ylabel('Y k_plus')
+    ax.set_ylabel('Y k_plus', fontsize=8)
     ax.set_ylim3d(-1, variation+1)
     ax.set_yticks([i for i in range(variation)])
-    ax.set_yticklabels(variation_of_kp, fontsize=6)
+    ax.set_yticklabels(variation_of_kp, fontsize=2)
 
-    ax.set_zlabel('Z freq')
+    ax.set_zlabel('Z freq', fontsize=8)
     ax.set_zlim3d(0, y_max*1.1)
     ax.set_zticks([i for i in np.arange(0, y_max*1.1, example_n // 5)])
-    ax.set_zticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, example_n, example_n // 5)))
+    ax.set_zticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, y_max*1.1, example_n // 5)))
 
-    cm_subsection = np.linspace(0.0, 1.0, variation)
 
-    colors = [cm.jet(x) for x in cm_subsection]
 
     bx = fig.add_subplot(2, 2, 2)
     for i, after8day in enumerate(list_after8day):
@@ -403,7 +404,7 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
 
     bx.set_ylim(0, y_max * 1.1)
     bx.set_yticks([i for i in np.arange(0, y_max * 1.1, example_n // 5)])
-    bx.set_yticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, example_n, example_n // 5)))
+    bx.set_yticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, y_max*1.1, example_n // 5)))
 
     cx = fig.add_subplot(2, 2, 3)
 
@@ -416,14 +417,14 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
 
             for vectorized_gene_timeseries in oneversion_list_vecgenetimeseries:
                 # print(h," hour  " ,vectorized_gene_timeseries[time // 2 + h][0][35:46])
-                container_m += vectorized_gene_timeseries[time // 2 + h][0][35:46]
+                container_m += vectorized_gene_timeseries[h][0][35:46]
 
             am = sum(container_m) / example_n
             list_am.append(am)
             acc_err = 0
             for vectorized_gene_timeseries in oneversion_list_vecgenetimeseries:
                 # print(am, sum(vectorized_gene_timeseries[time // 2 + h][0][35:46]), )
-                acc_err += pow(abs(am - sum(vectorized_gene_timeseries[time // 2 + h][0][35:46])), 2)
+                acc_err += pow(abs(am - sum(vectorized_gene_timeseries[h][0][35:46])), 2)
             sd = np.sqrt(acc_err / example_n)
             print("time:", h, "  acc_err,  ", acc_err, "  sd ", sd, " example:", example_n)
             list_sd.append(sd)
@@ -435,8 +436,8 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
         #             color=colors[i], yerr=list_sd[::24], ecolor="black")
         cx.plot(hours, list_am, ',-', color=colors[i])
 
-    cx.set_ylim(0, 10)
-    cx.set_yticks(range(11))
+    cx.set_ylim(0, 11.5)
+    cx.set_yticks(np.linspace(0, 11, 11))
     cx.set_yticklabels((str(i) + "%" for i in range(0, 101, 10)))
     cx.set_ylabel("Enrichment at locus")
 
