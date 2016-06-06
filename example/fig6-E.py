@@ -10,10 +10,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib
-import sys
-import os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 NUM_OF_HISTONE = 81
 WINDOW = 10
