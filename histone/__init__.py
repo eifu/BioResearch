@@ -411,15 +411,15 @@ def next_genome(hst_list, a_bool, r_bool, window):
 
         hst_list[i] = hst
 
-    t_bool = a_bool and (ahst_n > 2)
+    t_bool = a_bool and (ahst_n > 5)
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     if r_bool == 1:
-        eext_bool = 1 if t_bool is False and sample() < Histone.K_PLUS else 0
+        eext_bool = 1 if t_bool is False else 0
     else:
-        eext_bool = 1 if mhst_n > 5 and sample() < Histone.K_PLUS else 0
+        eext_bool = 1 if mhst_n > 2 and sample() < Histone.K_PLUS else 0
 
     if eext_bool:
         center = len(hst_list) // 2
@@ -428,6 +428,7 @@ def next_genome(hst_list, a_bool, r_bool, window):
     return {"hstL": hst_list, "T": t_bool, "Eext": eext_bool}
 
 
+# TODO change the eert bool rule later
 def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
     """
     this method takes histone list and returns the next generation of them.

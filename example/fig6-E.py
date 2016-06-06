@@ -1,5 +1,5 @@
 """
-figure D
+figure 6 C, E
 
 """
 
@@ -7,36 +7,57 @@ import histone
 import histone.figure as figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib
 
 NUM_OF_HISTONE = 81
 WINDOW = 10
-TIME1 = 252 # 1.5 week
-TIME2 = 252 # 1.5 week
+TIME1 = 504  # 3 week in hour
+TIME2 = 504  # 3 week in hour
+DELTA = 1
 
-NUMEXAMPLE = 1000
+NUMEXAMPLE = 10
 
 
 def main():
-    count = 0
-    list_tracker = []
-    for _ in range(NUMEXAMPLE):
-        list_tracker = submain(count, list_tracker)
-        count += 1
-
     fig = plt.figure()
+    variation_list_vecgenetimeseries =[]
+    k_minus = 0.1
 
-    figure.kineticmodel(fig, list_tracker)
+    variation_list_vecgenetimeseries.append(submain(0.0001, k_minus))
+    variation_list_vecgenetimeseries.append(submain(0.001, k_minus))
+
+    for k_plus in np.arange(0.01, 0.21, 0.01):
+        variation_list_vecgenetimeseries.append(submain(k_plus, k_minus))
+        print("done  ", k_plus )
+    variation_list_vecgenetimeseries.append(submain(0.25, k_minus))
+    variation_list_vecgenetimeseries.append(submain(0.3,k_minus))
+    print(len(variation_list_vecgenetimeseries))
+    # list_after8days = list([after8days])
+    # print(list_after8days,len(list_after8days))
+
+    figure.figure6c_and_6e(fig, variation_list_vecgenetimeseries)
 
     plt.show()
 
-    title = "fig6-E/fig_test1__{}examples.pdf".format(NUMEXAMPLE)
+    title = "fig6-CE/fig_test1__{}examples__k-{}.pdf".format(NUMEXAMPLE,k_minus)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
 
-def submain(count, list_tracker):
+
+def submain(k_plus,k_minus):
+    count = 0
+    one_variation = np.zeros((NUMEXAMPLE,TIME1+TIME2,3,NUM_OF_HISTONE))
+    for i in range(NUMEXAMPLE):
+        one_variation[i] = subsubmain(count, k_plus, k_minus)
+        count += 1
+
+    return one_variation
+
+
+def subsubmain(count, k_plus, k_minus):
     R = 0
     A = 1
     secR = 1
@@ -49,7 +70,11 @@ def submain(count, list_tracker):
 
     histoneList1 = histone.init_genome(percentage=50,
                                        a_bool=A,
-                                       hst_n=NUM_OF_HISTONE
+                                       hst_n=NUM_OF_HISTONE,
+                                       kp=k_plus,
+                                       kp2=k_plus,
+                                       km=k_minus,
+                                       ka=k_minus
                                        )
 
     dictH = histone.track_epigenetic_process(hst_list=histoneList1,
@@ -72,10 +97,12 @@ def submain(count, list_tracker):
 
     finalTracker = np.concatenate((tracker, tracker2))
 
-    list_tracker.append(finalTracker)
+    # list_tracker.append(finalTracker)
 
     print(count)
-    return list_tracker
+
+    return finalTracker
+
 
 
 if __name__ == "__main__":
