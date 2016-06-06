@@ -48,10 +48,10 @@ class Histone(object):
             if inherited_hst.nextnode is not None:
                 inherited_hst.nextnode.prenode = self
 
-            self.K_ACE = inherited_hst.K_ACE
-            self.K_PLUS = inherited_hst.K_PLUS
-            self.K_PLUS2 = inherited_hst.K_PLUS2
-            self.K_MINUS = inherited_hst.K_MINUS
+            Histone.K_ACE = inherited_hst.K_ACE
+            Histone.K_PLUS = inherited_hst.K_PLUS
+            Histone.K_PLUS2 = inherited_hst.K_PLUS2
+            Histone.K_MINUS = inherited_hst.K_MINUS
 
         # create new histone object based on the arguments
         else:
@@ -60,12 +60,12 @@ class Histone(object):
             self.nextnode = nextnode
             # if A_bool is false, K_ACE is set to be 0.
             if a_bool:
-                self.K_ACE = ka
+                Histone.K_ACE = ka
             else:
-                self.K_ACE = 0
-            self.K_PLUS = kp
-            self.K_PLUS2 = kp2
-            self.K_MINUS = km
+                Histone.K_ACE = 0
+            Histone.K_PLUS = kp
+            Histone.K_PLUS2 = kp2
+            Histone.K_MINUS = km
 
     def set_adjhistone(self, nextnode):
         """
@@ -77,9 +77,9 @@ class Histone(object):
     def set_ka(self, a_bool):
         # set K_ace default value if A_bool is True
         if a_bool:
-                self.K_ACE = 0.12
+                Histone.K_ACE = 0.12
         else:
-            self.K_ACE = 0
+            Histone.K_ACE = 0
 
     def dna_methylation(self):
         return self
@@ -411,15 +411,15 @@ def next_genome(hst_list, a_bool, r_bool, window):
 
         hst_list[i] = hst
 
-    t_bool = a_bool and (ahst_n > 5)
+    t_bool = a_bool and (ahst_n > 2)
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     if r_bool == 1:
-        eext_bool = not t_bool
+        eext_bool = 1 if t_bool is False and sample() < Histone.K_PLUS else 0
     else:
-        eext_bool = mhst_n > 2
+        eext_bool = 1 if mhst_n > 5 and sample() < Histone.K_PLUS else 0
 
     if eext_bool:
         center = len(hst_list) // 2
