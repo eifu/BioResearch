@@ -16,20 +16,21 @@ class Histone(object):
                  inherited=False,
                  inherited_hst=None):
         """
-        Initialize the histone. The position must be
-        specified, but K_PLUS, K_MINUS, nextNode, preNode,
-        and percentage can be specified. If they are not,
-        default values variables will be assigned to those
-        instance variables.
 
-        position  ... a position of histone, to differentiate
+        :param position: a position of histone, to differentiate
                   from other histone instances.
-
-        A_bool ... a boolean value, activator of transcription factors
-                   if A is true, then the K_ACE is the given paramater.
-                   else, K_ACE is 0, which means no histones can be turned to be acetilated.
-        preNode ... a neighbor of the instances, judged by position - 1
-        nextNode ... a neighbor of the instances, judged by position + 1
+        :param kp:
+        :param kp2:
+        :param km:
+        :param a_bool: a boolean value, activator of transcription factors
+                       if A is true, then the K_ACE is the given paramater.
+                       else, K_ACE is 0, which means no histones can be \
+                       turned to be acetilated.
+        :param ka:
+        :param nextnode: a neighbor of the instances, judged by position + 1
+        :param prenode: a neighbor of the instances, judged by position - 1
+        :param inherited:
+        :param inherited_hst:
         """
 
         self.status = ""
@@ -70,18 +71,29 @@ class Histone(object):
     def set_adjhistone(self, nextnode):
         """
         Set the input to self.nextNode, one of its instance variables.
+        :param nextnode:
+        :return:
         """
         self.nextnode = nextnode
         nextnode.prenode = self
 
+    # BUG k_ace should be subject to k_minus
     def set_ka(self, a_bool):
-        # set K_ace default value if A_bool is True
+        """
+        set the default of Histone.K_ACE.
+        :param a_bool: boolean value, if a_bool is true, then Histone.KCE is set to the
+        :return:
+        """
         if a_bool:
                 Histone.K_ACE = 0.12
         else:
             Histone.K_ACE = 0
 
     def dna_methylation(self):
+        """
+        used only when we care about CpG methylation system
+        :return:
+        """
         return self
 
     @staticmethod
@@ -98,6 +110,7 @@ class Histone(object):
         """
         the unmethylated histone will get methylated by K_PLUS probability
         return methylated object if the histone will get methylated
+        :return:
         """
         return self
 
@@ -106,7 +119,7 @@ class Histone(object):
         the methylated histone will be get unmethylated by K_MINUS probability
         or
         the acetilated histone will be get unacetylated by K_MINUS probability
-        return unmethylated histone object if the histone will get unmethylated
+        :return: unmethylated histone object if the histone will get unmethylated
         """
 
         if sample() < self.K_MINUS:
@@ -117,19 +130,19 @@ class Histone(object):
     def k_ace(self):
         """
         the unmethylated hitone will be get acetilated by K_ACE probability
-        return acetilated histone if the histone will get acetilated
+        :return: acetilated histone if the histone will get acetilated
         """
         return self
 
     def __lt__(self, other):
         """
-        return true when the position of self is smaller than that of other
+        :return: true when the position of self is smaller than that of other
         """
         return self.position < other.position
 
     def __str__(self):
         """
-        return all info about the instance of this object.
+        :return: all info about the instance of this object.
         """
         if self.status == 'm':
             st = "methylated"
@@ -425,7 +438,7 @@ def next_genome(hst_list, a_bool, r_bool, window):
         center = len(hst_list) // 2
         hst_list[center] = MHistone(inherited=True, inherited_hst=hst_list[center])
 
-    return {"hstL": hst_list, "T": t_bool, "Eext": eext_bool}
+    return hst_list,  t_bool
 
 
 # TODO change the eert bool rule later
@@ -527,9 +540,8 @@ def track_epigenetic_process(hst_list,  # initial histone list
     for t in range(time):
         vectorizedgene_list[t] = vectorize(hst_list)
         t_list[t] = t_bool
-        dict_hst = next_genome(hst_list, a_bool, r_bool, window)
-        hst_list = dict_hst["hstL"]
-        t_bool = dict_hst["T"]
+        hst_list, t_bool = next_genome(hst_list, a_bool, r_bool, window)
+
 
     return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
 
