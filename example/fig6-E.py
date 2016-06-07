@@ -23,7 +23,7 @@ NUMEXAMPLE = 500
 
 def main():
     variation_list_vecgenetimeseries = np.zeros((25, NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
-    k_minus = 0.1
+    k_minus = 0.04
 
     variation_list_vecgenetimeseries[0] = submain(0.0001, k_minus)
     variation_list_vecgenetimeseries[1] = submain(0.001, k_minus)
