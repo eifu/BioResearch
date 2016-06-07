@@ -22,19 +22,24 @@ NUMEXAMPLE = 500
 
 
 def main():
-    fig = plt.figure()
-    variation_list_vecgenetimeseries =[]
-    k_minus = 0.0001
+    variation_list_vecgenetimeseries = np.zeros((25, NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
+    k_minus = 0.1
 
-    variation_list_vecgenetimeseries.append(submain(0.0001, k_minus))
-    variation_list_vecgenetimeseries.append(submain(0.001, k_minus))
+    variation_list_vecgenetimeseries[0] = submain(0.0001, k_minus)
+    variation_list_vecgenetimeseries[1] = submain(0.001, k_minus)
 
-    for k_plus in np.arange(0.01, 0.21, 0.01):
-        variation_list_vecgenetimeseries.append(submain(k_plus, k_minus))
+    for i, k_plus in enumerate(np.arange(0.01, 0.21, 0.01)):
+        variation_list_vecgenetimeseries[i+2] = submain(k_plus, k_minus)
         print("done  ", k_plus)
-    variation_list_vecgenetimeseries.append(submain(0.25, k_minus))
-    variation_list_vecgenetimeseries.append(submain(0.3, k_minus))
+
+    variation_list_vecgenetimeseries[23] = submain(0.25, k_minus)
+    variation_list_vecgenetimeseries[24] = submain(0.3, k_minus)
     # print(len(variation_list_vecgenetimeseries))
+
+    plt.style.use('ggplot')
+    font = {'family': 'sans-serif'}
+    matplotlib.rc('font', **font)
+    fig = plt.figure()
 
     figure.figure6c_and_6e(fig, variation_list_vecgenetimeseries)
 
@@ -46,26 +51,22 @@ def main():
     pp.close()
 
 
-def submain(k_plus,k_minus):
-    count = 0
+def submain(k_plus, k_minus):
     one_variation = np.zeros((NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
     for i in range(NUMEXAMPLE):
-        one_variation[i] = subsubmain(count, k_plus, k_minus)
-        count += 1
+        one_variation[i] = subsubmain(k_plus, k_minus)
+        print(i)
 
     return one_variation
 
 
-def subsubmain(count, k_plus, k_minus):
+def subsubmain(k_plus, k_minus):
     R = 0
     A = 1
     secR = 1
     secA = 1
 
     T = 0
-    plt.style.use('ggplot')
-    font = {'family': 'sans-serif'}
-    matplotlib.rc('font', **font)
 
     histoneList1 = histone.init_genome(percentage=50,
                                        a_bool=A,
@@ -95,8 +96,6 @@ def subsubmain(count, k_plus, k_minus):
     tracker2 = dictH2["vectorize"]
 
     # finalTracker = np.concatenate((tracker, tracker2))
-
-    print(count)
 
     return tracker2
 

@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 
-
 def sequence(fig, vectgene_timeseries, row, col, num):
     hst_n = len(vectgene_timeseries[0][0])
     time = len(vectgene_timeseries)
@@ -314,7 +313,7 @@ def kinetic_model(fig, list_vectorized_gene_timeseries):
             # print(am, sum(vectorized_gene_timeseries[time // 2 + h][0][35:46]), )
             acc_err += pow(abs(am - sum(vectorized_gene_timeseries[time // 2 + h][0][35:46])), 2)
         sd = np.sqrt(acc_err / example_n)
-        print("time:", h, "  acc_err,  ", acc_err, "  sd ", sd, " example:",example_n)
+        print("time:", h, "  acc_err,  ", acc_err, "  sd ", sd, " example:", example_n)
         list_sd.append(sd)
 
     print(list_am)
@@ -334,7 +333,12 @@ def kinetic_model(fig, list_vectorized_gene_timeseries):
 
 
 def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
+    """
 
+    :param fig: figure object from matplotlib.figure()
+    :param variation_list_vecgenetimeseries: this time series only take TIME2
+    :return:
+    """
     w = 11
 
     variation = len(variation_list_vecgenetimeseries)
@@ -382,36 +386,34 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
     ax.set_xticklabels((-40, -5, 0, 5, 40), fontsize=4)
 
     ax.set_ylabel('Y k_plus', fontsize=8)
-    ax.set_ylim3d(-1, variation+1)
+    ax.set_ylim3d(-1, variation + 1)
     ax.set_yticks([i for i in range(variation)])
     ax.set_yticklabels(variation_of_kp, fontsize=2)
 
     ax.set_zlabel('Z freq', fontsize=8)
-    ax.set_zlim3d(0, y_max*1.1)
-    ax.set_zticks([i for i in np.arange(0, y_max*1.1, example_n // 5)])
-    ax.set_zticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, y_max*1.1, example_n // 5)))
-
-
+    ax.set_zlim3d(0, y_max * 1.1)
+    ax.set_zticks([i for i in np.arange(0, y_max * 1.1, example_n // 5)])
+    ax.set_zticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, y_max * 1.1, example_n // 5)))
 
     bx = fig.add_subplot(2, 2, 2)
     for i, after8day in enumerate(list_after8day):
         bx.plot(x, after8day, ',-', color=colors[i])
 
     bx.set_xlabel('X genome')
-    bx.set_xlim(0,81)
+    bx.set_xlim(0, 81)
     bx.set_xticks([0, 35, 40, 45, 81])
     bx.set_xticklabels((-40, -5, 0, 5, 40))
 
     bx.set_ylim(0, y_max * 1.1)
     bx.set_yticks([i for i in np.arange(0, y_max * 1.1, example_n // 5)])
-    bx.set_yticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, y_max*1.1, example_n // 5)))
+    bx.set_yticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, y_max * 1.1, example_n // 5)))
 
     cx = fig.add_subplot(2, 2, 3)
 
     for i, oneversion_list_vecgenetimeseries in enumerate(variation_list_vecgenetimeseries):
         list_am = []
         list_sd = []
-        hours = np.arange(24*8)
+        hours = np.arange(24 * 8)
         for h in hours:
             container_m = np.zeros(w)
 
@@ -426,11 +428,9 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
                 # print(am, sum(vectorized_gene_timeseries[time // 2 + h][0][35:46]), )
                 acc_err += pow(abs(am - sum(vectorized_gene_timeseries[h][0][35:46])), 2)
             sd = np.sqrt(acc_err / example_n)
-            print("time:", h, "  acc_err,  ", acc_err, "  sd ", sd, " example:", example_n)
+            # print("time:", h, "  acc_err,  ", acc_err, "  sd ", sd, " example:", example_n)
             list_sd.append(sd)
 
-        print(list_am)
-        print(list_sd)
 
         # cx.errorbar(hours[::24], list_am[::24], fmt='none', mfc="tomato",
         #             color=colors[i], yerr=list_sd[::24], ecolor="black")
@@ -445,4 +445,3 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
     cx.set_xticks([i for i in range(0, 8 * 24 + 1, 2 * 24)])
     cx.set_xticklabels((i for i in range(0, 9, 2)))
     cx.set_xlabel("time(day)")
-
