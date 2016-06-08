@@ -2,7 +2,6 @@ __author__ = 'eifu'
 
 from numpy.random import sample
 import numpy as np
-import csv
 
 class Histone(object):
     def __init__(self, position=0,

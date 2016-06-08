@@ -7,7 +7,7 @@ import histone
 import histone.figure as figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-# from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 
