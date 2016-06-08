@@ -141,7 +141,7 @@ def submain( k_plus, k_minus):
     # os.mkdir("__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus))
     for ex in range(NUMEXAMPLE):
         one_variation[ex] = subsubmain(k_plus, k_minus)
-        print(ex)
+        print(ex, k_minus)
     # dumpout(path_num, k_plus, k_minus)
     return one_variation
 
