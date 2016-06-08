@@ -10,6 +10,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib
+import os
 
 
 NUM_OF_HISTONE = 81
@@ -18,45 +19,130 @@ TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
 DELTA = 1
 
-NUMEXAMPLE = 500
+NUMEXAMPLE = 5
 
 
 def main():
-    variation_list_vecgenetimeseries = np.zeros((25, NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
-    k_minus = 0.04
+    variation_list_vecgenetimeseries = np.zeros((24, NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
+    k_minus = 0.11
 
-    variation_list_vecgenetimeseries[0] = submain(0.0001, k_minus)
-    variation_list_vecgenetimeseries[1] = submain(0.001, k_minus)
+    variation_of_kp = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
+    for i, kp in enumerate(variation_of_kp):
+        variation_list_vecgenetimeseries[i] = submain(kp, k_minus)
+        print("done", kp)
 
-    for i, k_plus in enumerate(np.arange(0.01, 0.21, 0.01)):
-        variation_list_vecgenetimeseries[i+2] = submain(k_plus, k_minus)
-        print("done  ", k_plus)
+    # TODO write this method in histone.figure
+    dump3dim = np.zeros((24 * TIME2, NUM_OF_HISTONE))
+    for var, oneversion_list_vecgenetimeseries in enumerate(variation_list_vecgenetimeseries):
+        for vecgenetimeseries in oneversion_list_vecgenetimeseries:
+            for t in range(TIME2):
+                dump3dim[TIME2*var + t] += vecgenetimeseries[t][0]
 
-    variation_list_vecgenetimeseries[23] = submain(0.25, k_minus)
-    variation_list_vecgenetimeseries[24] = submain(0.3, k_minus)
-    # print(len(variation_list_vecgenetimeseries))
+    filename = "dumpdata__k-{}__{}examples.csv".format(k_minus, NUMEXAMPLE)
+    with open(filename, 'wb') as f:
+        # f.write(bytes(bytes(i) for i in range(-40, 41)))
+        # np.savetxt(f,label,delimiter=',', newline='\n')
+        np.savetxt(f,
+                   dump3dim,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
 
-    plt.style.use('ggplot')
-    font = {'family': 'sans-serif'}
-    matplotlib.rc('font', **font)
-    fig = plt.figure()
+    # day8 = 24*8
+    # dumpChart = np.zeros((NUM_OF_HISTONE,24))
+    # for pos, _ in enumerate(dumpChart):
+    #     # one_pos_after8day = np.zeros(25)
+    #     # dumpChart[pos][0] = pos - 40
+    #     for var, onevariation_list_vecgenetimeseries in enumerate(variation_list_vecgenetimeseries):
+    #         for ex, gene_seq_timeseries in enumerate(onevariation_list_vecgenetimeseries):
+    #             dumpChart[pos][var] += gene_seq_timeseries[day8][0][pos]
+    #
+    #
+    # dumpChart2 = np.zeros((NUM_OF_HISTONE,25))
+    # for pos, d in enumerate(dumpChart):
+    #     dumpChart2[pos][0] = pos-40
+    #     dumpChart[pos] =  dumpChart[pos] * 100 / NUMEXAMPLE
+    #     dumpChart2[pos][1:] = dumpChart[pos]
+    #
+    ## TODO write this method in histone.figure
+    # # dumpChart = dumpChart * 100 / NUMEXAMPLE
+    # # print(dumpChart)
+    # filename = "dump_k+~pos_chart_k-{}__{}examples.csv".format(k_minus,NUMEXAMPLE)
+    # with open(filename, 'wb') as f:
+    #     # f.write(bytes(bytes(i) for i in range(-40, 41)))
+    #     # np.savetxt(f,label,delimiter=',', newline='\n')
+    #     np.savetxt(f,
+    #                dumpChart2,
+    #                fmt='%d',
+    #                delimiter=',',
+    #                newline='\n')
 
-    figure.figure6c_and_6e(fig, variation_list_vecgenetimeseries)
-
-    plt.show()
-
-    title = "fig6-CE/fig__{}examples__k-{}.pdf".format(NUMEXAMPLE, k_minus)
-    pp = PdfPages(title)
-    pp.savefig(fig)
-    pp.close()
+    # plt.style.use('ggplot')
+    # font = {'family': 'sans-serif'}
+    # matplotlib.rc('font', **font)
+    # fig = plt.figure()
 
 
-def submain(k_plus, k_minus):
-    one_variation = np.zeros((NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
+
+    # figure.figure6c_and_6e(fig, variation_list_vecgenetimeseries)
+    #
+    # plt.show()
+    #
+    # title = "fig6-CE/fig__{}examples__k-{}.pdf".format(NUMEXAMPLE, k_minus)
+    # pp = PdfPages(title)
+    # pp.savefig(fig)
+    # pp.close()
+
+# TODO write this method in histone.figure
+def dumpout(path_num,k_plus,k_minus):
+    result = np.zeros((TIME2,81))
     for i in range(NUMEXAMPLE):
-        one_variation[i] = subsubmain(k_plus, k_minus)
-        print(i)
+        fname = "__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus)+"/example"+str(i)+".csv"
+        hst_timeseries = histone.read_hstcsv(filename=fname,time=TIME2)
 
+
+        for t, hst_seq in enumerate(hst_timeseries):
+            result[t] += hst_seq[0]
+
+    result_percentage = result/NUMEXAMPLE*100
+
+    savename = "__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus)+"/figEC_percentage__{}examples__k+{}_k-{}.csv".format(NUMEXAMPLE,k_plus,k_minus)
+    with open(savename, 'wb') as f:
+        np.savetxt(f,
+                   result_percentage,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
+
+# TODO write this method in histone.figure
+def dumpout2(path_num,k_plus,k_minus):
+    result = np.zeros((TIME2,81))
+    for i in range(NUMEXAMPLE):
+        fname = "__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus)+"/example"+str(i)+".csv"
+        hst_timeseries = histone.read_hstcsv(filename=fname,time=TIME2)
+
+
+        for t, hst_seq in enumerate(hst_timeseries):
+            result[t] += hst_seq[0]
+
+    result_percentage = result/NUMEXAMPLE*100
+
+    savename = "__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus)+"/figEC_percentage__{}examples__k+{}_k-{}.csv".format(NUMEXAMPLE,k_plus,k_minus)
+    with open(savename, 'wb') as f:
+        np.savetxt(f,
+                   result_percentage,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
+
+
+def submain( k_plus, k_minus):
+    one_variation = np.zeros((NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
+    # os.mkdir("__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus))
+    for ex in range(NUMEXAMPLE):
+        one_variation[ex] = subsubmain(k_plus, k_minus)
+        print(ex)
+    # dumpout(path_num, k_plus, k_minus)
     return one_variation
 
 
@@ -96,6 +182,8 @@ def subsubmain(k_plus, k_minus):
     tracker2 = dictH2["vectorize"]
 
     # finalTracker = np.concatenate((tracker, tracker2))
+    # histone.save_hst_timeseries(tracker2,
+    #                             "__" + str(path_num + 2) + "__k+" + str(k_plus) + "__k-" + str(k_minus) + "/example" + str(ex) + ".csv")
 
     return tracker2
 

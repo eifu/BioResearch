@@ -2,7 +2,7 @@ __author__ = 'eifu'
 
 from numpy.random import sample
 import numpy as np
-
+import csv
 
 class Histone(object):
     def __init__(self, position=0,
@@ -567,6 +567,7 @@ def track_epigenetic_process_oct4(hst_list,  # initial histone list
 
     return {"vectorize": np.array(vectorizedgene_list), "hstL": hst_list, "TList": t_list}
 
+
 # TODO inefficient implementation
 def gettime_mhst_dieout(vectorizedgene_list):
     for time in range(len(vectorizedgene_list)):
@@ -576,3 +577,37 @@ def gettime_mhst_dieout(vectorizedgene_list):
                     break
                 return time
     return -1
+
+
+def save_hst_timeseries(hst_timeseries,filename):
+
+    time = len(hst_timeseries)
+    kind = len(hst_timeseries[0])
+    hst_n = len(hst_timeseries[0][0])
+    print('time', time, 'kind',kind, 'hst', hst_n)
+
+    new_array = np.zeros((time,hst_n))
+    for i,t in enumerate(hst_timeseries):
+        new_array[i] = t[0]-t[2]
+
+    print('creating new array...')
+    with open(filename, 'wb') as f:
+        np.savetxt(f,
+                   new_array,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
+    print('created and saved')
+
+
+
+def read_hstcsv(filename,time,kind=3,hst_n=81):
+    data = np.genfromtxt(filename,skip_header=0,skip_footer=0,delimiter=',')
+    print("reading arrays from file")
+    hst_timeseries = np.zeros((time,kind,hst_n))
+    for t, compressed_array in enumerate(data):
+        hst_timeseries[t][0] = (compressed_array + compressed_array*compressed_array)/2
+        hst_timeseries[t][1] = compressed_array*compressed_array
+        hst_timeseries[t][2] = pow((compressed_array - compressed_array*compressed_array)/2,2)
+    print('finish reading file')
+    return hst_timeseries

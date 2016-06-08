@@ -334,12 +334,15 @@ def kinetic_model(fig, list_vectorized_gene_timeseries):
 
 def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
     """
-
+    data is stored in (k_plus variation, example N(500) of the specific k_plus, time(TIME2), 3 kinds of hst status, numOFHISTONE(81))
+    by default (24, 500, 504, 3, 81)
     :param fig: figure object from matplotlib.figure()
     :param variation_list_vecgenetimeseries: this time series only take TIME2
     :return:
     """
     w = 11
+
+
 
     variation = len(variation_list_vecgenetimeseries)
     example_n = len(variation_list_vecgenetimeseries[0])
@@ -392,6 +395,7 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
 
     ax.set_zlabel('Z freq', fontsize=8)
     ax.set_zlim3d(0, y_max * 1.1)
+    # if example_n is less than 5, it causes error at  example_n // 5
     ax.set_zticks([i for i in np.arange(0, y_max * 1.1, example_n // 5)])
     ax.set_zticklabels((str(i * 100 / example_n) + "%" for i in np.arange(0, y_max * 1.1, example_n // 5)))
 
