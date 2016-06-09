@@ -599,7 +599,6 @@ def save_hst_timeseries(hst_timeseries,filename):
     print('created and saved')
 
 
-
 def read_hstcsv(filename,time,kind=3,hst_n=81):
     data = np.genfromtxt(filename,skip_header=0,skip_footer=0,delimiter=',')
     print("reading arrays from file")
@@ -610,3 +609,32 @@ def read_hstcsv(filename,time,kind=3,hst_n=81):
         hst_timeseries[t][2] = pow((compressed_array - compressed_array*compressed_array)/2,2)
     print('finish reading file')
     return hst_timeseries
+
+def compress_kpvar_list_hst(kpvar_list_hst):
+    kp_n = len(kpvar_list_hst)
+    example_n = len(kpvar_list_hst[0])
+    time = len(kpvar_list_hst[0][0])
+    hst_n = len(kpvar_list_hst[0][0][0][0])
+    compressed = np.zeros((kp_n, time, hst_n))
+    for var, oneversion_list_vecgenetimeseries in enumerate(kpvar_list_hst):
+        for _,vecgenetimeseries in enumerate(oneversion_list_vecgenetimeseries):
+            for t in range(time):
+                compressed[var][t] += vecgenetimeseries[t][0]
+
+    return compressed
+
+def write_dump(compressed_kpvar_list_hst, filename, time, hst_n=81):
+    dump3dim = compressed_kpvar_list_hst.reshape(24 * time, hst_n)
+    with open(filename, 'wb') as f:
+        np.savetxt(f,
+                   dump3dim,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
+
+def read_dump(filename,time,variation=24,hst_n=81):
+    data = np.genfromtxt(filename,skip_header=0,skip_footer=0,delimiter=',')
+    print('reading dump file..')
+    hst_n = 81
+    data = data.reshape(24 , time, hst_n)
+    return data

@@ -332,7 +332,7 @@ def kinetic_model(fig, list_vectorized_gene_timeseries):
     ax.set_xlabel("time(day)")
 
 
-def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
+def figure6c_and_6e(fig, variation_mseq_timeseries, example_n):
     """
     data is stored in (k_plus variation, example N(500) of the specific k_plus, time(TIME2), 3 kinds of hst status, numOFHISTONE(81))
     by default (24, 500, 504, 3, 81)
@@ -344,10 +344,9 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
 
 
 
-    variation = len(variation_list_vecgenetimeseries)
-    example_n = len(variation_list_vecgenetimeseries[0])
-    # time = len(variation_list_vecgenetimeseries[0][0])
-    hst_n = len(variation_list_vecgenetimeseries[0][0][0][0])
+    variation = len(variation_mseq_timeseries)
+    time = len(variation_mseq_timeseries[0])
+    hst_n = len(variation_mseq_timeseries[0][0])
 
     variation_of_kp = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
 
@@ -356,11 +355,8 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
     # create list of after 8days
     list_after8day = np.zeros((variation, hst_n))
     hour8day = 24 * 8
-    for i, oneversion_list_vecgenetimeseries in enumerate(variation_list_vecgenetimeseries):
-        after8day = np.zeros(hst_n)
-        for vecgenetimeseries in oneversion_list_vecgenetimeseries:
-            after8day += vecgenetimeseries[hour8day][0]
-        list_after8day[i] = after8day
+    for var, onevar in enumerate(variation_mseq_timeseries):
+        list_after8day[var] = onevar[var]
 
     zs = np.arange(variation)
     verts = []
@@ -414,31 +410,13 @@ def figure6c_and_6e(fig, variation_list_vecgenetimeseries):
 
     cx = fig.add_subplot(2, 2, 3)
 
-    for i, oneversion_list_vecgenetimeseries in enumerate(variation_list_vecgenetimeseries):
-        list_am = []
-        list_sd = []
-        hours = np.arange(24 * 8)
-        for h in hours:
-            container_m = np.zeros(w)
-
-            for vectorized_gene_timeseries in oneversion_list_vecgenetimeseries:
-                # print(h," hour  " ,vectorized_gene_timeseries[time // 2 + h][0][35:46])
-                container_m += vectorized_gene_timeseries[h][0][35:46]
-
-            am = sum(container_m) / example_n
-            list_am.append(am)
-            acc_err = 0
-            for vectorized_gene_timeseries in oneversion_list_vecgenetimeseries:
-                # print(am, sum(vectorized_gene_timeseries[time // 2 + h][0][35:46]), )
-                acc_err += pow(abs(am - sum(vectorized_gene_timeseries[h][0][35:46])), 2)
-            sd = np.sqrt(acc_err / example_n)
-            # print("time:", h, "  acc_err,  ", acc_err, "  sd ", sd, " example:", example_n)
-            list_sd.append(sd)
-
-
-        # cx.errorbar(hours[::24], list_am[::24], fmt='none', mfc="tomato",
-        #             color=colors[i], yerr=list_sd[::24], ecolor="black")
-        cx.plot(hours, list_am, ',-', color=colors[i])
+    hours = np.arange(24*8)
+    for i, oneversion_list_mseq in enumerate(variation_mseq_timeseries):
+        enrichment = np.zeros(24*8)
+        for t, mseq in enumerate(oneversion_list_mseq[:24*8]):
+            enrichment[t] = sum(mseq[35:46])
+        enrichment /= example_n
+        cx.plot(hours, enrichment, ',-', color=colors[i])
 
     cx.set_ylim(0, 11.5)
     cx.set_yticks(np.linspace(0, 11, 11))
