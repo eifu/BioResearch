@@ -3,6 +3,7 @@ __author__ = 'eifu'
 from numpy.random import sample
 import numpy as np
 
+
 class Histone(object):
     def __init__(self, position=0,
                  kp=0.12,
@@ -84,7 +85,7 @@ class Histone(object):
         :return:
         """
         if a_bool:
-                Histone.K_ACE = 0.12
+            Histone.K_ACE = 0.12
         else:
             Histone.K_ACE = 0
 
@@ -220,7 +221,7 @@ class AHistone(Histone):
 class HistoneOct4(Histone):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.k_list = {0:self.k_plus, 1: self.k_minus, 2: self.k_ace, 3: self.dna_methylation}
+        self.k_list = {0: self.k_plus, 1: self.k_minus, 2: self.k_ace, 3: self.dna_methylation}
 
         # copy histone info from copy_histone
         if kwargs.pop('inherited', None):
@@ -256,7 +257,7 @@ class HistoneOct4(Histone):
         f_list = [0, 1, 2, 3]
         np.random.shuffle(f_list)
         for f in f_list:
-            print(hst,f,hst.k_list[f])
+            print(hst, f, hst.k_list[f])
             hst = hst.k_list[f]()
 
         return hst
@@ -437,7 +438,7 @@ def next_genome(hst_list, a_bool, r_bool, window):
         center = len(hst_list) // 2
         hst_list[center] = MHistone(inherited=True, inherited_hst=hst_list[center])
 
-    return hst_list,  t_bool
+    return hst_list, t_bool
 
 
 # TODO change the eert bool rule later
@@ -508,6 +509,7 @@ def vectorize(hst_list):
                      v_alist],
                     dtype=bool)
 
+
 # TODO change the compound statements to the enumeratative for loop
 def vectorize_oct4(hst_list):
     v_mlist = np.array([1 if h.status == "m" else 0 for h in hst_list])
@@ -540,7 +542,6 @@ def track_epigenetic_process(hst_list,  # initial histone list
         vectorizedgene_list[t] = vectorize(hst_list)
         t_list[t] = t_bool
         hst_list, t_bool = next_genome(hst_list, a_bool, r_bool, window)
-
 
     return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
 
@@ -578,16 +579,15 @@ def gettime_mhst_dieout(vectorizedgene_list):
     return -1
 
 
-def save_hst_timeseries(hst_timeseries,filename):
-
+def save_hst_timeseries(hst_timeseries, filename):
     time = len(hst_timeseries)
     kind = len(hst_timeseries[0])
     hst_n = len(hst_timeseries[0][0])
-    print('time', time, 'kind',kind, 'hst', hst_n)
+    print('time', time, 'kind', kind, 'hst', hst_n)
 
-    new_array = np.zeros((time,hst_n))
-    for i,t in enumerate(hst_timeseries):
-        new_array[i] = t[0]-t[2]
+    new_array = np.zeros((time, hst_n))
+    for i, t in enumerate(hst_timeseries):
+        new_array[i] = t[0] - t[2]
 
     print('creating new array...')
     with open(filename, 'wb') as f:
@@ -599,34 +599,54 @@ def save_hst_timeseries(hst_timeseries,filename):
     print('created and saved')
 
 
-def read_hstcsv(filename,time,kind=3,hst_n=81):
-    data = np.genfromtxt(filename,skip_header=0,skip_footer=0,delimiter=',')
+def read_hstcsv(filename, time, kind=3, hst_n=81):
+    data = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
     print("reading arrays from file")
-    hst_timeseries = np.zeros((time,kind,hst_n))
+    hst_timeseries = np.zeros((time, kind, hst_n))
     for t, compressed_array in enumerate(data):
-        hst_timeseries[t][0] = (compressed_array + compressed_array*compressed_array)/2
-        hst_timeseries[t][1] = compressed_array*compressed_array
-        hst_timeseries[t][2] = pow((compressed_array - compressed_array*compressed_array)/2,2)
+        hst_timeseries[t][0] = (compressed_array + compressed_array * compressed_array) / 2
+        hst_timeseries[t][1] = compressed_array * compressed_array
+        hst_timeseries[t][2] = pow((compressed_array - compressed_array * compressed_array) / 2, 2)
     print('finish reading file')
     return hst_timeseries
 
 
-def compress_kpvar_list_hst(kpvar_list_hst):
-    kp_n = len(kpvar_list_hst)
-    example_n = len(kpvar_list_hst[0])
-    time = len(kpvar_list_hst[0][0])
-    hst_n = len(kpvar_list_hst[0][0][0][0])
+def compress_kplist_samplelist_hstseqts(kplist_samplelist_hstseqts):
+    kp_n = len(kplist_samplelist_hstseqts)
+    example_n = len(kplist_samplelist_hstseqts[0])
+    time = len(kplist_samplelist_hstseqts[0][0])
+    hst_n = len(kplist_samplelist_hstseqts[0][0][0][0])
     compressed = np.zeros((kp_n, time, hst_n))
-    for var, oneversion_list_vecgenetimeseries in enumerate(kpvar_list_hst):
-        for _,vecgenetimeseries in enumerate(oneversion_list_vecgenetimeseries):
+    for var, oneversion_list_vecgenetimeseries in enumerate(kplist_samplelist_hstseqts):
+        for _, vecgenetimeseries in enumerate(oneversion_list_vecgenetimeseries):
             for t in range(time):
                 compressed[var][t] += vecgenetimeseries[t][0]
 
     return compressed
 
 
-def write_dump(data3d, filename, time, kp_n=24, hst_n=81):
-    data2d = data3d.reshape(kp_n*time, hst_n)
+def write_dump2d_pos_kp(kplist_samplelist_hstseqts, filename, time_inhour):
+    kp_n = len(kplist_samplelist_hstseqts)
+    example_n = len(kplist_samplelist_hstseqts[0])
+    hst_n = len(kplist_samplelist_hstseqts[0][0][0][0])
+    dump_table = np.zeros((kp_n+1, hst_n))
+    dump_table[0] = [i for i in range(-40, 41)]
+
+    for kp, samplelist_vecgenetimeseries in enumerate(kplist_samplelist_hstseqts):
+        for _, vecgene_timeseries in enumerate(samplelist_vecgenetimeseries):
+            dump_table[kp+1] += vecgene_timeseries[time_inhour][0]
+
+    dump_table[1:] = dump_table[1:] * 100 / example_n
+
+    with open(filename, 'wb') as f:
+        np.savetxt(f,
+                   dump_table.transpose(),
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
+
+def write_dump3d_kp_time_hst(data3d, filename, time, kp_n=24, hst_n=81):
+    data2d = data3d.reshape(kp_n * time, hst_n)
     with open(filename, 'wb') as f:
         np.savetxt(f,
                    data2d,
