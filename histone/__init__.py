@@ -610,6 +610,7 @@ def read_hstcsv(filename,time,kind=3,hst_n=81):
     print('finish reading file')
     return hst_timeseries
 
+
 def compress_kpvar_list_hst(kpvar_list_hst):
     kp_n = len(kpvar_list_hst)
     example_n = len(kpvar_list_hst[0])
@@ -623,18 +624,18 @@ def compress_kpvar_list_hst(kpvar_list_hst):
 
     return compressed
 
-def write_dump(compressed_kpvar_list_hst, filename, time, hst_n=81):
-    dump3dim = compressed_kpvar_list_hst.reshape(24 * time, hst_n)
+
+def write_dump(data3d, filename, time, kp_n=24, hst_n=81):
+    data2d = data3d.reshape(kp_n*time, hst_n)
     with open(filename, 'wb') as f:
         np.savetxt(f,
-                   dump3dim,
+                   data2d,
                    fmt='%d',
                    delimiter=',',
                    newline='\n')
 
-def read_dump(filename,time,variation=24,hst_n=81):
-    data = np.genfromtxt(filename,skip_header=0,skip_footer=0,delimiter=',')
+
+def read_dump(filename, time, kp_n=24, hst_n=81):
+    data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
     print('reading dump file..')
-    hst_n = 81
-    data = data.reshape(24 , time, hst_n)
-    return data
+    return data2d.reshape(kp_n, time, hst_n)  # convert to 3d
