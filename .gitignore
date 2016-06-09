@@ -1,4 +1,6 @@
 *~
+*.csv
+*.pdf
 #*
 *.DS_Store*
 .idea/
