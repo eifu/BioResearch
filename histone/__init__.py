@@ -429,7 +429,7 @@ def next_genome(hst_list, a_bool, r_bool, window):
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     if r_bool == 1:
-        eext_bool = 1 if t_bool is False else 0
+        eext_bool = 1 if t_bool is False and sample() < Histone.K_PLUS else 0
     else:
         eext_bool = 1 if mhst_n > 2 and sample() < Histone.K_PLUS else 0
 
