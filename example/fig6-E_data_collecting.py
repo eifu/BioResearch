@@ -7,44 +7,40 @@ import histone.io as io
 import numpy as np
 import os
 
-
-
-NUM_OF_HISTONE = 81
-WINDOW = 10
 TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
-DELTA = 1
 
-NUMEXAMPLE = 5
+HST_N = 81
+km = 0.3
+example_n = 5
 
 
 def main():
-    k_minus = 0.3
+
     kp_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
     kp_n = len(kp_list)
-    kplist_samplelist_genets= np.zeros((kp_n, NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
+    kplist_samplelist_genets= np.zeros((kp_n, example_n, TIME2, 3, HST_N))
 
     for i, kp in enumerate(kp_list):
-        kplist_samplelist_genets[i] = submain(kp, k_minus)
+        kplist_samplelist_genets[i] = submain(kp, km)
         print("done", kp)
 
     compressed = io.compress_kplist_samplelist_hstseqts(kplist_samplelist_genets)
-    os.mkdir("__k-"+str(k_minus)+"/")
-    filename3d = "__k-"+str(k_minus)+"/"+"dumpdata3d__k-{}__{}examples.csv".format(k_minus, NUMEXAMPLE)
-    filename2d = "__k-"+str(k_minus)+"/"+"dumpdata2d__pos__k-{}__{}examples.csv".format(k_minus, NUMEXAMPLE)
+    os.mkdir("__k-"+str(km)+"/")
+    filename3d = "__k-"+str(km)+"/"+"dumpdata3d__k-{}__{}examples.csv".format(km, example_n)
+    filename2d = "__k-"+str(km)+"/"+"dumpdata2d__pos__k-{}__{}examples.csv".format(km, example_n)
 
     io.write_dump3d_kp_time_hst(compressed, filename3d, TIME2)
     day8 = 8 * 24
     io.write_dump2d_pos_kp(kplist_samplelist_genets, filename2d, day8)  # for plot2
 
 
-def submain( k_plus, k_minus):
-    one_variation = np.zeros((NUMEXAMPLE, TIME2, 3, NUM_OF_HISTONE))
+def submain(k_plus, k_minus):
+    one_variation = np.zeros((example_n, TIME2, 3, HST_N))
     # os.mkdir("__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus))
-    for ex in range(NUMEXAMPLE):
+    for ex in range(example_n):
         one_variation[ex] = subsubmain(k_plus, k_minus)
         print(ex, k_minus)
-    # dumpout(path_num, k_plus, k_minus)
     return one_variation
 
 
@@ -58,7 +54,7 @@ def subsubmain(k_plus, k_minus):
 
     histoneList1 = histone.init_genome(percentage=50,
                                        a_bool=A,
-                                       hst_n=NUM_OF_HISTONE,
+                                       hst_n=HST_N,
                                        kp=k_plus,
                                        kp2=k_plus,
                                        km=k_minus,
