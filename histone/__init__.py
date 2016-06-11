@@ -153,20 +153,6 @@ class Histone(object):
         sentence = "pos: {}  status: {}\t".format(self.position, st)
         return sentence
 
-    def display(self):
-        sentence = "address: {}\nposition: {}\nstatus: {}\n".format(self, self.position, self.status)
-
-        try:
-            sentence += "Prev Histone:{}\n".format(self.prenode)
-        except AttributeError:
-            sentence += "Prev Histone: None\n"
-        try:
-            sentence += "Next Histone: {}".format(self.nextnode)
-        except AttributeError:
-            sentence += "Next Histone: None"
-        finally:
-            print(sentence)
-            print("###\n")
 
 
 class MHistone(Histone):
@@ -446,11 +432,10 @@ def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
     """
     this method takes histone list and returns the next generation of them.
     """
-    nexthst_list = []
     ahst_n = 0
     mhst_n = 0
 
-    for hst in hst_list:
+    for i, hst in enumerate(hst_list):
         if -window // 2 <= hst.position <= window // 2:
             if hst.status == "a":
                 ahst_n += 1
@@ -468,23 +453,22 @@ def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
 
         hst = HistoneOct4.k(hst)
 
-        nexthst_list.append(hst)
-
+        hst_list[i] = hst
     t_bool = a_bool and (ahst_n > window // 2)
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     if r_bool == 1:
-        eext_bool = (not t_bool)
+        eext_bool =  1 if t_bool is False and sample() < Histone.K_PLUS else 0
     else:
-        eext_bool = mhst_n > 2
+        eext_bool =  1 if mhst_n > 2 and sample() < Histone.K_PLUS else 0
 
     if eext_bool:
         center = len(hst_list) // 2
-        nexthst_list[center] = MHistoneOct4(inherited=True, inherited_hst=nexthst_list[center])
+        hst_list[center] = MHistoneOct4(inherited=True, inherited_hst=hst_list[center])
 
-    return {"hstL": nexthst_list, "T": t_bool, "Eext": eext_bool}
+    return hst_list, t_bool
 
 
 def vectorize(hst_list):
@@ -512,16 +496,16 @@ def vectorize(hst_list):
 
 # TODO change the compound statements to the enumeratative for loop
 def vectorize_oct4(hst_list):
-    v_mlist = np.array([1 if h.status == "m" else 0 for h in hst_list])
-    v_ulist = np.array([1 if h.status == "u" else 0 for h in hst_list])
-    v_alist = np.array([1 if h.status == "a" else 0 for h in hst_list])
-    v_cpg = [sum(h.CpGislandlist) for h in hst_list]
+    hst_n = len(hst_list)
+    v_mlist = np.zeros(hst_n, dtype=bool)
+    v_ulist = np.zeros(hst_n, dtype=bool)
+    v_alist = np.zeros(hst_n, dtype=bool)
+    v_cpg = np.array([sum(h.CpGislandlist) for h in hst_list], dtype=np.int8)
 
     return np.array([v_mlist,
                      v_ulist,
                      v_alist,
-                     v_cpg],
-                    np.int32)
+                     v_cpg])
 
 
 def track_epigenetic_process(hst_list,  # initial histone list
@@ -554,18 +538,18 @@ def track_epigenetic_process_oct4(hst_list,  # initial histone list
                                   p_off,  # prob of CpG island site gets OFF
                                   window=10  # default is 10
                                   ):
-    for i in range(len(hst_list)):
+    hst_n = len(hst_list)
+    for i, hst in enumerate(hst_list):
         hst_list[i].set_ka(a_bool)
-    vectorizedgene_list = []  # array of compressed data of vectors
-    t_list = []  # one dimension array
-    for _ in range(time):
-        vectorizedgene_list.append(vectorize_oct4(hst_list))
-        t_list.append(t_bool)
-        dict_hst = next_genome_oct4(hst_list, a_bool, r_bool, window, p_off)
-        hst_list = dict_hst["hstL"]
-        t_bool = dict_hst["T"]
 
-    return {"vectorize": np.array(vectorizedgene_list), "hstL": hst_list, "TList": t_list}
+    vectorizedgene_list = np.zeros((time, 4, hst_n))  # array of compressed data of vectors
+    t_list = np.zeros(time, dtype=bool)  # one dimension array
+    for t in range(time):
+        vectorizedgene_list[t] = vectorize_oct4(hst_list)
+        t_list[t] = t_bool
+        hst_list, t_bool = next_genome_oct4(hst_list, a_bool, r_bool, window, p_off)
+
+    return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
 
 
 # TODO inefficient implementation
@@ -583,7 +567,6 @@ def save_hst_timeseries(hst_timeseries, filename):
     time = len(hst_timeseries)
     kind = len(hst_timeseries[0])
     hst_n = len(hst_timeseries[0][0])
-    print('time', time, 'kind', kind, 'hst', hst_n)
 
     new_array = np.zeros((time, hst_n))
     for i, t in enumerate(hst_timeseries):
@@ -600,20 +583,20 @@ def save_hst_timeseries(hst_timeseries, filename):
 
 
 def read_hstcsv(filename, time, kind=3, hst_n=81):
-    data = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
     print("reading arrays from file")
+    data = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
     hst_timeseries = np.zeros((time, kind, hst_n))
+    print('finish reading file')
     for t, compressed_array in enumerate(data):
         hst_timeseries[t][0] = (compressed_array + compressed_array * compressed_array) / 2
         hst_timeseries[t][1] = compressed_array * compressed_array
         hst_timeseries[t][2] = pow((compressed_array - compressed_array * compressed_array) / 2, 2)
-    print('finish reading file')
     return hst_timeseries
 
 
 def compress_kplist_samplelist_hstseqts(kplist_samplelist_hstseqts):
     kp_n = len(kplist_samplelist_hstseqts)
-    example_n = len(kplist_samplelist_hstseqts[0])
+    # example_n = len(kplist_samplelist_hstseqts[0])
     time = len(kplist_samplelist_hstseqts[0][0])
     hst_n = len(kplist_samplelist_hstseqts[0][0][0][0])
     compressed = np.zeros((kp_n, time, hst_n))
