@@ -108,13 +108,13 @@ def main():
     # plt.show()
 
 
-    title = "fig6-CE/fig___regress__{}examples__k-{}.pdf".format(example_n, k_minus)
+    title = "__k-{}/fig6_regress.pdf".format(example_n, k_minus)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
 
 
-    with open("fig6___{}example__k-{}.csv".format(example_n,k_minus), 'wb') as f:
+    with open("__k-{}/fig6_regress_amax__gamma__beta.csv".format(k_minus), 'wb') as f:
         np.savetxt(f,
                    result,
                    fmt='%f',
