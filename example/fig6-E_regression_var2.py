@@ -17,16 +17,17 @@ TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
 
 
-# def main():
-#     km_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
-#     for i,km in enumerate(km_list):
-#         submain(round(km,4))
-#         print(i)
-#
-# def submain(k_minus):
-#     example_n = 500
 def main():
-    k_minus = 0.11
+    km_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25]
+    km_list.reverse()
+    for i,km in enumerate(km_list):
+        print(km)
+        submain(round(km,4))
+        print(i)
+
+def submain(k_minus):
+# def main():
+#     k_minus = 0.11
 
     example_n = 500
     filename = "__k-{}/dumpdata3d__k-{}__{}examples.csv".format(k_minus, k_minus, example_n)
@@ -108,7 +109,7 @@ def main():
     # plt.show()
 
 
-    title = "__k-{}/fig6_regress.pdf".format(example_n, k_minus)
+    title = "__k-{}/fig6_regress.pdf".format(k_minus)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
