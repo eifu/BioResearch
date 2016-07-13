@@ -1,5 +1,3 @@
-__author__ = 'eifu'
-
 from numpy.random import sample
 import numpy as np
 

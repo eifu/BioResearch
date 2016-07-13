@@ -67,7 +67,16 @@ def write_dump2d_pos_kp(kplist_samplelist_hstseqts, filename, time_inhour):
 
 
 def write_dump3d_kp_time_hst(data3d, filename, time, kp_n=24, hst_n=81):
-    data2d = data3d.reshape(kp_n * time, hst_n)
+    """
+
+    :param data3d: kp list ~> time series ~> hst seq
+    :param filename:
+    :param time:
+    :param kp_n:
+    :param hst_n:
+    :return:
+    """
+    data2d = data3d.reshape(kp_n * time, hst_n) # reshape to 2d for saving data
     with open(filename, 'wb') as f:
         np.savetxt(f,
                    data2d,
@@ -76,7 +85,7 @@ def write_dump3d_kp_time_hst(data3d, filename, time, kp_n=24, hst_n=81):
                    newline='\n')
 
 
-def read_dump(filename, time, kp_n=24, hst_n=81):
+def read_dump3d_kp_time_hst(filename, time, kp_n=24, hst_n=81):
     data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
     print('reading dump file..')
     return data2d.reshape(kp_n, time, hst_n)  # convert to 3d

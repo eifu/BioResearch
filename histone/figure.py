@@ -342,8 +342,6 @@ def figure6c_and_6e(fig, variation_mseq_timeseries, example_n):
     """
     w = 11
 
-
-
     variation = len(variation_mseq_timeseries)
     time = len(variation_mseq_timeseries[0])
     hst_n = len(variation_mseq_timeseries[0][0])
