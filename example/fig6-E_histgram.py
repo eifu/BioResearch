@@ -17,22 +17,42 @@ def main():
     ax = fig.add_subplot(111, projection="3d")
 
     km_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25]
-    for km in km_list:
+    # for km in km_list:
+    #
+    #     filename = "fig6_test6_k-0.11__regress_amax__gamma__beta.csv"
+    #     print("reading dump file .. ")
+    #     data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
+    #     print('done reading dump file..')
 
-        filename = str(km)+"/fig6_regress_amax__gamma__beta.csv"
-        print("reading dump file .. ")
-        data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
-        print('done reading dump file..')
+    filename = "fig6_test6_k-0.11__regress_amax__gamma__beta.csv"
+    print("reading dump file .. ")
+    data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
+    print('done reading dump file..')
 
-    x, y = np.random.rand(2, 100) * 4
-    hist, xedges, yedges = np.histogram2d(x, y, bins=4)
+    # x, y = np.random.rand(2, 100) * 4
+    x = np.arange(24)
+    y = np.arange(24)
+    hist, xedges, yedges = np.histogram2d(x, y,bins=[24,24])
 
-    elements = (len(xedges) - 1) * (len(yedges) - 1)
-    xpos, ypos = np.meshgrid(xedges[:-1] + 0.25, yedges[:-1] + 0.25)
+    hist = np.zeros_like(hist)
+    print(hist)
+
+    print(len(data2d))
+
+    for i, h in enumerate(hist[11]):
+        hist[11][i] = data2d[i][0]
+
+    print(hist)
+    print(xedges)
+    print(yedges)
+    elements = (len(x)) * (len(y) )
+    xpos, ypos = np.meshgrid(x , y )
 
     xpos = xpos.flatten()
     ypos = ypos.flatten()
     zpos = np.zeros(elements)
+
+    print(xpos.shape,ypos.shape,zpos.shape)
     dx = 0.5 * np.ones_like(zpos)
     dy = dx.copy()
     dz = hist.flatten()

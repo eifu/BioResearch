@@ -41,7 +41,7 @@ def main():
     container = np.zeros((24, 8 * 24))
 
     # result is for data to be stored
-    result = np.zeros((24,3),dtype=float)  # 24 versions of k+ with amax, gamma, betta
+    result = np.zeros((24,4),dtype=float)  # 24 versions of k+ with a, exp(beta), gamma, correlation coefficient
 
     for i, oneversion in enumerate(read_data):
 
@@ -94,21 +94,22 @@ def main():
         print(t)
         bx.set_title(t, fontsize=4)
 
-        # result[i][0] = amax
-        # result[i][1] = gamma
-        # result[i][2] = beta
+        result[i][0] = a0
+        result[i][1] = np.exp(b)
+        result[i][2] = g
+        result[i][3] = r
 
     title = "fig6_test6_regress___k-{}.pdf".format(k_minus)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
 
-    # with open("fig6_test_regress_amax__gamma__beta.csv".format(k_minus), 'wb') as f:
-    #     np.savetxt(f,
-    #                result,
-    #                fmt='%f',
-    #                delimiter=',',
-    #                newline='\n')
+    with open("fig6_test6_k-{}__regress_amax__gamma__beta.csv".format(k_minus), 'wb') as f:
+        np.savetxt(f,
+                   result,
+                   fmt='%f',
+                   delimiter=',',
+                   newline='\n')
 
 
 if __name__ == "__main__":
