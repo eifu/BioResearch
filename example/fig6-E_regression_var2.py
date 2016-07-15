@@ -15,6 +15,7 @@ from matplotlib import lines
 
 TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
+dir = 'data5000'
 
 
 # def main():
@@ -30,7 +31,7 @@ def main():
     kp_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
 
     example_n = 500
-    filename = "data500/__k-{}/dumpdata3d__k-{}__{}examples.csv".format(k_minus, k_minus, example_n)
+    filename = dir+"__k-{}/dumpdata3d__k-{}__{}examples.csv".format(k_minus, k_minus, example_n)
     read_data = io.read_dump3d_kp_time_hst(filename, TIME2)
     plt.style.use('ggplot')
     fig = plt.figure()
