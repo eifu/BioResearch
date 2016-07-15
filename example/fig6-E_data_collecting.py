@@ -1,5 +1,5 @@
 """
-1;95;0cfigure 6 C, E
+figure 6 C, E
 
 """
 import histone
@@ -11,8 +11,8 @@ TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
 
 HST_N = 81
-km = 0.3
-example_n = 5
+km = 0.11
+example_n = 5000
 
 
 def main():
@@ -26,9 +26,10 @@ def main():
         print("done", kp)
 
     compressed = io.compress_kplist_samplelist_hstseqts(kplist_samplelist_genets)
-    os.mkdir("__k-"+str(km)+"/")
-    filename3d = "__k-"+str(km)+"/"+"dumpdata3d__k-{}__{}examples.csv".format(km, example_n)
-    filename2d = "__k-"+str(km)+"/"+"dumpdata2d__pos__k-{}__{}examples.csv".format(km, example_n)
+
+    os.mkdir("data5000/__k-"+str(km)+"/")
+    filename3d = "data5000/__k-"+str(km)+"/"+"dumpdata3d__k-{}__{}examples.csv".format(km, example_n)
+    filename2d = "data5000/__k-"+str(km)+"/"+"dumpdata2d__pos__k-{}__{}examples.csv".format(km, example_n)
 
     io.write_dump3d_kp_time_hst(compressed, filename3d, TIME2)
     day8 = 8 * 24
