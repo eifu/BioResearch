@@ -15,7 +15,7 @@ from matplotlib import lines
 
 TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
-dir = 'data5000'
+dir = 'data500/'
 
 
 # def main():
@@ -56,7 +56,7 @@ def main():
     colors = [cm.jet(x) for x in np.linspace(0.0, 1.0, 24)]
 
     for i, enrichment in enumerate(container):
-        ax = fig.add_subplot(4, 6, 12 (i//6) + (i % 6) + 1)
+        ax = fig.add_subplot(8, 6, 12 *(i//6) + (i % 6) + 1)
         ax.set_xticks([0, 50, 100, 150, 200])
         ax.set_xticklabels((0, 50, 100, 150, 200), fontsize=4)
         ax.set_yticks([0])
@@ -64,7 +64,7 @@ def main():
 
         a0 = max(enrichment) + 0.0001
 
-        bx = fig.add_subplot(8, 6, 12 * (i//6) + (i%6) + 7 )
+        bx = fig.add_subplot(8, 6, 12 * (i//6) + (i % 6) + 7)
         bx.set_xticks([])
         bx.set_yticks([])
 
@@ -73,37 +73,32 @@ def main():
         rev_enrichment = [np.log((a0 - e) / a0) for e in enrichment]
         ax.plot(hours, rev_enrichment, ".-", color=colors[i])
 
-        r_list =[]
+        # get the number of examples up to 80% of aMax
+        range_n = 25
+        for h in hours:
+            e_at_time = a0 - enrichment[h]
+            if e_at_time < a0*0.2 and h > range_n:
+                range_n = h
+                break
 
-        range_list = [25, 50, 75, 100]
-        co = ["#d3d3d3","#939393","#545454","#151515"]
-        for index, r in enumerate(range_list):
-            ran = list(range(r))
-            g, b, r, _, _ = stats.linregress(ran, rev_enrichment[:r])
-            func = lambda x: g * x + b
-            estimated_y = [func(x) for x in hours]
-            ax.plot(hours, estimated_y, '--', color=co[index])
+        ran = np.arange(range_n)
+        g, b, r, _, _ = stats.linregress(ran, rev_enrichment[:range_n])
+        func = lambda x: g * x + b
+        estimated_y = [func(x) for x in hours]
+        ax.plot(hours, estimated_y, '--', color='gray')
 
-            en_re = [a0 * (1 - np.exp(g*t + b)) for t in hours]
-            bx.plot(hours, en_re, "--", color=co[index])
+        en_re = [a0 * (1 - np.exp(g*t + b)) for t in hours]
+        bx.plot(hours, en_re, "--", color='gray')
 
-            r_list.append(r)
-
-
-
-        t = "k+ {} \n 25:{} 50:{}\n 75:{} 100{}".format(kp_list[i],
-                                                        round(r_list[0],3),
-                                                        round(r_list[1],3),
-                                                        round(r_list[2],3),
-                                                        round(r_list[3],3))
-
-        ax.set_title(t, fontsize=4)
+        t = "k+ {}\n range {}\n cc {}".format(round(kp_list[i],3), range_n, round(r,3))
+        print(t)
+        bx.set_title(t, fontsize=4)
 
         # result[i][0] = amax
         # result[i][1] = gamma
         # result[i][2] = beta
 
-    title = "fig6_test5_regress___k-{}.pdf".format(k_minus)
+    title = "fig6_test6_regress___k-{}.pdf".format(k_minus)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
