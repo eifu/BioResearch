@@ -89,11 +89,14 @@ def main():
 
             r_list.append(r)
 
+
+
         t = "k+ {} \n 25:{} 50:{}\n 75:{} 100{}".format(kp_list[i],
                                                         round(r_list[0],3),
                                                         round(r_list[1],3),
                                                         round(r_list[2],3),
                                                         round(r_list[3],3))
+
         ax.set_title(t, fontsize=4)
 
         # result[i][0] = amax
