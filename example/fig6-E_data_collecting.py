@@ -18,24 +18,20 @@ dir = 'data5000/'
 
 def main():
 
+    os.mkdir(dir+"__k-"+str(km)+"/")
+
     kp_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
     kp_n = len(kp_list)
-    kplist_samplelist_genets= np.zeros((kp_n, example_n, TIME2, 3, HST_N))
 
     for i, kp in enumerate(kp_list):
-        kplist_samplelist_genets[i] = submain(kp, km)
+        # kplist_samplelist_genets = np.zeros((example_n, TIME2, 3, HST_N))
+        onekp_samplelist_genets = submain(kp, km)
         print("done", kp)
 
-    compressed = io.compress_kplist_samplelist_hstseqts(kplist_samplelist_genets)
+        compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
 
-    os.mkdir(dir+"__k-"+str(km)+"/")
-    filename3d = dir+"__k-"+str(km)+"/"+"dumpdata3d__k-{}__{}examples.csv".format(km, example_n)
-    filename2d = dir+"__k-"+str(km)+"/"+"dumpdata2d__pos__k-{}__{}examples.csv".format(km, example_n)
-
-    io.write_dump3d_kp_time_hst(compressed, filename3d, TIME2)
-    day8 = 8 * 24
-    io.write_dump2d_pos_kp(kplist_samplelist_genets, filename2d, day8)  # for plot2
-
+        filename2d = dir+"__k-{}/".format(km)+"dumpdata2d__k+{}__{}examples.csv".format(round(kp,4), example_n)
+        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
 def submain(k_plus, k_minus):
     one_variation = np.zeros((example_n, TIME2, 3, HST_N))

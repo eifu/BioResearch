@@ -30,7 +30,7 @@ def read_hstcsv(filename, time, kind=3, hst_n=81):
         hst_timeseries[t][2] = pow((compressed_array - compressed_array * compressed_array) / 2, 2)
     return hst_timeseries
 
-
+#
 def compress_kplist_samplelist_hstseqts(kplist_samplelist_hstseqts):
     kp_n = len(kplist_samplelist_hstseqts)
     # example_n = len(kplist_samplelist_hstseqts[0])
@@ -44,6 +44,15 @@ def compress_kplist_samplelist_hstseqts(kplist_samplelist_hstseqts):
 
     return compressed
 
+def compress_onekp_samplelist_hstseqts(onekp_samplelist_hstseqts):
+    time = len(onekp_samplelist_hstseqts[0])
+    hst_n = len(onekp_samplelist_hstseqts[0][0][0])
+    compressed = np.zeros((time, hst_n))
+    for _, vecgenetimeseries in enumerate(onekp_samplelist_hstseqts):
+        for t in range(time):
+            compressed[t] += vecgenetimeseries[t][0]
+
+    return compressed
 
 def write_dump2d_pos_kp(kplist_samplelist_hstseqts, filename, time_inhour):
     kp_n = len(kplist_samplelist_hstseqts)
@@ -68,13 +77,7 @@ def write_dump2d_pos_kp(kplist_samplelist_hstseqts, filename, time_inhour):
 
 def write_dump3d_kp_time_hst(data3d, filename, time, kp_n=24, hst_n=81):
     """
-
     :param data3d: kp list ~> time series ~> hst seq
-    :param filename:
-    :param time:
-    :param kp_n:
-    :param hst_n:
-    :return:
     """
     data2d = data3d.reshape(kp_n * time, hst_n) # reshape to 2d for saving data
     with open(filename, 'wb') as f:
@@ -84,6 +87,17 @@ def write_dump3d_kp_time_hst(data3d, filename, time, kp_n=24, hst_n=81):
                    delimiter=',',
                    newline='\n')
 
+def write_dump2d_onekp_time_hst(data2d, filename, time, kp_n=24, hst_n=81):
+    """
+    :param data3d: kp list ~> time series ~> hst seq
+    """
+    # data2d = data3d.reshape(time, hst_n) # reshape to 2d for saving data
+    with open(filename, 'wb') as f:
+        np.savetxt(f,
+                   data2d,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
 
 def read_dump3d_kp_time_hst(filename, time, kp_n=24, hst_n=81):
     data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
