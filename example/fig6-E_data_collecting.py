@@ -11,20 +11,18 @@ TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
 
 HST_N = 81
-km = 0.11
+km = 0.001
 example_n = 5000
-dir = 'data5000/'
+dir = 'example/data5000/'
 
 
 def main():
 
-    os.mkdir(dir+"__k-"+str(km)+"/")
+#    os.mkdir(dir+"__k-{}/".format(km))
 
-    kp_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
-    kp_n = len(kp_list)
+    kp_list =  [i for i in np.arange(0.09, 0.21, 0.01)] + [0.25, 0.3]
 
     for i, kp in enumerate(kp_list):
-        # kplist_samplelist_genets = np.zeros((example_n, TIME2, 3, HST_N))
         onekp_samplelist_genets = submain(kp, km)
         print("done", kp)
 
@@ -35,7 +33,6 @@ def main():
 
 def submain(k_plus, k_minus):
     one_variation = np.zeros((example_n, TIME2, 3, HST_N))
-    # os.mkdir("__"+str(path_num+2)+"__k+" + str(k_plus)+"__k-"+str(k_minus))
     for ex in range(example_n):
         one_variation[ex] = subsubmain(k_plus, k_minus)
         print(ex, k_minus)
