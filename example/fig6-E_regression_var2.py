@@ -15,24 +15,31 @@ from matplotlib import lines
 
 TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
-dir = 'data500/'
+dir = 'data5000/'
+
+hst_n = 81
+kp_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
+kp_len = len(kp_list)
+example_n = 5000
 
 
-# def main():
-#     km_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25]
-#     for i,km in enumerate(km_list):
-#         print(km)
-#         submain(round(km,4))
-#         print(i)
-#
-# def submain(k_minus):
 def main():
-    k_minus = 0.11
-    kp_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25, 0.3]
+    km_list = [0.0001, 0.001] + [i for i in np.arange(0.01, 0.21, 0.01)] + [0.25,0.3]
+    for i,km in enumerate(km_list):
+        print(km)
+        submain(round(km,4))
+        print(i)
 
-    example_n = 500
-    filename = dir+"__k-{}/dumpdata3d__k-{}__{}examples.csv".format(k_minus, k_minus, example_n)
-    read_data = io.read_dump3d_kp_time_hst(filename, TIME2)
+def submain(k_minus):
+# def main():
+#     k_minus = 0.11
+
+
+    read_data = np.zeros((kp_len, TIME2,hst_n))
+    for i, kp in enumerate(kp_list):
+        filename = dir+"__k-{}/dumpdata2d__k+{}__{}examples.csv".format(k_minus, round(kp,4), example_n)
+        read_data[i] = io.read_dump2d_onekp_time_hst(filename)
+
     plt.style.use('ggplot')
     fig = plt.figure()
 
@@ -99,12 +106,12 @@ def main():
         result[i][2] = g
         result[i][3] = r
 
-    title = "fig6_test6_regress___k-{}.pdf".format(k_minus)
+    title = dir+"linregress/fig6_regress___k-{}.pdf".format(k_minus)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
 
-    with open("fig6_test6_k-{}__regress_amax__gamma__beta.csv".format(k_minus), 'wb') as f:
+    with open(dir+"linregress/fig6_k-{}__regress_amax__gamma__beta.csv".format(k_minus), 'wb') as f:
         np.savetxt(f,
                    result,
                    fmt='%f',

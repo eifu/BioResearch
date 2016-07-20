@@ -103,3 +103,7 @@ def read_dump3d_kp_time_hst(filename, time, kp_n=24, hst_n=81):
     data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
     print('reading dump file..')
     return data2d.reshape(kp_n, time, hst_n)  # convert to 3d
+
+
+def read_dump2d_onekp_time_hst(filename):
+    return np.genfromtxt(filename, skip_footer=0,skip_header=0,delimiter=',')
