@@ -387,7 +387,7 @@ def init_genome_oct4(percentage=50,
     return hst_list
 
 
-def next_genome(hst_list, a_bool, r_bool, window):
+def next_genome(hst_list, a_bool, r_bool, window, K_NUC):
     """
     this method takes histone list and returns the next generation out of them.
     """
@@ -412,7 +412,7 @@ def next_genome(hst_list, a_bool, r_bool, window):
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     if r_bool == 1:
-        eext_bool = 1 if t_bool is False and sample() < Histone.K_Nuc else 0
+        eext_bool = 1 if t_bool is False and sample() < K_NUC else 0
     else:
         eext_bool = 1 if mhst_n > 2 and sample() < Histone.K_PLUS else 0
 
@@ -509,7 +509,8 @@ def track_epigenetic_process(hst_list,  # initial histone list
                              a_bool,  # activator bool
                              r_bool,  # repressor bool
                              t_bool,  # transcription bool
-                             window=10  # default is 10
+                             K_NUC,
+                             window=10,  # default is 10
                              ):
     hst_n = len(hst_list)
     for i, hst in enumerate(hst_list):
@@ -521,7 +522,7 @@ def track_epigenetic_process(hst_list,  # initial histone list
     for t in range(time):
         vectorizedgene_list[t] = vectorize(hst_list)
         t_list[t] = t_bool
-        hst_list, t_bool = next_genome(hst_list, a_bool, r_bool, window)
+        hst_list, t_bool = next_genome(hst_list, a_bool, r_bool, window, K_NUC)
 
     return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
 
