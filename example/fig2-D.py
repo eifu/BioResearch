@@ -17,7 +17,7 @@ TIME1 = 504 # 1.5 week
 TIME2 = 504 # 1.5 week
 DELTA = 1
 
-NUMEXAMPLE = 2000
+NUMEXAMPLE = 100
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
 
     # plt.show()
 
-    title = "fig2-D/fig_test19 __{}examples__{}delta.pdf".format(NUMEXAMPLE, DELTA)
+    title = "fig_test19 __{}examples__{}delta.pdf".format(NUMEXAMPLE, DELTA)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
