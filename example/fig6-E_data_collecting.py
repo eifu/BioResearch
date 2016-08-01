@@ -33,7 +33,7 @@ def main():
             os.mkdir(dir+"kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)))
         for i, kp in enumerate(kp_list):
             onekp_samplelist_genets = submain(kp, km, kn, ka)
-            print("done", kp)
+            print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn,4),round(ka,4),round(km,4),round(kp,4)))
 
             compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
 
@@ -46,7 +46,7 @@ def submain(k_plus, k_minus, k_nuc, k_ace):
     one_variation = np.zeros((example_n, TIME2, 3, HST_N))
     for ex in range(example_n):
         one_variation[ex] = subsubmain(k_plus, k_minus, k_nuc, k_ace)
-        print(ex, k_minus)
+        print("kn:{}, ka:{}, km:{}, kp:{}, example number:{}".format(round(k_nuc,4),round(k_ace,4),round(k_minus,4), round(k_plus,4), ex))
     return one_variation
 
 
