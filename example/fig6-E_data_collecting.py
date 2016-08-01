@@ -14,41 +14,38 @@ HST_N = 81
 
 
 example_n = 5
-dir = 'example/data50_withNUC/'
+dir = 'example/data{}_withNUC/'.format(example_n)
+if not os.path.exists(dir):
+    os.mkdir(dir)
 
 
 def main():
-#     kn_list = [i for i in np.arange(0.1,0.6,0.1)]
-#     ka_list = [i for i in np.arange(0.1,0.6,0.1)]
-#     for kn in kn_list:
-#         for ka in ka_list:
-#             os.mkdir(dir + "kn{}__ka{}/".format(kn, ka))
-#             smain(kn,ka)
-#
-# def smain(KN,KA):
     kn = 0.1
     ka = 0.1
+    if not os.path.exists(dir+"kn{}__ka{}/".format(round(kn,4), round(ka,4))):
+        os.mkdir(dir + "kn{}__ka{}/".format(round(kn,4), round(ka,4)))
 
     km_list = [i for i in np.arange(0.05, 0.21, 0.05)]
     kp_list = [i for i in np.arange(0.05, 0.21, 0.05)]
 
     for km in km_list:
-        os.mkdir(dir+"kn{}__ka{}/".format(KN,KA) + "__k-{}/".format(round(km, 4)))
+        if not os.path.exists(dir+"kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4))):
+            os.mkdir(dir+"kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)))
         for i, kp in enumerate(kp_list):
-            onekp_samplelist_genets = submain(kp, km, kn)
+            onekp_samplelist_genets = submain(kp, km, kn, ka)
             print("done", kp)
 
             compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
 
-            filename2d = dir + "kn{}__ka{}/".format(KN,KA) + "__k-{}/".format(round(km, 4)) \
+            filename2d = dir + "kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)) \
                          + "dumpdata2d__k+{}__{}examples.csv".format(round(kp, 4), example_n)
             io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
 
-def submain(k_plus, k_minus, k_nuc):
+def submain(k_plus, k_minus, k_nuc, k_ace):
     one_variation = np.zeros((example_n, TIME2, 3, HST_N))
     for ex in range(example_n):
-        one_variation[ex] = subsubmain(k_plus, k_minus, k_nuc)
+        one_variation[ex] = subsubmain(k_plus, k_minus, k_nuc, k_ace)
         print(ex, k_minus)
     return one_variation
 
@@ -75,6 +72,7 @@ def subsubmain(k_plus, k_minus, k_nuc, k_ace):
                                              a_bool=A,
                                              r_bool=R,
                                              t_bool=T,
+                                             K_ACE=k_ace,
                                              K_NUC=k_nuc
                                              )
     # tracker = dictH["vectorize"]
@@ -86,13 +84,10 @@ def subsubmain(k_plus, k_minus, k_nuc, k_ace):
                                               a_bool=secA,
                                               r_bool=secR,
                                               t_bool=TList[-1],
+                                              K_ACE=k_ace,
                                               K_NUC=k_nuc
                                               )
     tracker2 = dictH2["vectorize"]
-
-    # finalTracker = np.concatenate((tracker, tracker2))
-    # histone.save_hst_timeseries(tracker2,
-    #                             "__" + str(path_num + 2) + "__k+" + str(k_plus) + "__k-" + str(k_minus) + "/example" + str(ex) + ".csv")
 
     return tracker2
 
