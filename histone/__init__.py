@@ -76,14 +76,14 @@ class Histone(object):
         nextnode.prenode = self
 
     # BUG k_ace should be subject to k_minus
-    def set_ka(self, a_bool):
+    def set_ka(self, a_bool,k_ace):
         """
         set the default of Histone.K_ACE.
         :param a_bool: boolean value, if a_bool is true, then Histone.KCE is set to the
         :return:
         """
         if a_bool:
-            Histone.K_ACE = 0.12
+            Histone.K_ACE = k_ace
         else:
             Histone.K_ACE = 0
 
@@ -509,12 +509,13 @@ def track_epigenetic_process(hst_list,  # initial histone list
                              a_bool,  # activator bool
                              r_bool,  # repressor bool
                              t_bool,  # transcription bool
+                             K_ACE,
                              K_NUC,
                              window=10,  # default is 10
                              ):
     hst_n = len(hst_list)
     for i, hst in enumerate(hst_list):
-        hst_list[i].set_ka(a_bool)
+        hst_list[i].set_ka(a_bool,K_ACE)
 
     vectorizedgene_list = np.zeros((time, 3, hst_n))  # array of compressed data of vectors
     t_list = np.zeros(time, dtype=bool)  # one dimension array

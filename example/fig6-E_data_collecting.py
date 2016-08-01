@@ -12,16 +12,22 @@ TIME2 = 504  # 3 week in hour
 
 HST_N = 81
 
-KN = 0.1
-KA = 0.1
 
 example_n = 5
 dir = 'example/data50_withNUC/'
 
 
 def main():
-
-    os.mkdir(dir + "kn{}__ka{}/".format(KN, KA))
+#     kn_list = [i for i in np.arange(0.1,0.6,0.1)]
+#     ka_list = [i for i in np.arange(0.1,0.6,0.1)]
+#     for kn in kn_list:
+#         for ka in ka_list:
+#             os.mkdir(dir + "kn{}__ka{}/".format(kn, ka))
+#             smain(kn,ka)
+#
+# def smain(KN,KA):
+    kn = 0.1
+    ka = 0.1
 
     km_list = [i for i in np.arange(0.05, 0.21, 0.05)]
     kp_list = [i for i in np.arange(0.05, 0.21, 0.05)]
@@ -29,7 +35,7 @@ def main():
     for km in km_list:
         os.mkdir(dir+"kn{}__ka{}/".format(KN,KA) + "__k-{}/".format(round(km, 4)))
         for i, kp in enumerate(kp_list):
-            onekp_samplelist_genets = submain(kp, km)
+            onekp_samplelist_genets = submain(kp, km, kn)
             print("done", kp)
 
             compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
@@ -39,15 +45,15 @@ def main():
             io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
 
-def submain(k_plus, k_minus):
+def submain(k_plus, k_minus, k_nuc):
     one_variation = np.zeros((example_n, TIME2, 3, HST_N))
     for ex in range(example_n):
-        one_variation[ex] = subsubmain(k_plus, k_minus)
+        one_variation[ex] = subsubmain(k_plus, k_minus, k_nuc)
         print(ex, k_minus)
     return one_variation
 
 
-def subsubmain(k_plus, k_minus):
+def subsubmain(k_plus, k_minus, k_nuc, k_ace):
     R = 0
     A = 1
     secR = 1
@@ -60,8 +66,8 @@ def subsubmain(k_plus, k_minus):
                                        hst_n=HST_N,
                                        kp=k_plus,
                                        kp2=k_plus,
+                                       ka=k_ace,
                                        km=k_minus,
-                                       ka=k_minus
                                        )
 
     dictH = histone.track_epigenetic_process(hst_list=histoneList1,
@@ -69,7 +75,7 @@ def subsubmain(k_plus, k_minus):
                                              a_bool=A,
                                              r_bool=R,
                                              t_bool=T,
-                                             K_NUC=KN
+                                             K_NUC=k_nuc
                                              )
     # tracker = dictH["vectorize"]
     hstL = dictH["hstL"]
@@ -80,7 +86,7 @@ def subsubmain(k_plus, k_minus):
                                               a_bool=secA,
                                               r_bool=secR,
                                               t_bool=TList[-1],
-                                              K_NUC=KN
+                                              K_NUC=k_nuc
                                               )
     tracker2 = dictH2["vectorize"]
 

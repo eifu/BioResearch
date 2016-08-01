@@ -16,6 +16,7 @@ def main():
     k_plus = 0.2
     k_minus = 0.117
     k_nuc = 0.6
+    k_ace = 0.0001
 
     R = 0
     A = 1
@@ -32,7 +33,7 @@ def main():
                                        kp=k_plus,
                                        kp2=k_plus,
                                        km=k_minus,
-                                       ka=k_minus
+                                       ka=k_ace
                                        )
 
     dictH = histone.track_epigenetic_process(hst_list=histoneList1,
@@ -40,6 +41,7 @@ def main():
                                              a_bool=A,
                                              r_bool=R,
                                              t_bool=T,
+                                             K_ACE=k_ace,
                                              K_NUC=k_nuc
     )
     tracker = dictH["vectorize"]
@@ -51,6 +53,7 @@ def main():
                                               a_bool=secA,
                                               r_bool=secR,
                                               t_bool=TList[-1],
+                                              K_ACE=k_ace,
                                               K_NUC=k_nuc
     )
     tracker2 = dictH2["vectorize"]
