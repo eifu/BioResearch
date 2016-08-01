@@ -2,7 +2,6 @@ import histone
 import histone.figure as figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib
 
@@ -17,19 +16,7 @@ def main():
     k_plus = 0.2
     k_minus = 0.117
     k_nuc = 0.6
-    trackerlist = []
 
-    # for c in range(50):
-    #     trackerlist = submain(trackerlist, k_plus, k_minus)
-    #     print(c)
-
-    # fig = plt.figure()
-    # histone.figure.kinetic_model(fig, trackerlist)
-
-
-    # plt.show()
-
-# def submain(trackerlist, k_plus, k_minus):
     R = 0
     A = 1
     secR = 1
@@ -64,7 +51,7 @@ def main():
                                               a_bool=secA,
                                               r_bool=secR,
                                               t_bool=TList[-1],
-                                              K_NUC=0.2
+                                              K_NUC=k_nuc
     )
     tracker2 = dictH2["vectorize"]
 
@@ -83,9 +70,6 @@ def main():
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
-    
-
-
 
 if __name__ == "__main__":
     main()

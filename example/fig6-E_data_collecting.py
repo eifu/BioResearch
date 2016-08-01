@@ -11,25 +11,33 @@ TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
 
 HST_N = 81
-km = 0.001
-example_n = 5000
-dir = 'example/data5000/'
+
+KN = 0.1
+KA = 0.1
+
+example_n = 5
+dir = 'example/data50_withNUC/'
 
 
 def main():
 
-#    os.mkdir(dir+"__k-{}/".format(km))
+    os.mkdir(dir + "kn{}__ka{}/".format(KN, KA))
 
-    kp_list =  [i for i in np.arange(0.09, 0.21, 0.01)] + [0.25, 0.3]
+    km_list = [i for i in np.arange(0.05, 0.21, 0.05)]
+    kp_list = [i for i in np.arange(0.05, 0.21, 0.05)]
 
-    for i, kp in enumerate(kp_list):
-        onekp_samplelist_genets = submain(kp, km)
-        print("done", kp)
+    for km in km_list:
+        os.mkdir(dir+"kn{}__ka{}/".format(KN,KA) + "__k-{}/".format(round(km, 4)))
+        for i, kp in enumerate(kp_list):
+            onekp_samplelist_genets = submain(kp, km)
+            print("done", kp)
 
-        compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
+            compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
 
-        filename2d = dir+"__k-{}/".format(km)+"dumpdata2d__k+{}__{}examples.csv".format(round(kp,4), example_n)
-        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
+            filename2d = dir + "kn{}__ka{}/".format(KN,KA) + "__k-{}/".format(round(km, 4)) \
+                         + "dumpdata2d__k+{}__{}examples.csv".format(round(kp, 4), example_n)
+            io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
+
 
 def submain(k_plus, k_minus):
     one_variation = np.zeros((example_n, TIME2, 3, HST_N))
@@ -60,7 +68,8 @@ def subsubmain(k_plus, k_minus):
                                              time=TIME1,
                                              a_bool=A,
                                              r_bool=R,
-                                             t_bool=T
+                                             t_bool=T,
+                                             K_NUC=KN
                                              )
     # tracker = dictH["vectorize"]
     hstL = dictH["hstL"]
@@ -70,7 +79,8 @@ def subsubmain(k_plus, k_minus):
                                               time=TIME2,
                                               a_bool=secA,
                                               r_bool=secR,
-                                              t_bool=TList[-1]
+                                              t_bool=TList[-1],
+                                              K_NUC=KN
                                               )
     tracker2 = dictH2["vectorize"]
 
