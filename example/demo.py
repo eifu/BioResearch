@@ -15,8 +15,8 @@ DELTA = 1
 def main():
     k_plus = 0.2
     k_minus = 0.117
-    k_nuc = 0.6
-    k_ace = 0.0001
+    k_nuc = 0.9
+    k_ace = 0.5
 
     R = 0
     A = 1

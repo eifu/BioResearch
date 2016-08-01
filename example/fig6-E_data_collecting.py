@@ -12,40 +12,50 @@ TIME2 = 504  # 3 week in hour
 
 HST_N = 81
 
-
-example_n = 500
+example_n = 5
 dir = 'example/data{}_withNUC/'.format(example_n)
 if not os.path.exists(dir):
     os.mkdir(dir)
 
 
 def main():
-    kn = 0.1
-    ka = 0.1
+    # kn_list = [0.1]
+    # ka_list = [0.1]
 
-    if not os.path.exists(dir+"kn{}__ka{}/".format(round(kn,4), round(ka,4))):
-        os.mkdir(dir + "kn{}__ka{}/".format(round(kn,4), round(ka,4)))
+    kn_list = np.arange(0.1,0.91,0.05)
+    ka_list = np.arange(0.1,0.91,0.05)
 
-    kmkppair = [(0.05,0.11),(0.05,0.12),(0.06,0.14),(0.06,0.15),(0.07,0.16),(0.07,0.17),(0.08,0.19),(0.08,0.2),(0.11,0.25),(0.14,0.3)]
 
-    for km,kp in kmkppair:
-        if not os.path.exists(dir+"kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4))):
-            os.mkdir(dir+"kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)))
-        onekp_samplelist_genets = submain(kp, km, kn, ka)
-        print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn,4),round(ka,4),round(km,4),round(kp,4)))
 
-        compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
-        
-        filename2d = dir + "kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)) \
+
+    kmkppair = [(0.08, 0.19)]
+
+    for kn in kn_list:
+        for ka in ka_list:
+            if not os.path.exists(dir + "kn{}__ka{}/".format(round(kn, 4), round(ka, 4))):
+                os.mkdir(dir + "kn{}__ka{}/".format(round(kn, 4), round(ka, 4)))
+
+            for km, kp in kmkppair:
+                if not os.path.exists(dir + "kn{}__ka{}/".format(round(kn,4), round(ka,4)) + "__k-{}/".format(round(km, 4))):
+                    os.mkdir(dir + "kn{}__ka{}/".format(round(kn,4), round(ka,4)) + "__k-{}/".format(round(km, 4)))
+
+                onekp_samplelist_genets = submain(kp, km, kn, ka)
+                print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn, 4), round(ka, 4), round(km, 4), round(kp, 4)))
+
+                compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
+
+                filename2d = dir + "kn{}__ka{}/".format(round(kn,4), round(ka,4)) + "__k-{}/".format(round(km, 4)) \
                      + "dumpdata2d__k+{}__{}examples.csv".format(round(kp, 4), example_n)
-        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
+                io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
 
 def submain(k_plus, k_minus, k_nuc, k_ace):
     one_variation = np.zeros((example_n, TIME2, 3, HST_N))
     for ex in range(example_n):
         one_variation[ex] = subsubmain(k_plus, k_minus, k_nuc, k_ace)
-        print("kn:{}, ka:{}, km:{}, kp:{}, example number:{}".format(round(k_nuc,4),round(k_ace,4),round(k_minus,4), round(k_plus,4), ex))
+        print(
+            "kn:{}, ka:{}, km:{}, kp:{}, example number:{}".format(round(k_nuc, 4), round(k_ace, 4), round(k_minus, 4),
+                                                                   round(k_plus, 4), ex))
     return one_variation
 
 

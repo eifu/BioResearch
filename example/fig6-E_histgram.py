@@ -64,7 +64,7 @@ def main():
             hist_b[i_km][ii] = - data2d[ii][2]
             hist_cc[i_km][ii] = data2d[ii][3]
 
-        print("i_km",i_km,"km:",km_list[i_km], [(ii,round(kp_list[ii],4)) for ii in gamma_01to03])
+        print("i_km", i_km, "km:", km_list[i_km], [(ii, round(kp_list[ii],4)) for ii in gamma_01to03])
 
     # data2d = np.genfromtxt("fig6_test6_k-0.11__regress_amax__gamma__beta.csv", skip_header=0, skip_footer=0, delimiter=',')
     # for ii,h in enumerate(hist_g[11]):
