@@ -13,7 +13,7 @@ TIME2 = 504  # 3 week in hour
 HST_N = 81
 
 
-example_n = 5
+example_n = 500
 dir = 'example/data{}_withNUC/'.format(example_n)
 if not os.path.exists(dir):
     os.mkdir(dir)
@@ -22,24 +22,23 @@ if not os.path.exists(dir):
 def main():
     kn = 0.1
     ka = 0.1
+
     if not os.path.exists(dir+"kn{}__ka{}/".format(round(kn,4), round(ka,4))):
         os.mkdir(dir + "kn{}__ka{}/".format(round(kn,4), round(ka,4)))
 
-    km_list = [i for i in np.arange(0.05, 0.21, 0.05)]
-    kp_list = [i for i in np.arange(0.05, 0.21, 0.05)]
+    kmkppair = [(0.05,0.11),(0.05,0.12),(0.06,0.14),(0.06,0.15),(0.07,0.16),(0.07,0.17),(0.08,0.19),(0.08,0.2),(0.11,0.25),(0.14,0.3)]
 
-    for km in km_list:
+    for km,kp in kmkppair:
         if not os.path.exists(dir+"kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4))):
             os.mkdir(dir+"kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)))
-        for i, kp in enumerate(kp_list):
-            onekp_samplelist_genets = submain(kp, km, kn, ka)
-            print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn,4),round(ka,4),round(km,4),round(kp,4)))
+        onekp_samplelist_genets = submain(kp, km, kn, ka)
+        print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn,4),round(ka,4),round(km,4),round(kp,4)))
 
-            compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
-
-            filename2d = dir + "kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)) \
-                         + "dumpdata2d__k+{}__{}examples.csv".format(round(kp, 4), example_n)
-            io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
+        compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
+        
+        filename2d = dir + "kn{}__ka{}/".format(kn,ka) + "__k-{}/".format(round(km, 4)) \
+                     + "dumpdata2d__k+{}__{}examples.csv".format(round(kp, 4), example_n)
+        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
 
 def submain(k_plus, k_minus, k_nuc, k_ace):
