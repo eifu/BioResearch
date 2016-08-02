@@ -30,10 +30,11 @@ TIME2 = 3 * 7 * 24  # 3 week in hours
 
 
 def main():
-    k_plus = 0.2
-    k_minus = 0.117
-    k_nuc = 0.9
-    k_ace = 0.2
+    k_plus = 0.145
+    k_minus = 0.145
+    k_nuc = 0.05
+    k_ace = 0
+    percent = 100
 
     R = 0
     A = 1
@@ -59,7 +60,7 @@ def main():
     #
     # output:
     # a list of histone objects
-    histoneList1 = histone.init_genome(percentage=50,
+    histoneList1 = histone.init_genome(percentage=percent,
                                        a_bool=A,
                                        hst_n=NUM_OF_HISTONE,
                                        kp=k_plus,
@@ -131,7 +132,7 @@ def main():
     plt.show()
 
     # to save a figure to pdf file
-    title = "demo/result/test_{}.pdf".format(strftime("%Y_%m_%d_%H:%M"))
+    title = "demo/result/test_{}____k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(strftime("%Y_%m_%d_%H:%M"),k_plus,k_minus,k_ace,k_nuc,percent)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()

@@ -330,7 +330,7 @@ def init_genome(percentage=50,
                                      )
                             )
         else:
-            hst_list.append(AHistone(position=i - before_promoter,
+            hst_list.append(UHistone(position=i - before_promoter,
                                      kp=kp,
                                      kp2=kp2,
                                      km=km,
@@ -412,22 +412,20 @@ def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
     eext_bool = False
-    # when repressor is activated (R==True)
-    # with this condition, we recover E0 histone methylated again.
-    if r_bool == 1:
-        # if transcription does not happen, then with k_nuc
-        # probability, we recover E0 histone to be methylated.
-        if t_bool is False and sample() < k_nuc:
-            eext_bool = True
 
-    # when repressor is not activated (R==False)
-    # with this condition, we recover E0 histone methylated again.
-    else:
-        # if in the locus, we have more than two methylated histones,
-        # then with K_PLUS probability, we recover E0 histone to be
-        # methylated.
-        if mhst_n > 2 and sample() < Histone.K_PLUS:
-            eext_bool = True
+    # if transcription does not happen, then with k_nuc
+    # probability, we recover E0 histone to be methylated.
+    if t_bool is False and sample() < k_nuc:
+        eext_bool = True
+
+
+    # if in the locus, we have more than two methylated histones,
+    # then with K_PLUS probability, we recover E0 histone to be
+    # methylated.
+
+    # this is a histone memory part.
+    if mhst_n > 2 and sample() < Histone.K_PLUS:
+        eext_bool = True
 
     if eext_bool is True:
         center = len(hst_list) // 2
