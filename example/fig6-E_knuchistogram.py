@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
-example_n = 200
+example_n = 500
 
 dir = "example/data500_withNUC/"
 
 
 def main():
-    ka_list = [0.1, 0.2]
+    ka_list = [0.1, 0.2, 0.3]
     kn_list = [0.1, 0.2, 0.3]
 
     # ka_list = [0.1]
@@ -32,10 +32,9 @@ def main():
         ax = fig.add_subplot(3,4, i_kmkp + 1, projection="3d")
 
         x = np.arange(3)
-        y = np.arange(2)
-        # hist, _, _ = np.histogram2d(x, y, bins=[3,3])
-        # print(hist,hist.shape, len(hist))
-        hist_acc = np.zeros((2,3))
+        y = np.arange(3)
+
+        hist_acc = np.zeros((3,3))
 
         for i_ka, ka in enumerate(ka_list):
             for i_kn, kn in enumerate(kn_list):
@@ -64,8 +63,13 @@ def main():
         dz_acc = hist_acc.flatten()
 
         ax.bar3d(xpos, ypos, zpos, dx, dy, dz_acc, color='b')
-        ax.set_xlabel('kn {}'.format(round(kn,4)))
-        ax.set_ylabel('ka {}'.format(round(ka,4)))
+        ax.set_xlabel('kn ')
+        ax.set_xticks(np.arange(3))
+        ax.set_xticklabels((0.1,0.2,0.3))
+        ax.set_ylabel('ka ')
+        ax.set_yticks(np.arange(3))
+        ax.set_yticklabels((0.1, 0.2, 0.3))
+
         ax.text2D(0.05, 0.95, "km:{}, kp:{}".format(km,kp), transform=ax.transAxes)
 
     plt.show()
