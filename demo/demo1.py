@@ -1,28 +1,46 @@
 import histone
 import histone.figure as figure
+from time import strftime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-import numpy as np
 import matplotlib
+import numpy as np
+
+"""
+demonstlation of histone library.
+In this file, we demonstlate the histone code without DNA methylation model.
+As are imported above, you have to have two libraries, numpy, matplotlib on
+your local computer.
+
+This code outputs a figure that has a list of histone in y-axis, and 
+time series in x-axis.
+
+NUM_OF_HISTONE ... global variable, a length of histones that you keep track.
+WINDOW ... global variable, a length of locus in the list of histones.
+TIME1 ... global variable, a time length of how long histones are held before
+the environment changes.
+TIME2 ... global variable, a time length of how long histones are held after
+the environment changes.
+"""
 
 NUM_OF_HISTONE = 81
 WINDOW = 10
 TIME1 = 504  # 3 week
 TIME2 = 504  # 3 week
-DELTA = 1
 
 
 def main():
     k_plus = 0.2
     k_minus = 0.117
     k_nuc = 0.9
-    k_ace = 0.5
+    k_ace = 0.2
 
     R = 0
     A = 1
     secR = 1
     secA = 1
     T = 0
+
     plt.style.use('ggplot')
     font = {'family': 'sans-serif'}
     matplotlib.rc('font', **font)
@@ -63,13 +81,13 @@ def main():
 
     fig = plt.figure()
     histone.figure.sequence(fig, finalTracker, 3, 1, 1)
-    histone.figure.transcription(fig, finalTList, 9, 1, 4)
-    histone.figure.window(fig, finalTracker, 9, 1, 5)
-    histone.figure.m_stat(fig, tracker, 9, 4, 22)
-    histone.figure.m_stat(fig, tracker2, 9, 4, 24)
+    histone.figure.transcription(fig, finalTList, 6, 1, 3)
+    histone.figure.window(fig, finalTracker, 6, 1, 4)
+    histone.figure.m_stat(fig, tracker, 3, 4, 10)
+    histone.figure.m_stat(fig, tracker2, 3, 4, 12)
     plt.show()
 
-    title = "test.pdf"
+    title = "demo/result/test_{}.pdf".format(strftime("%Y_%m_%d_%H:%M"))
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
