@@ -387,7 +387,7 @@ def init_genome_oct4(percentage=50,
     return hst_list
 
 
-def next_genome(hst_list, a_bool, r_bool, window, K_NUC):
+def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
     """
     this method takes histone list and returns the next generation out of them.
     """
@@ -411,12 +411,25 @@ def next_genome(hst_list, a_bool, r_bool, window, K_NUC):
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
+    eext_bool = False
+    # when repressor is activated (R==True)
+    # with this condition, we recover E0 histone methylated again.
     if r_bool == 1:
-        eext_bool = 1 if t_bool is False and sample() < K_NUC else 0
-    else:
-        eext_bool = 1 if mhst_n > 2 and sample() < Histone.K_PLUS else 0
+        # if transcription does not happen, then with k_nuc
+        # probability, we recover E0 histone to be methylated.
+        if t_bool is False and sample() < k_nuc:
+            eext_bool = 1
 
-    if eext_bool:
+    # when repressor is not activated (R==False)
+    # with this condition, we recover E0 histone methylated again.
+    else:
+        # if in the locus, we have more than two methylated histones,
+        # then with K_PLUS probability, we recover E0 histone to be
+        # methylated.
+        if mhst_n > 2 and sample() < Histone.K_PLUS:
+            eext_bool = 1
+
+    if eext_bool is True:
         center = len(hst_list) // 2
         hst_list[center] = MHistone(inherited=True, inherited_hst=hst_list[center])
 
