@@ -418,7 +418,7 @@ def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
         # if transcription does not happen, then with k_nuc
         # probability, we recover E0 histone to be methylated.
         if t_bool is False and sample() < k_nuc:
-            eext_bool = 1
+            eext_bool = True
 
     # when repressor is not activated (R==False)
     # with this condition, we recover E0 histone methylated again.
@@ -427,7 +427,7 @@ def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
         # then with K_PLUS probability, we recover E0 histone to be
         # methylated.
         if mhst_n > 2 and sample() < Histone.K_PLUS:
-            eext_bool = 1
+            eext_bool = True
 
     if eext_bool is True:
         center = len(hst_list) // 2
@@ -522,13 +522,13 @@ def track_epigenetic_process(hst_list,  # initial histone list
                              a_bool,  # activator bool
                              r_bool,  # repressor bool
                              t_bool,  # transcription bool
-                             K_ACE,
-                             K_NUC,
+                             ace_prob,
+                             nuc_prob,
                              window=10,  # default is 10
                              ):
     hst_n = len(hst_list)
     for i, hst in enumerate(hst_list):
-        hst_list[i].set_ka(a_bool,K_ACE)
+        hst_list[i].set_ka(a_bool,ace_prob)
 
     vectorizedgene_list = np.zeros((time, 3, hst_n))  # array of compressed data of vectors
     t_list = np.zeros(time, dtype=bool)  # one dimension array
@@ -536,7 +536,7 @@ def track_epigenetic_process(hst_list,  # initial histone list
     for t in range(time):
         vectorizedgene_list[t] = vectorize(hst_list)
         t_list[t] = t_bool
-        hst_list, t_bool = next_genome(hst_list, a_bool, r_bool, window, K_NUC)
+        hst_list, t_bool = next_genome(hst_list, a_bool, r_bool, window, nuc_prob)
 
     return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
 

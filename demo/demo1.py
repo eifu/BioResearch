@@ -1,5 +1,5 @@
 import histone
-import histone.figure as figure
+import histone.figure
 from time import strftime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -25,8 +25,8 @@ the environment changes.
 
 NUM_OF_HISTONE = 81
 WINDOW = 10
-TIME1 = 504  # 3 week
-TIME2 = 504  # 3 week
+TIME1 = 3 * 7 * 24  # 3 week in hours
+TIME2 = 3 * 7 * 24  # 3 week in hours
 
 
 def main():
@@ -39,12 +39,26 @@ def main():
     A = 1
     secR = 1
     secA = 1
-    T = 0
 
-    plt.style.use('ggplot')
-    font = {'family': 'sans-serif'}
-    matplotlib.rc('font', **font)
 
+    # init_genome
+    #
+    # initializes a list of histone objects.
+    # if you want to have a list of histones with
+    # specific characterestics, you can custumize it with
+    # keyword arguments.
+    # input:
+    # (list of keyword arguments)
+    # - percentage .. probability of methylated histones.
+    # - a_bool .. having activator On.
+    # - hst_n .. number of histones in a list
+    # - kp .. probability of k plus
+    # - kp2 .. probability of k plus 2
+    # - km .. probability of k minus
+    # - ka .. probability of k ace
+    #
+    # output:
+    # a list of histone objects
     histoneList1 = histone.init_genome(percentage=50,
                                        a_bool=A,
                                        hst_n=NUM_OF_HISTONE,
@@ -54,13 +68,36 @@ def main():
                                        ka=k_ace
                                        )
 
+    # track_epigenetic_process
+    # 
+    # returns a dictionary of the result of the records under
+    # a specific environment. you can setup the environment
+    # with keyword arguments.
+    # input:
+    # (list of keyword arguments)
+    # - hst_list .. the initial condition of list of histones
+    # - time .. the time length of tracking
+    # - a_bool
+    # - r_bool
+    # - t_bool .. whether transcription happended last time or
+    #             not. For the first tracking, we set up t_bool
+    #             to be 0 as a default.
+    T = 0
+    
+    # - ace_prob .. K-ace probability.
+    # - nuc_prob .. K-nuc probability.
+    # output:
+    # dictionary object that contains three data,
+    # key: vectorize, value: a record of timeseries of list of histones.
+    # key: hstL, value: a final status of list of histones
+    # key: TList, value: a record of timeseries of whether transcription happens.
     dictH = histone.track_epigenetic_process(hst_list=histoneList1,
                                              time=TIME1,
                                              a_bool=A,
                                              r_bool=R,
                                              t_bool=T,
-                                             K_ACE=k_ace,
-                                             K_NUC=k_nuc
+                                             ace_prob=k_ace,
+                                             nuc_prob=k_nuc
     )
     tracker = dictH["vectorize"]
     hstL = dictH["hstL"]
@@ -71,15 +108,21 @@ def main():
                                               a_bool=secA,
                                               r_bool=secR,
                                               t_bool=TList[-1],
-                                              K_ACE=k_ace,
-                                              K_NUC=k_nuc
+                                              ace_prob=k_ace,
+                                              nuc_prob=k_nuc
     )
     tracker2 = dictH2["vectorize"]
 
     finalTracker = np.concatenate((tracker, tracker2))
     finalTList = np.concatenate((TList, dictH2["TList"]))
 
+    # basic setup for matplotlib
+    plt.style.use('ggplot')
+    font = {'family': 'sans-serif'}
+    matplotlib.rc('font', **font)
+
     fig = plt.figure()
+
     histone.figure.sequence(fig, finalTracker, 3, 1, 1)
     histone.figure.transcription(fig, finalTList, 6, 1, 3)
     histone.figure.window(fig, finalTracker, 6, 1, 4)
@@ -87,6 +130,7 @@ def main():
     histone.figure.m_stat(fig, tracker2, 3, 4, 12)
     plt.show()
 
+    # to save a figure to pdf file
     title = "demo/result/test_{}.pdf".format(strftime("%Y_%m_%d_%H:%M"))
     pp = PdfPages(title)
     pp.savefig(fig)
