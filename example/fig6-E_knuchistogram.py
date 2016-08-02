@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
-example_n = 500
+example_n = 200
 
 dir = "example/data500_withNUC/"
 

@@ -25,9 +25,6 @@ def main():
     kn_list = np.arange(0.1,0.91,0.05)
     ka_list = np.arange(0.1,0.91,0.05)
 
-
-
-
     kmkppair = [(0.08, 0.19)]
 
     for kn in kn_list:
