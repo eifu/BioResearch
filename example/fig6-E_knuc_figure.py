@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-example_n = 300
+example_n = 100
 dir1 = "example/data{}_withNUC_strongmemory/".format(example_n)
 
 
@@ -15,7 +15,7 @@ def main():
 
     ka1 = 0
     ka2 = 0
-    kn_list = np.arange(0.05, 0.96, 0.05)
+    kn_list = np.arange(0.001, 0.051, 0.001)
     for i_kn, kn2 in enumerate(kn_list):
         kn1 = 0
         dir2 = dir1 +"kn{}ka{}_kn{}ka{}/".format(round(kn1, 4), round(ka1, 4), round(kn2, 4),
@@ -51,7 +51,7 @@ def main():
 
         p2 = ax.plot(i_kn,ave,".", color="red")
 
-    ax.set_xticks(np.arange(19))
+    ax.set_xticks(np.arange(len(kn_list)))
     ax.set_xticklabels(kn_list)
 
     ax.set_ylim(-5, 105)
@@ -60,7 +60,7 @@ def main():
     plt.legend((p1[0], p2[0]), ('initial knuc 0', 'initial knuc 1'))
     plt.show()
 
-    title = "example/figure/test2.pdf"
+    title = "example/figure/test_strongmemory_locus.pdf"
 
 
     pp = PdfPages(title)

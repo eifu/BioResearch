@@ -22,7 +22,7 @@ secA = 1
 
 
 def main():
-    for k_nuc in np.arange(0.05, 0.96, 0.05):
+    for k_nuc in np.arange(0, 0.051, 0.001):
         submain(k_nuc)
         print(k_nuc)
 
@@ -116,7 +116,7 @@ def submain(k_nuc):
     # plt.show()
 
     # to save a figure to pdf file
-    title = "example/figure/knuc/k+{}_k-{}/kace{}_knuc{}_percent{}.pdf".format(round(k_plus,4), round(k_minus,4), round(k_ace,4), round(k_nuc, 4),
+    title = "example/figure/knuc3/k+{}_k-{}/kace{}_knuc{}_percent{}.pdf".format(round(k_plus,4), round(k_minus,4), round(k_ace,4), round(k_nuc, 4),
                                                                                percent)
     pp = PdfPages(title)
     pp.savefig(fig)
