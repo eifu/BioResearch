@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 
-def sequence(fig, vectgene_timeseries, row, col, num):
+def sequence(fig, vectgene_timeseries, row, col, num, kace, knuc, kace2, knuc2):
     hst_n = len(vectgene_timeseries[0][0])
     time = len(vectgene_timeseries)
 
@@ -25,10 +25,18 @@ def sequence(fig, vectgene_timeseries, row, col, num):
                 y_position_a,
                 ",", color="red")
 
+    y_position_black = [i - 40 for i in range(hst_n)]
+    x_position_black = np.ones(hst_n) * len(vectgene_timeseries) / 2
+    ax.plot(x_position_black,
+            y_position_black,
+            ",", color="black")
+
     ax.set_xlim(-0.5, time)
     ax.set_ylim(-40.5, 40.5)
     ax.set_xticks([w for w in range(0, time, 168)])
     ax.set_xticklabels(("week" + str(w) for w in range(1, time // 168 + 1)))
+    ax.set_title(
+        "Kace{}, Knuc{} -> Kace{}, Knuc{}".format(round(kace, 4), round(knuc, 4), round(kace2, 4), round(knuc2, 4)))
 
 
 def window(fig, vectgene_timeseries, row, col, num):
@@ -408,10 +416,10 @@ def figure6c_and_6e(fig, variation_mseq_timeseries, example_n):
 
     cx = fig.add_subplot(2, 2, 3)
 
-    hours = np.arange(24*8)
+    hours = np.arange(24 * 8)
     for i, oneversion_list_mseq in enumerate(variation_mseq_timeseries):
-        enrichment = np.zeros(24*8)
-        for t, mseq in enumerate(oneversion_list_mseq[:24*8]):
+        enrichment = np.zeros(24 * 8)
+        for t, mseq in enumerate(oneversion_list_mseq[:24 * 8]):
             enrichment[t] = sum(mseq[35:46])
         enrichment /= example_n
         cx.plot(hours, enrichment, ',-', color=colors[i])
