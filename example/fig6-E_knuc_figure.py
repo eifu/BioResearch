@@ -55,7 +55,9 @@ def main():
     ax.set_xticks(np.arange(19))
     ax.set_xticklabels(kn_list)
 
-    ax.set_ylim(0, 100)
+    ax.set_ylim(-5, 105)
+    ax.set_yticks(np.arange(0,101,20))
+    ax.set_yticklabels((str(i)+"%" for i in range(0,101,20)))
     plt.legend((p1[0], p2[0]), ('initial knuc 0', 'initial knuc 1'))
     plt.show()
 
