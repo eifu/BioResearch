@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 example_n = 300
+dir1 = "example/data{}_withNUC_strongmemory/".format(example_n)
 
 
 def main():
-
-
     km = 0.145
     kp = 0.145
 
@@ -19,7 +18,7 @@ def main():
     kn_list = np.arange(0.05, 0.96, 0.05)
     for i_kn, kn2 in enumerate(kn_list):
         kn1 = 0
-        dir2 = "example/data{}_withNUC/kn{}ka{}_kn{}ka{}/".format(example_n,round(kn1, 4), round(ka1, 4), round(kn2, 4),
+        dir2 = dir1 +"kn{}ka{}_kn{}ka{}/".format(round(kn1, 4), round(ka1, 4), round(kn2, 4),
                                                                   round(ka2, 4))
 
         filename = dir2 + "dumpdata2d__k+{}k-{}_{}examples.csv".format(km, kp, example_n)
@@ -36,7 +35,7 @@ def main():
         p1 = ax.plot(i_kn,ave,".", color="blue")
 
         kn1 = 1
-        dir2 = "example/data{}_withNUC/kn{}ka{}_kn{}ka{}/".format(example_n,round(kn1, 4), round(ka1, 4), round(kn2, 4),
+        dir2 = dir1 + "kn{}ka{}_kn{}ka{}/".format(round(kn1, 4), round(ka1, 4), round(kn2, 4),
                                                                   round(ka2, 4))
 
         filename = dir2 + "dumpdata2d__k+{}k-{}_{}examples.csv".format(km, kp, example_n)
