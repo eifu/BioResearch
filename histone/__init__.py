@@ -420,11 +420,11 @@ def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
 
 
     # if in the locus, we have more than two methylated histones,
-    # then with K_PLUS probability, we recover E0 histone to be
+    # then with k_nuc probability, we recover E0 histone to be
     # methylated.
 
     # this is a histone memory part.
-    if mhst_n > 2 and sample() < Histone.K_PLUS:
+    if mhst_n > 2 and sample() < k_nuc:
         eext_bool = True
 
     if eext_bool is True:
