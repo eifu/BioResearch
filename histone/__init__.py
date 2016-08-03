@@ -406,7 +406,9 @@ def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
 
         hst_list[i] = hst
 
-    t_bool = a_bool and (ahst_n > 5)
+    # transcription happens if there are more than 5 acetylated histones at
+    # the locus, and also less than 3 methylated histones at the locus.
+    t_bool = (ahst_n > 5) and (mhst_n < 3)
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
