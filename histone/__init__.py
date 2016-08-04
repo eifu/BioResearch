@@ -406,9 +406,15 @@ def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
 
         hst_list[i] = hst
 
+    # p_bool is true if a histone is packed.
+    # histone is packed if there are more than 2 methylated histone.
+    p_bool = False
+    if mhst_n > 2:
+        p_bool = True
+
     # transcription happens if there are more than 5 acetylated histones at
     # the locus, and also less than 3 methylated histones at the locus.
-    t_bool = (ahst_n > 5) and (mhst_n < 3)
+    t_bool = (ahst_n > 5) and (not p_bool)
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
@@ -433,7 +439,7 @@ def next_genome(hst_list, a_bool, r_bool, window, k_nuc):
         center = len(hst_list) // 2
         hst_list[center] = MHistone(inherited=True, inherited_hst=hst_list[center])
 
-    return hst_list, t_bool
+    return hst_list, t_bool, p_bool
 
 
 # TODO change the eert bool rule later
@@ -522,6 +528,7 @@ def track_epigenetic_process(hst_list,  # initial histone list
                              a_bool,  # activator bool
                              r_bool,  # repressor bool
                              t_bool,  # transcription bool
+                             p_bool,
                              ace_prob,
                              nuc_prob,
                              window=10,  # default is 10
@@ -532,13 +539,15 @@ def track_epigenetic_process(hst_list,  # initial histone list
 
     vectorizedgene_list = np.zeros((time, 3, hst_n))  # array of compressed data of vectors
     t_list = np.zeros(time, dtype=bool)  # one dimension array
+    p_list = np.zeros(time, dtype=bool)
 
     for t in range(time):
         vectorizedgene_list[t] = vectorize(hst_list)
         t_list[t] = t_bool
-        hst_list, t_bool = next_genome(hst_list, a_bool, r_bool, window, nuc_prob)
+        p_list[t] = p_bool
+        hst_list, t_bool, p_bool = next_genome(hst_list, a_bool, r_bool, window, nuc_prob)
 
-    return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
+    return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list, "PList": p_list}
 
 
 def track_epigenetic_process_oct4(hst_list,  # initial histone list

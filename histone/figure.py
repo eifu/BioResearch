@@ -62,12 +62,12 @@ def window(fig, vectgene_timeseries, row, col, num):
                 y_position_a,
                 ",", color="red")
 
-        ax.set_xlim(-0.5, time)
-        ax.set_xticks([])
-
-        ax.set_ylim(-6, 6)
-        ax.set_yticks([-5, 0, 5])
-        ax.set_yticklabels((-5, 0, 5))
+    ax.set_xlim(-0.5, time)
+    ax.set_xticks([0,time/2,time])
+    ax.set_xticklabels([])
+    ax.set_ylim(-6, 6)
+    ax.set_yticks([-5, 0, 5])
+    ax.set_yticklabels((-5, 0, 5))
 
 
 def transcription(fig, TList, row, col, num):
@@ -75,10 +75,25 @@ def transcription(fig, TList, row, col, num):
     ax = fig.add_subplot(row, col, num)
     time = np.arange(total_time)
     ax.plot(time, TList, "-", color="red")
-    ax.set_yticks([])
-    ax.set_ylim(-0.5, 1.5)
+    ax.set_yticks([0,1])
+    ax.set_yticklabels(["TR off","TR on"])
+    ax.set_ylim(-0.1, 1.1)
     ax.set_xlim(-0.5, total_time + 0.5)
-    ax.set_xticks([])
+    ax.set_xticks([0,total_time/2,total_time])
+    ax.set_xticklabels([])
+
+
+def package(fig, PList, row, col, num):
+    total_time = len(PList)
+    ax = fig.add_subplot(row,col,num)
+    time = np.arange(total_time)
+    ax.plot(time,PList, "-", color="olive")
+    ax.set_yticks([0,1])
+    ax.set_yticklabels(["unpacked","packed"])
+    ax.set_ylim(-0.1,1.1)
+    ax.set_xlim(-0.5,total_time + 0.5)
+    ax.set_xticks([0,total_time/2,total_time])
+    ax.set_xticklabels([])
 
 
 def m_stat(fig, vectorizedgenome_timeseries, row, col, num):
@@ -100,8 +115,8 @@ def m_stat(fig, vectorizedgenome_timeseries, row, col, num):
 
         count += 1
     xaxis = [i for i in range(-5, 5 + 1)]
-
     bx.barh(xaxis, count_m, align="center")
+    bx.set_xlim(0, time//(2*delta))
     bx.set_xticks([])
     bx.set_yticks([])
 

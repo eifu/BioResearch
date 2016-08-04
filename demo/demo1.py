@@ -32,8 +32,7 @@ TIME2 = 3 * 7 * 24  # 3 week in hours
 def main():
     k_plus = 0.145
     k_minus = 0.145
-    k_nuc = 0.05
-    k_ace = 0
+
     percent = 100
 
     R = 0
@@ -41,6 +40,10 @@ def main():
     secR = 1
     secA = 1
 
+    k_nuc = 0.05
+    k_ace = 0
+    k_nuc2 = 1
+    k_ace2 = 0
 
     # init_genome
     #
@@ -84,7 +87,8 @@ def main():
     #             not. For the first tracking, we set up t_bool
     #             to be 0 as a default.
     T = 0
-    
+    P = True
+
     # - ace_prob .. K-ace probability.
     # - nuc_prob .. K-nuc probability.
     # output:
@@ -97,25 +101,32 @@ def main():
                                              a_bool=A,
                                              r_bool=R,
                                              t_bool=T,
+                                             p_bool=P,
                                              ace_prob=k_ace,
                                              nuc_prob=k_nuc
-    )
+                                             )
     tracker = dictH["vectorize"]
     hstL = dictH["hstL"]
     TList = dictH["TList"]
+    PList = dictH["PList"]
 
     dictH2 = histone.track_epigenetic_process(hst_list=hstL,
                                               time=TIME2,
                                               a_bool=secA,
                                               r_bool=secR,
                                               t_bool=TList[-1],
-                                              ace_prob=k_ace,
-                                              nuc_prob=k_nuc
-    )
+                                              p_bool=PList[-1],
+                                              ace_prob=k_ace2,
+                                              nuc_prob=k_nuc2
+                                              )
     tracker2 = dictH2["vectorize"]
+    TList2 = dictH2["TList"]
+    PList2 = dictH2["PList"]
 
     finalTracker = np.concatenate((tracker, tracker2))
-    finalTList = np.concatenate((TList, dictH2["TList"]))
+    finalTList = np.concatenate((TList, TList2))
+    finalPList = np.concatenate((PList, PList2))
+
 
     # basic setup for matplotlib
     plt.style.use('ggplot')
@@ -124,15 +135,17 @@ def main():
 
     fig = plt.figure()
 
-    histone.figure.sequence(fig, finalTracker, 3, 1, 1)
-    histone.figure.transcription(fig, finalTList, 6, 1, 3)
-    histone.figure.window(fig, finalTracker, 6, 1, 4)
-    histone.figure.m_stat(fig, tracker, 3, 4, 10)
-    histone.figure.m_stat(fig, tracker2, 3, 4, 12)
+    histone.figure.sequence(fig, finalTracker, 3, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
+    histone.figure.window(fig, finalTracker, 6, 1, 3)
+    histone.figure.package(fig, finalPList, 6, 1, 4)
+    histone.figure.transcription(fig, finalTList, 6, 1, 5)
+    histone.figure.m_stat(fig, tracker, 6, 4, 22)
+    histone.figure.m_stat(fig, tracker2, 6, 4, 24)
     plt.show()
 
     # to save a figure to pdf file
-    title = "demo/result/test_{}____k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(strftime("%Y_%m_%d_%H:%M"),k_plus,k_minus,k_ace,k_nuc,percent)
+    title = "demo/result/test_{}____k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(strftime("%Y_%m%d_%H%M"), k_plus,
+                                                                                  k_minus, k_ace, k_nuc, percent)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
