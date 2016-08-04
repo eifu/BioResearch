@@ -96,27 +96,30 @@ def package(fig, PList, row, col, num):
     ax.set_xticklabels([])
 
 
-def m_stat(fig, vectorizedgenome_timeseries, row, col, num):
+def m_stat(fig, vectorizedgenome_timeseries, row, col, num, delta=5, start_time_ratio=0.5, end_time_ratio=1):
+    """
+    :param start_time_ratio: starting time checking the histone number
+                             ex) 0.5 meaning start counting at a half of whole data.
+                                 0 meaning start counting at the begining.
+    """
     bx = fig.add_subplot(row, col, num)
 
     w = 11
     hst_n = len(vectorizedgenome_timeseries[0][0])
     time = len(vectorizedgenome_timeseries)
-    delta = 5
+    start_time = int(time*start_time_ratio)
+    end_time = int(time*end_time_ratio)
 
     count_m = np.zeros(w)
 
-    count = 0
-    # TODO complicated and not intuitive (probably not efficient)
-    for h in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1):
-        for time in range(time // 2, time, delta):
-            if vectorizedgenome_timeseries[time][0][h] == 1:
-                count_m[count] += 1
+    for pos_in_locus in range(w):
+        for time in range(start_time, end_time, delta):
+            if vectorizedgenome_timeseries[time][0][pos_in_locus+35] == 1:
+                count_m[pos_in_locus] += 1
 
-        count += 1
     xaxis = [i for i in range(-5, 5 + 1)]
     bx.barh(xaxis, count_m, align="center")
-    bx.set_xlim(0, time//(2*delta))
+    bx.set_xlim(0, time*(end_time_ratio-start_time_ratio)/delta)
     bx.set_xticks([])
     bx.set_yticks([])
 

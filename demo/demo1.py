@@ -40,29 +40,30 @@ def main():
     secR = 1
     secA = 1
 
-    k_nuc = 0.05
+    k_nuc = 1
     k_ace = 0
-    k_nuc2 = 1
+    k_nuc2 = 0
     k_ace2 = 0
+    """
+    init_genome
 
-    # init_genome
-    #
-    # initializes a list of histone objects.
-    # if you want to have a list of histones with
-    # specific characterestics, you can custumize it with
-    # keyword arguments.
-    # input:
-    # (list of keyword arguments)
-    # - percentage .. probability of methylated histones.
-    # - a_bool .. having activator On.
-    # - hst_n .. number of histones in a list
-    # - kp .. probability of k plus
-    # - kp2 .. probability of k plus 2
-    # - km .. probability of k minus
-    # - ka .. probability of k ace
-    #
-    # output:
-    # a list of histone objects
+    initializes a list of histone objects.
+    if you want to have a list of histones with
+    specific characterestics, you can custumize it with
+    keyword arguments.
+    input:
+    (list of keyword arguments)
+    - percentage .. probability of methylated histones.
+    - a_bool .. having activator On.
+    - hst_n .. number of histones in a list
+    - kp .. probability of k plus
+    - kp2 .. probability of k plus 2
+    - km .. probability of k minus
+    - ka .. probability of k ace
+
+    output:
+    a list of histone objects
+    """
     histoneList1 = histone.init_genome(percentage=percent,
                                        a_bool=A,
                                        hst_n=NUM_OF_HISTONE,
@@ -71,31 +72,36 @@ def main():
                                        km=k_minus,
                                        ka=k_ace
                                        )
+    """
+    track_epigenetic_process
 
-    # track_epigenetic_process
-    # 
-    # returns a dictionary of the result of the records under
-    # a specific environment. you can setup the environment
-    # with keyword arguments.
-    # input:
-    # (list of keyword arguments)
-    # - hst_list .. the initial condition of list of histones
-    # - time .. the time length of tracking
-    # - a_bool
-    # - r_bool
-    # - t_bool .. whether transcription happended last time or
-    #             not. For the first tracking, we set up t_bool
-    #             to be 0 as a default.
+    returns a dictionary of the result of the records under
+    a specific environment. you can setup the environment
+    with keyword arguments.
+    input:
+    (list of keyword arguments)
+    - hst_list .. the initial condition of list of histones
+    - time .. the time length of tracking
+    - a_bool
+    - r_bool
+    - t_bool .. whether transcription happened last time or
+                not. For the first tracking, we set up t_bool
+                to be 0 as a default.
+    - p_bool .. whether packaging happened last time or not.
+                For the first tracking, we set up p_bool to be
+                True as a default.
+    """
     T = 0
     P = True
-
-    # - ace_prob .. K-ace probability.
-    # - nuc_prob .. K-nuc probability.
-    # output:
-    # dictionary object that contains three data,
-    # key: vectorize, value: a record of timeseries of list of histones.
-    # key: hstL, value: a final status of list of histones
-    # key: TList, value: a record of timeseries of whether transcription happens.
+    """
+    - ace_prob .. K-ace probability.
+    - nuc_prob .. K-nuc probability.
+    output:
+    dictionary object that contains three data,
+    key: vectorize, value: a record of timeseries of list of histones.
+    key: hstL, value: a final status of list of histones
+    key: TList, value: a record of timeseries of whether transcription happens.
+    """
     dictH = histone.track_epigenetic_process(hst_list=histoneList1,
                                              time=TIME1,
                                              a_bool=A,
@@ -127,7 +133,6 @@ def main():
     finalTList = np.concatenate((TList, TList2))
     finalPList = np.concatenate((PList, PList2))
 
-
     # basic setup for matplotlib
     plt.style.use('ggplot')
     font = {'family': 'sans-serif'}
@@ -139,8 +144,9 @@ def main():
     histone.figure.window(fig, finalTracker, 6, 1, 3)
     histone.figure.package(fig, finalPList, 6, 1, 4)
     histone.figure.transcription(fig, finalTList, 6, 1, 5)
-    histone.figure.m_stat(fig, tracker, 6, 4, 22)
-    histone.figure.m_stat(fig, tracker2, 6, 4, 24)
+    histone.figure.m_stat(fig, tracker, 6, 4, 22, start_time_ratio=0.5, end_time_ratio=1)
+    histone.figure.m_stat(fig, tracker2, 6, 4, 23, start_time_ratio=0, end_time_ratio=0.5)
+    histone.figure.m_stat(fig, tracker2, 6, 4, 24, start_time_ratio=0.5, end_time_ratio=1)
     plt.show()
 
     # to save a figure to pdf file
@@ -149,6 +155,7 @@ def main():
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
+
 
 if __name__ == "__main__":
     main()
