@@ -49,14 +49,15 @@ def main():
     dy = dx.copy()
     dz_acc = hist.flatten()
 
-    ax.bar3d(xpos, ypos, zpos, dx, dy, dz_acc, color='b')
+
     ax.set_xlabel("histone pos")
     ax.set_xticks((0, 35, 40, 45, 80))
     ax.set_xticklabels((-40, -5, 0, 5, 40))
     ax.set_ylabel("time")
-
+#    ax.set_yscale("log")
+#    ax.set_zscale("log")
     ax.text2D(0.05, 0.95, "km:{}, kp:{}".format(km, kp), transform=ax.transAxes)
-
+    ax.bar3d(xpos, ypos, zpos, dx, dy, dz_acc, color='b')
     plt.show()
     # save a graph
     # print("save graph...")
