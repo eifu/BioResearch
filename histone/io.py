@@ -54,6 +54,14 @@ def compress_onekp_samplelist_hstseqts(onekp_samplelist_hstseqts):
 
     return compressed
 
+def compress_packaging_samplelist(packaging_list):
+    time = len(packaging_list[0])
+    compressed = np.zeros(time)
+    for _, onesample in enumerate(packaging_list):
+        for t in range(time):
+            compressed[t] += onesample[t]
+    return compressed
+
 def write_dump2d_pos_kp(kplist_samplelist_hstseqts, filename, time_inhour):
     kp_n = len(kplist_samplelist_hstseqts)
     example_n = len(kplist_samplelist_hstseqts[0])

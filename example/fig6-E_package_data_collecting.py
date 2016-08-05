@@ -9,7 +9,14 @@ TIME2 = 504  # 3 week in hour
 HST_N = 81
 
 example_n = 100
-dir = 'example/data{}_packagedata/'.format(example_n)
+
+if not os.path.exists("example/data"):
+    os.mkdir("example/data")
+
+if not os.path.exists("example/data/withNUC"):
+    os.mkdir("example/data/withNUC")
+
+dir = 'example/data/withNUC/data{}_packagedata/'.format(example_n)
 if not os.path.exists(dir):
     os.mkdir(dir)
 
