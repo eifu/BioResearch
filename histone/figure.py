@@ -1,7 +1,6 @@
 from matplotlib.collections import PolyCollection
 from matplotlib.colors import colorConverter
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib import cm
 
 
@@ -83,11 +82,11 @@ def transcription(fig, TList, row, col, num):
     ax.set_xticklabels([])
 
 
-def package(fig, PList, row, col, num):
-    total_time = len(PList)
+def package(fig, p_list, row, col, num):
+    total_time = len(p_list)
     ax = fig.add_subplot(row,col,num)
     time = np.arange(total_time)
-    ax.plot(time,PList, "-", color="olive")
+    ax.plot(time, p_list, "-", color="olive")
     ax.set_yticks([0,1])
     ax.set_yticklabels(["unpacked","packed"])
     ax.set_ylim(-0.1,1.1)
@@ -98,43 +97,46 @@ def package(fig, PList, row, col, num):
 
 def m_stat(fig, vectorizedgenome_timeseries, row, col, num, delta=5, start_time_ratio=0.5, end_time_ratio=1):
     """
-    :param start_time_ratio: starting time checking the histone number
-                             ex) 0.5 meaning start counting at a half of whole data.
-                                 0 meaning start counting at the begining.
+    :param fig:
+    :param vectorizedgenome_timeseries:
+    :param row:
+    :param col:
+    :param num:
+    :param delta:
+    :param start_time_ratio:
+    :param end_time_ratio:
+    :return:
     """
     bx = fig.add_subplot(row, col, num)
-
     w = 11
-    hst_n = len(vectorizedgenome_timeseries[0][0])
-    time = len(vectorizedgenome_timeseries)
-    start_time = int(time*start_time_ratio)
-    end_time = int(time*end_time_ratio)
+    total_time = len(vectorizedgenome_timeseries)
+    start_time = int(total_time*start_time_ratio)
+    end_time = int(total_time*end_time_ratio)
 
     count_m = np.zeros(w)
 
     for pos_in_locus in range(w):
-        for time in range(start_time, end_time, delta):
-            if vectorizedgenome_timeseries[time][0][pos_in_locus+35] == 1:
+        for t in range(start_time, end_time, delta):
+            if vectorizedgenome_timeseries[t][0][pos_in_locus+35] == 1:
                 count_m[pos_in_locus] += 1
 
     xaxis = [i for i in range(-5, 5 + 1)]
     bx.barh(xaxis, count_m, align="center")
-    bx.set_xlim(0, time*(end_time_ratio-start_time_ratio)/delta)
+    bx.set_xlim(0, total_time*(end_time_ratio-start_time_ratio)/delta)
     bx.set_xticks([])
     bx.set_yticks([])
 
     acc = 0
-
     for each in count_m:
         acc += each
-    AM = acc / len(count_m)
+    am = acc / len(count_m)
 
     acc = 0
 
     for each in count_m:
-        acc += (each - AM) ** 2
-    SD = np.sqrt(acc / len(count_m))
-    return {"AM": AM, "SD": SD}
+        acc += (each - am) ** 2
+    sd = np.sqrt(acc / len(count_m))
+    bx.set_xlabel("AM:{} SD:{}".format(round(am, 2), round(sd, 2)))
 
 
 def dynamic_change(fig, list_vectorized_gene_timeseries, delta=2):
