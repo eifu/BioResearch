@@ -9,5 +9,6 @@ setup(
     packages=find_packages(),
     license="MIT",
     platforms="any",
-    long_description="a project designed to explore functionality of histones."
+    long_description="a project designed to explore functionality of histones.",
+    requires=['numpy', 'matplotlib']
 )
