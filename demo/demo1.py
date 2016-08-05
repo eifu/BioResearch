@@ -35,10 +35,8 @@ def main():
 
     percent = 100
 
-    R = 0
-    A = 1
-    secR = 1
-    secA = 1
+    a_bool = 1
+    a_bool2 = 1
 
     k_nuc = 1
     k_ace = 0
@@ -64,14 +62,14 @@ def main():
     output:
     a list of histone objects
     """
-    histoneList1 = histone.init_genome(percentage=percent,
-                                       a_bool=A,
-                                       hst_n=NUM_OF_HISTONE,
-                                       kp=k_plus,
-                                       kp2=k_plus,
-                                       km=k_minus,
-                                       ka=k_ace
-                                       )
+    histone_list1 = histone.init_genome(percentage=percent,
+                                        a_bool=a_bool,
+                                        hst_n=NUM_OF_HISTONE,
+                                        kp=k_plus,
+                                        kp2=k_plus,
+                                        km=k_minus,
+                                        ka=k_ace
+                                        )
     """
     track_epigenetic_process
 
@@ -91,8 +89,8 @@ def main():
                 For the first tracking, we set up p_bool to be
                 True as a default.
     """
-    T = 0
-    P = True
+    t_bool = 0
+    p_bool = True
     """
     - ace_prob .. K-ace probability.
     - nuc_prob .. K-nuc probability.
@@ -102,36 +100,34 @@ def main():
     key: hstL, value: a final status of list of histones
     key: TList, value: a record of timeseries of whether transcription happens.
     """
-    dictH = histone.track_epigenetic_process(hst_list=histoneList1,
+    dict1 = histone.track_epigenetic_process(hst_list=histone_list1,
                                              time=TIME1,
-                                             a_bool=A,
-                                             r_bool=R,
-                                             t_bool=T,
-                                             p_bool=P,
+                                             a_bool=a_bool,
+                                             t_bool=t_bool,
+                                             p_bool=p_bool,
                                              ace_prob=k_ace,
                                              nuc_prob=k_nuc
                                              )
-    tracker = dictH["vectorize"]
-    hstL = dictH["hstL"]
-    TList = dictH["TList"]
-    PList = dictH["PList"]
+    tracker = dict1["vectorize"]
+    hst1 = dict1["hstL"]
+    t_list1 = dict1["TList"]
+    p_list1 = dict1["PList"]
 
-    dictH2 = histone.track_epigenetic_process(hst_list=hstL,
-                                              time=TIME2,
-                                              a_bool=secA,
-                                              r_bool=secR,
-                                              t_bool=TList[-1],
-                                              p_bool=PList[-1],
-                                              ace_prob=k_ace2,
-                                              nuc_prob=k_nuc2
-                                              )
-    tracker2 = dictH2["vectorize"]
-    TList2 = dictH2["TList"]
-    PList2 = dictH2["PList"]
+    dict2 = histone.track_epigenetic_process(hst_list=hst1,
+                                             time=TIME2,
+                                             a_bool=a_bool2,
+                                             t_bool=t_list1[-1],
+                                             p_bool=p_list1[-1],
+                                             ace_prob=k_ace2,
+                                             nuc_prob=k_nuc2
+                                             )
+    tracker2 = dict2["vectorize"]
+    t_list2 = dict2["TList"]
+    p_list2 = dict2["PList"]
 
-    finalTracker = np.concatenate((tracker, tracker2))
-    finalTList = np.concatenate((TList, TList2))
-    finalPList = np.concatenate((PList, PList2))
+    final_tracker = np.concatenate((tracker, tracker2))
+    final_t_list = np.concatenate((t_list1, t_list2))
+    final_p_list = np.concatenate((p_list1, p_list2))
 
     # basic setup for matplotlib
     plt.style.use('ggplot')
@@ -140,10 +136,10 @@ def main():
 
     fig = plt.figure()
 
-    histone.figure.sequence(fig, finalTracker, 3, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
-    histone.figure.window(fig, finalTracker, 6, 1, 3)
-    histone.figure.package(fig, finalPList, 6, 1, 4)
-    histone.figure.transcription(fig, finalTList, 6, 1, 5)
+    histone.figure.sequence(fig, final_tracker, 3, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
+    histone.figure.window(fig, final_tracker, 6, 1, 3)
+    histone.figure.package(fig, final_p_list, 6, 1, 4)
+    histone.figure.transcription(fig, final_t_list, 6, 1, 5)
     histone.figure.m_stat(fig, tracker, 6, 4, 22, start_time_ratio=0.5, end_time_ratio=1)
     histone.figure.m_stat(fig, tracker2, 6, 4, 23, start_time_ratio=0, end_time_ratio=0.5)
     histone.figure.m_stat(fig, tracker2, 6, 4, 24, start_time_ratio=0.5, end_time_ratio=1)

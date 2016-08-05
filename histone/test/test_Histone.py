@@ -34,50 +34,52 @@ class TestHistone(unittest.TestCase):
         self.assertEqual(m1.nextnode, m2, 'initiate connection failure 3')
 
     def testRandomHistListMethod(self):
-        histList = histone.init_genome(50, 0, 3, 1)
+        hist_list = histone.init_genome(50, 0, 3, 1)
 
-        self.assertEqual(len(histList), 3, "number of elements in list failure")
-        self.assertEqual(histList[0].nextnode, histList[1], 'connection failure 1-1')
-        self.assertEqual(histList[1].nextnode, histList[2], 'connection failure 1-2')
-        self.assertEqual(histList[2].prenode, histList[1], 'connection failure 2-1')
-        self.assertEqual(histList[1].prenode, histList[0], 'connection failure 2-2')
+        self.assertEqual(len(hist_list), 3, "number of elements in list failure")
+        self.assertEqual(hist_list[0].nextnode, hist_list[1], 'connection failure 1-1')
+        self.assertEqual(hist_list[1].nextnode, hist_list[2], 'connection failure 1-2')
+        self.assertEqual(hist_list[2].prenode, hist_list[1], 'connection failure 2-1')
+        self.assertEqual(hist_list[1].prenode, hist_list[0], 'connection failure 2-2')
 
     def testRandomHistListMethod_disconnection(self):
-        histList = histone.init_genome(50, 0, 3, 1)
+        hist_list = histone.init_genome(50, 0, 3, 1)
 
-        self.assertEqual(histList[0].prenode, None, 'disconnection Head and Tail')
-        self.assertEqual(histList[2].nextnode, None, 'disconnection Head and Tail 2')
+        self.assertEqual(hist_list[0].prenode, None, 'disconnection Head and Tail')
+        self.assertEqual(hist_list[2].nextnode, None, 'disconnection Head and Tail 2')
 
         histList2 = histone.init_genome(50, 0, 40, 1)
         self.assertEqual(histList2[0].prenode, None, 'disconnection Head and Tail 3')
         self.assertEqual(histList2[-1].nextnode, None, 'disconnection Head and Tail 4')
 
     def testbitvec(self):
-        histList = histone.init_genome()
-        bitvec = histone.vectorize(histList)
+        hist_list = histone.init_genome()
+        bitvec = histone.vectorize(hist_list)
         self.assertTrue(len(bitvec[0]) == 81, 'bitvec num failure')
         self.assertTrue(sum(bitvec[0]) + sum(bitvec[1]) + sum(bitvec[2]) == 81, 'bitvec distri failure')
+
         hs2 = histone.init_genome(percentage=100)
         bitvec2 = histone.vectorize(hs2)
         self.assertTrue(sum(bitvec2[0]) == 81, 'methylated histone list failure')
+
         hs3 = histone.init_genome(percentage=0)
         bitvec3 = histone.vectorize(hs3)
-        self.assertTrue(sum(bitvec3[2]) == 81, 'acetylated histone list failure')
+        self.assertTrue(sum(bitvec3[1]) == 81, 'unmethylated histone list failure')
 
     def test_vect(self):
         for _ in range(10):
-            histList = histone.init_genome()
-            bitvec = histone.vectorize(histList)
-
-        # print(bitvec.shape)
+            hist_list = histone.init_genome(percentage=100)
+            bitvec = histone.vectorize(hist_list)
+            self.assertEqual(sum(bitvec[0]), 81)
 
 
     def testNextGen(self):
-        histList = histone.init_genome()
-        histList2, _ = histone.next_genome(histList, 0, 1, 10)
-        for hist1, hist2 in zip(histList, histList2):
-            print(str(hist1) + "   --> " + str(hist2))
-        # self.assertEqual(dictH["Eext"], 1, 'R1 does not work correctly')
+        for _ in range(10):
+            hist_list = histone.init_genome(percentage=100)
+            hist_list2, _, _ = histone.next_genome(hst_list=hist_list,
+                                                   window=10,
+                                                   k_nuc=1)
+            self.assertEqual(hist_list2[40].status, "m")
 
     def testNextGen2(self):
         m1 = histone.MHistone(position=-2)
@@ -85,16 +87,20 @@ class TestHistone(unittest.TestCase):
         m3 = histone.AHistone(position=0)
         m4 = histone.AHistone(position=1)
         m5 = histone.AHistone(position=2)
-        histL = [m1, m2, m3, m4, m5]
+        hist_list = [m1, m2, m3, m4, m5]
 
-        histL2, _ = histone.next_genome(histL, 1, 1, 3)
+        hist_list2 = histone.next_genome(hst_list=hist_list,
+                                         window=3,
+                                         k_nuc=0.12)
 
     def testRandom(self):
-        histList = histone.init_genome()
-        histList2, _ = histone.next_genome(histList, 0, 1, 10)
-        for hist1, hist2 in zip(histList, histList2):
-            print(str(hist1) + "   --> " + str(hist2))
-        # self.assertEqual(dictH["Eext"], 1, 'R1 does not work correctly')
+        for _ in range(10):
+            hist_list = histone.init_genome(percentage=0, a_bool=0)
+            hist_list2, _, _ = histone.next_genome(hst_list=hist_list,
+                                                   window=10,
+                                                   k_nuc=0)
+            self.assertEqual(hist_list2[40].status, "u")
+
 
 if __name__ == 'main':
     unittest.main()
