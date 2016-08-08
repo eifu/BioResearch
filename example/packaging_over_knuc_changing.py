@@ -1,10 +1,12 @@
+<<<<<<< HEAD
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 
 
 dir1 = "example/data/withNUC/"
-example_n = 5
+example_n = 1000
 
 
 def main():
@@ -30,8 +32,24 @@ def main():
                                                                                            example_n)
     data = np.genfromtxt(filename)
     x = np.arange(504)
-    plt.plot(x,data)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x,data)
+    # ax.set_ylim(0, example_n+1)
+    # ax.set_yticks(np.arange(0,example_n+1,example_n//10))
+    # ax.set_yticklabels([str(i)+"%" for i in range(0, 101, 10)])
+    ax.set_yscale("log")
+    ax.set_xlim(0, 504)
+    ax.set_xticks(np.arange(0, 504, 168))
+    ax.set_xticklabels([str(i+1) + " week" for i in range(3)])
+
     plt.show()
+
+    title = "packaging_over_knuc.pdf"
+    pp = PdfPages(title)
+    pp.savefig(fig)
+    pp.close()
 
 if __name__ == "__main__":
     main()

@@ -34,10 +34,10 @@ def main():
     for kn2 in kn2_list:
         for ka2 in ka2_list:
             samplelist = submain(kp, km, kn1, ka1, kn2, ka2)
-            print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn2, 5),
-                                                           round(ka2, 5),
-                                                           round(km, 5),
-                                                           round(kp, 5)))
+            print("kn:{0:.4f}, ka:{1:.4f} ,done km:{2:.4f}, kp:{3:.4f}".format(kn2,
+                                                                               ka2,
+                                                                               km,
+                                                                               kp))
 
             filename = dir + "package_data__kn{}ka{}_kn{}ka{}__k+{}k-{}_{}examples.csv".format(round(kn1, 5),
                                                                                                round(ka1, 5),
