@@ -44,8 +44,19 @@ def main():
                 sum_pp_and_pu += row[0:2]
                 sum_up_and_uu += row[2:4]
 
-            pu_matrix[i_kn2][i_ka2] = sum_pp_and_pu[1] / (sum_pp_and_pu[0] + sum_pp_and_pu[1])
-            up_matrix[i_kn2][i_ka2] = sum_up_and_uu[0] / (sum_up_and_uu[0] + sum_up_and_uu[1])
+            tmp = sum_pp_and_pu[1] / (sum_pp_and_pu[0] + sum_pp_and_pu[1])
+            if tmp != 0:
+
+                pu_matrix[i_kn2][i_ka2] = -np.log(tmp)
+            else:
+                pu_matrix[i_kn2][i_ka2] = 0
+
+            tmp = sum_up_and_uu[0] / (sum_up_and_uu[0] + sum_up_and_uu[1])
+            if tmp != 0:
+
+                up_matrix[i_kn2][i_ka2] = -np.log(sum_up_and_uu[0] / (sum_up_and_uu[0] + sum_up_and_uu[1]))
+            else:
+                up_matrix[i_kn2][i_ka2] = 0
             print("kn{0:.3f}ka{1:.3f}, pu{2:.3f},up{3:.3f}".format(kn2, ka2, sum_pp_and_pu[1] / (
             sum_pp_and_pu[0] + sum_pp_and_pu[1]), sum_up_and_uu[0] / (sum_up_and_uu[0] + sum_up_and_uu[1])))
     x = np.arange(16)
@@ -59,7 +70,7 @@ def main():
     dy = dx.copy()
 
     fig1 = plt.figure()
-    ax1 = fig1.add_subplot(111, projection="3d")
+    ax1 = fig1.add_subplot(211, projection="3d")
     ax1.set_xlabel("k ace")
     ax1.set_ylabel("k nuc")
     ax1.set_xticks(np.arange(16))
@@ -68,24 +79,24 @@ def main():
     ax1.set_yticklabels(ka2_list, fontsize=4)
     dz_pu = pu_matrix.flatten()
     ax1.bar3d(xpos, ypos, zpos, dx, dy, dz_pu, color='b')
-    title = "fig6_PU.pdf"
-    pp = PdfPages(title)
-    pp.savefig(fig1)
-    pp.close()
+    ax1.set_label("p->u")
 
-    fig2 = plt.figure()
-    ax2 = fig2.add_subplot(111, projection="3d")
+    ax2 = fig1.add_subplot(212, projection="3d")
     ax2.set_xlabel("k ace")
     ax2.set_ylabel("k nuc")
     ax2.set_xticks(np.arange(16))
     ax2.set_xticklabels(ka2_list, fontsize=4)
     ax2.set_yticks(np.arange(16))
     ax2.set_yticklabels(kn2_list, fontsize=4)
+    ax2.set_label("u->p")
     dz_up = up_matrix.flatten()
     ax2.bar3d(xpos, ypos, zpos, dx, dy, dz_up, color='b')
-    title = "fig6_UP.pdf"
+
+    plt.show()
+
+    title = "fig6_up_and_pu.pdf"
     pp = PdfPages(title)
-    pp.savefig(fig2)
+    pp.savefig(fig1)
     pp.close()
 
 

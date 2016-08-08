@@ -12,17 +12,30 @@ TIME2 = 504  # 3 week in hour
 
 HST_N = 81
 
-example_n = 500
+example_n = 1000
+
+if not os.path.exists("example/data"):
+    os.mkdir('example/data')
+
+if not os.path.exists('example/data/withNUC'):
+    os.mkdir('example/data/withNUC')
+
 dir = 'example/data/withNUC/data{}/'.format(example_n)
 if not os.path.exists(dir):
     os.mkdir(dir)
 
 
 def main():
+    kn2_list = np.arange(0, 0.5, 0.025)
+    for kn2 in kn2_list:
+        submain1(kn2)
+
+
+def submain1(kn2):
     ka1 = 0
     ka2 = 0
     kn1 = 1
-    kn2 = 0
+#    kn2 = 0
 
     kmkppair = [(0.145, 0.145)]
 
