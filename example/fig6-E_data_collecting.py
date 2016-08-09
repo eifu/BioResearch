@@ -35,7 +35,7 @@ def submain1(kn2):
     ka1 = 0
     ka2 = 0
     kn1 = 1
-#    kn2 = 0
+
 
     kmkppair = [(0.145, 0.145)]
 
