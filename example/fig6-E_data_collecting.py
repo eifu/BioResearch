@@ -12,7 +12,7 @@ TIME2 = 504  # 3 week in hour
 
 HST_N = 81
 
-example_n = 1000
+example_n = 5
 
 if not os.path.exists("example/data"):
     os.mkdir('example/data')
@@ -20,9 +20,9 @@ if not os.path.exists("example/data"):
 if not os.path.exists('example/data/withNUC'):
     os.mkdir('example/data/withNUC')
 
-dir = 'example/data/withNUC/data{}/'.format(example_n)
-if not os.path.exists(dir):
-    os.mkdir(dir)
+dir1 = 'example/data/withNUC/data{}/'.format(example_n)
+if not os.path.exists(dir1):
+    os.mkdir(dir1)
 
 
 def main():
@@ -36,48 +36,56 @@ def submain1(kn2):
     ka2 = 0
     kn1 = 1
 
-
     kmkppair = [(0.145, 0.145)]
 
-    dir2 = dir + "kn{}ka{}_kn{}ka{}/".format(round(kn1, 4),
-                                             round(ka1, 4),
-                                             round(kn2, 4),
-                                             round(ka2, 4))
+    dir2 = dir1 + "kn{}ka{}_kn{}ka{}/".format(round(kn1, 4),
+                                              round(ka1, 4),
+                                              round(kn2, 4),
+                                              round(ka2, 4))
     if not os.path.exists(dir2):
         os.mkdir(dir2)
 
     for km, kp in kmkppair:
-        onekp_samplelist_genets, packaginglist = submain(kp, km, kn1, ka1, kn2, ka2)
+        one_var_tracker, one_var_hst_list, one_var_pack = submain(kp, km, kn1, ka1, kn2, ka2)
         print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn2, 4),
                                                        round(ka2, 4),
                                                        round(km, 4),
                                                        round(kp, 4)))
-        print(packaginglist,packaginglist.shape)
-        compressed = io.compress_onekp_samplelist_hstseqts(onekp_samplelist_genets)
 
+        # for tracker info
         filename2d = dir2 + "dumpdata2d__k+{}k-{}_{}examples.csv".format(round(km, 4),
                                                                          round(kp, 4),
                                                                          example_n)
+        compressed = io.compress_onekp_samplelist_hstseqts(one_var_tracker)
         io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
+        # for final histone list info
+        filename2d = dir2 + "final_hst_list_k+{}k-{}_examples.csv".format(round(km, 4),
+                                                                          round(kp, 4),
+                                                                          example_n)
+        io.write_dump2d_final_hst_list(one_var_hst_list, filename2d, HST_N)
+
+        # for packaging info
         filename2d = dir2 + "packaging__k+{}k-{}_{}examples.csv".format(round(km, 4),
                                                                         round(kp, 4),
                                                                         example_n)
-        compre = io.compress_packaging_samplelist(packaginglist)
+        compre = io.compress_packaging_samplelist(one_var_pack)
         io.write_dump2d_onekp_time_hst(compre, filename2d, TIME2)
 
 
 def submain(k_plus, k_minus, kn1, ka1, kn2, ka2):
     one_var_m = np.zeros((example_n, TIME2, 3, HST_N))
+    one_var_hst_list = np.zeros((example_n, HST_N))
     one_var_pack = np.zeros((example_n, TIME2))
     for ex in range(example_n):
-        one_var_m[ex], one_var_pack[ex] = subsubmain(k_plus, k_minus, k_nuc1=kn1, k_ace1=ka1, k_nuc2=kn2, k_ace2=ka2)
+        one_var_m[ex], one_var_hst_list[ex], one_var_pack[ex] = subsubmain(k_plus, k_minus, k_nuc1=kn1, k_ace1=ka1,
+                                                                           k_nuc2=kn2, k_ace2=ka2)
         print("kn:{}, ka:{}, km:{}, kp:{}, example number:{}".format(round(kn2, 4),
                                                                      round(ka2, 4),
                                                                      round(k_minus, 4),
                                                                      round(k_plus, 4),
                                                                      ex))
-    return one_var_m, one_var_pack
+    return one_var_m, one_var_hst_list, one_var_pack
 
 
 def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
@@ -87,18 +95,18 @@ def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
     secA = 1
 
     T = 0
-    P =True
+    P = True
 
-    histoneList1 = histone.init_genome(percentage=50,
-                                       a_bool=A,
-                                       hst_n=HST_N,
-                                       kp=k_plus,
-                                       kp2=k_plus,
-                                       ka=k_ace1,
-                                       km=k_minus,
-                                       )
+    initial_hst_list = histone.init_genome(percentage=50,
+                                           a_bool=A,
+                                           hst_n=HST_N,
+                                           kp=k_plus,
+                                           kp2=k_plus,
+                                           ka=k_ace1,
+                                           km=k_minus,
+                                           )
 
-    dictH = histone.track_epigenetic_process(hst_list=histoneList1,
+    dict1 = histone.track_epigenetic_process(hst_list=initial_hst_list,
                                              time=TIME1,
                                              a_bool=A,
                                              t_bool=T,
@@ -107,22 +115,25 @@ def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
                                              nuc_prob=k_nuc1
                                              )
     # tracker = dictH["vectorize"]
-    hstL = dictH["hstL"]
-    TList = dictH["TList"]
-    PList = dictH["PList"]
+    hst_list = dict1["hstL"]
+    t_list = dict1["TList"]
+    p_list = dict1["PList"]
 
-    dictH2 = histone.track_epigenetic_process(hst_list=hstL,
-                                              time=TIME2,
-                                              a_bool=secA,
-                                              t_bool=TList[-1],
-                                              p_bool=PList[-1],
-                                              ace_prob=k_ace2,
-                                              nuc_prob=k_nuc2
-                                              )
-    tracker2 = dictH2["vectorize"]
-    p_list2 = dictH2["PList"]
+    dict2 = histone.track_epigenetic_process(hst_list=hst_list,
+                                             time=TIME2,
+                                             a_bool=secA,
+                                             t_bool=t_list[-1],
+                                             p_bool=p_list[-1],
+                                             ace_prob=k_ace2,
+                                             nuc_prob=k_nuc2
+                                             )
+    tracker2 = dict2["vectorize"]
+    hst_list2 = dict2["hstL"]
+    p_list2 = dict2["PList"]
 
-    return tracker2, p_list2
+    final_hst = histone.vectorize(hst_list2)
+
+    return tracker2, final_hst[0] - final_hst[2], p_list2
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 from numpy.random import sample, shuffle
-from numpy import zeros, array
+from numpy import zeros, array, int8
 
 
 class Histone(object):
@@ -494,7 +494,7 @@ def vectorize(hst_list):
     return array([v_mlist,
                   v_ulist,
                   v_alist],
-                 dtype=bool)
+                 dtype=int8)
 
 
 # TODO change the compound statements to the enumeratative for loop
