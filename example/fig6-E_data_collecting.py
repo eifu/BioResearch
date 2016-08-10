@@ -26,15 +26,16 @@ if not os.path.exists(dir1):
 
 
 def main():
+    kn1_list = [0, 1]
     kn2_list = np.arange(0, 0.5, 0.025)
-    for kn2 in kn2_list:
-        submain1(kn2)
+    for kn1 in kn1_list:
+        for kn2 in kn2_list:
+            submain1(kn1, kn2)
 
 
-def submain1(kn2):
+def submain1(kn1, kn2):
     ka1 = 0
     ka2 = 0
-    kn1 = 1
 
     kmkppair = [(0.145, 0.145)]
 
@@ -46,7 +47,7 @@ def submain1(kn2):
         os.mkdir(dir2)
 
     for km, kp in kmkppair:
-        one_var_tracker, one_var_hst_list, one_var_pack = submain(kp, km, kn1, ka1, kn2, ka2)
+        one_var_tracker, one_var_last_week_hst, one_var_pack = submain(kp, km, kn1, ka1, kn2, ka2)
         print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn2, 4),
                                                        round(ka2, 4),
                                                        round(km, 4),
@@ -63,28 +64,33 @@ def submain1(kn2):
         filename2d = dir2 + "final_hst_list_k+{}k-{}_examples.csv".format(round(km, 4),
                                                                           round(kp, 4),
                                                                           example_n)
-        io.write_dump2d_final_hst_list(one_var_hst_list, filename2d, HST_N)
+        compressed = io.compress_last_week_hst_vec(one_var_last_week_hst)
+        io.write_dump2d_final_hst_list(compressed, filename2d, HST_N)
 
         # for packaging info
         filename2d = dir2 + "packaging__k+{}k-{}_{}examples.csv".format(round(km, 4),
                                                                         round(kp, 4),
                                                                         example_n)
-        compre = io.compress_packaging_samplelist(one_var_pack)
-        io.write_dump2d_onekp_time_hst(compre, filename2d, TIME2)
+        compressed = io.compress_packaging_samplelist(one_var_pack)
+        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
 
 def submain(k_plus, k_minus, kn1, ka1, kn2, ka2):
     one_var_m = np.zeros((example_n, TIME2, 3, HST_N))
-    one_var_hst_list = np.zeros((example_n, HST_N))
+    one_var_hst_list = np.zeros((example_n, 24 * 7, HST_N))  # week 3 histone list
     one_var_pack = np.zeros((example_n, TIME2))
     for ex in range(example_n):
         one_var_m[ex], one_var_hst_list[ex], one_var_pack[ex] = subsubmain(k_plus, k_minus, k_nuc1=kn1, k_ace1=ka1,
                                                                            k_nuc2=kn2, k_ace2=ka2)
-        print("kn:{}, ka:{}, km:{}, kp:{}, example number:{}".format(round(kn2, 4),
-                                                                     round(ka2, 4),
-                                                                     round(k_minus, 4),
-                                                                     round(k_plus, 4),
-                                                                     ex))
+        print("kn1:{}, ka2:{}, -> kn2:{}, ka2:{}, km:{}, kp:{}, complete {}%".format(round(kn1, 4),
+                                                                                     round(ka1, 4),
+                                                                                     round(kn2, 4),
+                                                                                     round(ka2, 4),
+                                                                                     round(k_minus, 4),
+                                                                                     round(k_plus, 4),
+                                                                                     round(ex * 100 / example_n, 4)
+                                                                                     )
+              )
     return one_var_m, one_var_hst_list, one_var_pack
 
 
@@ -128,12 +134,13 @@ def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
                                              nuc_prob=k_nuc2
                                              )
     tracker2 = dict2["vectorize"]
-    hst_list2 = dict2["hstL"]
     p_list2 = dict2["PList"]
 
-    final_hst = histone.vectorize(hst_list2)
+    week3_hst_list = np.zeros((24 * 7, HST_N))
+    for i, hst in enumerate(tracker2[2 * 24 * 7:]):
+        week3_hst_list[i] = hst[0] - hst[2]
 
-    return tracker2, final_hst[0] - final_hst[2], p_list2
+    return tracker2, week3_hst_list, p_list2
 
 
 if __name__ == "__main__":
