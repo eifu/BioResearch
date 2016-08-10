@@ -107,6 +107,14 @@ def write_dump2d_onekp_time_hst(data2d, filename, time, kp_n=24, hst_n=81):
                    delimiter=',',
                    newline='\n')
 
+def write_dump2d_final_hst_list(data2d, filename, hst_n):
+    with open(filename, "wb") as f:
+        np.savetxt(f,
+                   data2d,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
+
 def read_dump3d_kp_time_hst(filename, time, kp_n=24, hst_n=81):
     data2d = np.genfromtxt(filename, skip_header=0, skip_footer=0, delimiter=',')
     print('reading dump file..')

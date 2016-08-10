@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 
-example_n = 100
+example_n = 500
 
-dir = "example/data/withNUC/data{}_packagedata/".format(example_n)
+dir = "example/data/withNUC/data{}/packagedata/".format(example_n)
 
 
 def main():
@@ -70,7 +70,7 @@ def main():
     dy = dx.copy()
 
     fig1 = plt.figure()
-    ax1 = fig1.add_subplot(211, projection="3d")
+    ax1 = fig1.add_subplot(111, projection="3d")
     ax1.set_xlabel("k ace")
     ax1.set_ylabel("k nuc")
     ax1.set_xticks(np.arange(16))
@@ -80,8 +80,13 @@ def main():
     dz_pu = pu_matrix.flatten()
     ax1.bar3d(xpos, ypos, zpos, dx, dy, dz_pu, color='b')
     ax1.set_label("p->u")
+    title = "fig6_pu.pdf"
+    pp = PdfPages(title)
+    pp.savefig(fig1)
+    pp.close()
 
-    ax2 = fig1.add_subplot(212, projection="3d")
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(111, projection="3d")
     ax2.set_xlabel("k ace")
     ax2.set_ylabel("k nuc")
     ax2.set_xticks(np.arange(16))
@@ -94,9 +99,9 @@ def main():
 
     plt.show()
 
-    title = "fig6_up_and_pu.pdf"
+    title = "fig6_up.pdf"
     pp = PdfPages(title)
-    pp.savefig(fig1)
+    pp.savefig(fig2)
     pp.close()
 
 

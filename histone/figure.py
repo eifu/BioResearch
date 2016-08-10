@@ -62,7 +62,56 @@ def window(fig, vectgene_timeseries, row, col, num):
                 ",", color="red")
 
     ax.set_xlim(-0.5, time)
-    ax.set_xticks([0,time/2,time])
+    ax.set_xticks([0, time / 2, time])
+    ax.set_xticklabels([])
+    ax.set_ylim(-6, 6)
+    ax.set_yticks([-5, 0, 5])
+    ax.set_yticklabels((-5, 0, 5))
+
+
+def window_with_dna_model(fig, vectgene_timeseries, row, col, num):
+    hst_n = len(vectgene_timeseries[0][0])
+    time = len(vectgene_timeseries)
+    w = 10
+
+    ax = fig.add_subplot(row, col, num)
+    colors = ["black", "green", "lightgreen", "yellow"]
+    for t, vectgene in enumerate(vectgene_timeseries):
+        # methylated histones
+        y_position_m = [i - 40 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1)
+                        if vectgene[0][i] == 1]
+        x_position_m = np.ones(len(y_position_m)) * t
+        ax.plot(x_position_m,
+                y_position_m,
+                ",", color="blue")
+
+        # acetylated histones
+        y_position_a = [i - 40 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1)
+                        if vectgene[2][i] == 1]
+        x_position_a = np.ones(len(y_position_a)) * t
+        ax.plot(x_position_a,
+                y_position_a,
+                ",", color="red")
+
+        # CpG sites at a locus
+        y_position_cpg = [i - 40.3 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1) if vectgene[3][i] == 4]
+        x_position_cpg = np.ones(len(y_position_cpg)) * t
+        ax.plot(x_position_cpg, y_position_cpg, ",", color=colors[0])
+
+        y_position_cpg = [i - 40.3 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1) if vectgene[3][i] == 3]
+        x_position_cpg = np.ones(len(y_position_cpg)) * t
+        ax.plot(x_position_cpg, y_position_cpg, ",", color=colors[1])
+
+        y_position_cpg = [i - 40.3 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1) if vectgene[3][i] == 2]
+        x_position_cpg = np.ones(len(y_position_cpg)) * t
+        ax.plot(x_position_cpg, y_position_cpg, ",", color=colors[2])
+
+        y_position_cpg = [i - 40.3 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1) if vectgene[3][i] == 1]
+        x_position_cpg = np.ones(len(y_position_cpg)) * t
+        ax.plot(x_position_cpg, y_position_cpg, ",", color=colors[3])
+
+    ax.set_xlim(-0.5, time)
+    ax.set_xticks([0, time / 2, time])
     ax.set_xticklabels([])
     ax.set_ylim(-6, 6)
     ax.set_yticks([-5, 0, 5])
@@ -74,24 +123,24 @@ def transcription(fig, TList, row, col, num):
     ax = fig.add_subplot(row, col, num)
     time = np.arange(total_time)
     ax.plot(time, TList, "-", color="red")
-    ax.set_yticks([0,1])
-    ax.set_yticklabels(["TR off","TR on"])
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["TR off", "TR on"])
     ax.set_ylim(-0.1, 1.1)
     ax.set_xlim(-0.5, total_time + 0.5)
-    ax.set_xticks([0,total_time/2,total_time])
+    ax.set_xticks([0, total_time / 2, total_time])
     ax.set_xticklabels([])
 
 
 def package(fig, p_list, row, col, num):
     total_time = len(p_list)
-    ax = fig.add_subplot(row,col,num)
+    ax = fig.add_subplot(row, col, num)
     time = np.arange(total_time)
     ax.plot(time, p_list, "-", color="olive")
-    ax.set_yticks([0,1])
-    ax.set_yticklabels(["unpacked","packed"])
-    ax.set_ylim(-0.1,1.1)
-    ax.set_xlim(-0.5,total_time + 0.5)
-    ax.set_xticks([0,total_time/2,total_time])
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["unpacked", "packed"])
+    ax.set_ylim(-0.1, 1.1)
+    ax.set_xlim(-0.5, total_time + 0.5)
+    ax.set_xticks([0, total_time / 2, total_time])
     ax.set_xticklabels([])
 
 
@@ -110,19 +159,19 @@ def m_stat(fig, vectorizedgenome_timeseries, row, col, num, delta=5, start_time_
     bx = fig.add_subplot(row, col, num)
     w = 11
     total_time = len(vectorizedgenome_timeseries)
-    start_time = int(total_time*start_time_ratio)
-    end_time = int(total_time*end_time_ratio)
+    start_time = int(total_time * start_time_ratio)
+    end_time = int(total_time * end_time_ratio)
 
     count_m = np.zeros(w)
 
     for pos_in_locus in range(w):
         for t in range(start_time, end_time, delta):
-            if vectorizedgenome_timeseries[t][0][pos_in_locus+35] == 1:
+            if vectorizedgenome_timeseries[t][0][pos_in_locus + 35] == 1:
                 count_m[pos_in_locus] += 1
 
     xaxis = [i for i in range(-5, 5 + 1)]
     bx.barh(xaxis, count_m, align="center")
-    bx.set_xlim(0, total_time*(end_time_ratio-start_time_ratio)/delta)
+    bx.set_xlim(0, total_time * (end_time_ratio - start_time_ratio) / delta)
     bx.set_xticks([])
     bx.set_yticks([])
 
