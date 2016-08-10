@@ -224,7 +224,6 @@ class HistoneWithDNAModel(Histone):
         f_list = [0, 1, 2, 3]
         shuffle(f_list)
         for f in f_list:
-            print(hst, f, hst.k_list[f])
             hst = hst.k_list[f]()
 
         return hst
