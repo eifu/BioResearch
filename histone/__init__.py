@@ -88,13 +88,6 @@ class Histone(object):
         else:
             self.K_ACE = 0
 
-    def dna_methylation(self):
-        """
-        used only when we care about CpG methylation system
-        :return:
-        """
-        return self
-
     @staticmethod
     def k(hst):
         f_list = [0, 1, 2]
