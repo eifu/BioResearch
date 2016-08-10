@@ -196,7 +196,7 @@ class AHistone(Histone):
         return self
 
 
-class HistoneOct4(Histone):
+class HistoneWithDNAModel(Histone):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.k_list = {0: self.k_plus, 1: self.k_minus, 2: self.k_ace, 3: self.dna_methylation}
@@ -219,16 +219,12 @@ class HistoneOct4(Histone):
 
     def k_minus(self):
         if sample() < self.K_MINUS:
-            return UHistoneOct4(inherited=True, inherited_hst=self)
+            return UHistoneWithDNAModel(inherited=True, inherited_hst=self)
         else:
             return self
 
     def dna_methylation(self):
-        if sample() < sum(self.CpGislandlist) * self.K_PLUS:
-            # the chance gets higher, depends on the num of CpG island sites
-            return MHistoneOct4(inherited=True, inherited_hst=self)
-        else:
-            return self
+        return self
 
     @staticmethod
     def k(hst):
@@ -241,13 +237,13 @@ class HistoneOct4(Histone):
         return hst
 
 
-class MHistoneOct4(HistoneOct4):
+class MHistoneWithDNAModel(HistoneWithDNAModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.status = "m"
 
 
-class UHistoneOct4(HistoneOct4):
+class UHistoneWithDNAModel(HistoneWithDNAModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.status = "u"
@@ -255,10 +251,10 @@ class UHistoneOct4(HistoneOct4):
     def k_plus(self):
         if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS:
             # preNode is methylated and sample() gets smaller than K_PLUS
-            return MHistoneOct4(inherited=True, inherited_hst=self)
+            return MHistoneWithDNAModel(inherited=True, inherited_hst=self)
         if self.nextnode is not None and self.nextnode.status == "m" and sample() < self.K_PLUS:
             # nextNode is methylated and sample() gets smaller than KPLUS
-            return MHistoneOct4(inherited=True, inherited_hst=self)
+            return MHistoneWithDNAModel(inherited=True, inherited_hst=self)
         return self
 
     def k_minus(self):
@@ -272,12 +268,19 @@ class UHistoneOct4(HistoneOct4):
 
         else:
             if sample() < self.K_ACE:
-                return AHistoneOct4(inherited=True, inherited_hst=self)
+                return AHistoneWithDNAModel(inherited=True, inherited_hst=self)
             else:
                 return self
 
+    def dna_methylation(self):
+        if sample() < sum(self.CpGislandlist) * self.K_PLUS:
+            # the chance gets higher, depends on the num of CpG island sites
+            return MHistoneWithDNAModel(inherited=True, inherited_hst=self)
+        else:
+            return self
 
-class AHistoneOct4(HistoneOct4):
+
+class AHistoneWithDNAModel(HistoneWithDNAModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.status = "a"
@@ -285,11 +288,11 @@ class AHistoneOct4(HistoneOct4):
     def k_plus(self):
         if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS2:
             # preNode is methylated and sample() gets smaller than PLUS2
-            return UHistoneOct4(inherited=True, inherited_hst=self)
+            return UHistoneWithDNAModel(inherited=True, inherited_hst=self)
 
         if self.nextnode is not None and self.nextnode.status == "m" and sample() < self.K_PLUS2:
             # nextNode is methylated and sample() gets smaller  than PLUS2
-            return UHistoneOct4(inherited=True, inherited_hst=self)
+            return UHistoneWithDNAModel(inherited=True, inherited_hst=self)
 
         return self
 
@@ -337,13 +340,13 @@ def init_genome(percentage=50,
     return hst_list
 
 
-def init_genome_oct4(percentage=50,
-                     a_bool=1,
-                     hst_n=81,
-                     kp=0.176,
-                     kp2=0.17,
-                     km=0.117,
-                     ka=0.12):
+def init_genome_with_dna_model(percentage=50,
+                               a_bool=1,
+                               hst_n=81,
+                               kp=0.176,
+                               kp2=0.17,
+                               km=0.117,
+                               ka=0.12):
     """
     this method is a modified version of createRandomHistoneList
     used for Oct4 histones.
@@ -355,22 +358,22 @@ def init_genome_oct4(percentage=50,
     for i in range(hst_n):
 
         if sample() < ratio:
-            hst_list.append(MHistoneOct4(position=i - before_promoter,
-                                         kp=kp,
-                                         kp2=kp2,
-                                         km=km,
-                                         ka=ka,
-                                         a_bool=a_bool
-                                         )
+            hst_list.append(MHistoneWithDNAModel(position=i - before_promoter,
+                                                 kp=kp,
+                                                 kp2=kp2,
+                                                 km=km,
+                                                 ka=ka,
+                                                 a_bool=a_bool
+                                                 )
                             )
         else:
-            hst_list.append(AHistoneOct4(position=i - before_promoter,
-                                         kp=kp,
-                                         kp2=kp2,
-                                         km=km,
-                                         ka=ka,
-                                         a_bool=a_bool
-                                         )
+            hst_list.append(UHistoneWithDNAModel(position=i - before_promoter,
+                                                 kp=kp,
+                                                 kp2=kp2,
+                                                 km=km,
+                                                 ka=ka,
+                                                 a_bool=a_bool
+                                                 )
                             )
 
         hst_list[i - 1].set_adjhistone(hst_list[i])
@@ -430,8 +433,7 @@ def next_genome(hst_list, window, k_nuc):
     return hst_list, t_bool, p_bool
 
 
-# TODO change the eert bool rule later
-def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
+def next_genome_with_dna_model(hst_list, window, k_nuc, p_off):
     """
     this method takes histone list and returns the next generation of them.
     """
@@ -454,24 +456,36 @@ def next_genome_oct4(hst_list, a_bool, r_bool, window, p_off):
                 if sample() < p_off:
                     hst.CpGislandlist[index] = 0
 
-        hst = HistoneOct4.k(hst)
+        hst = HistoneWithDNAModel.k(hst)
 
         hst_list[i] = hst
-    t_bool = a_bool and (ahst_n > window // 2)
+
+    p_bool = False
+    if mhst_n > 2:
+        p_bool = True
+
+    t_bool = (ahst_n > 5) and (not p_bool)
     """
     WINDOW is size 10(11 histones note that there is E0 between E(-1) and E(1)), 
     so acetylated histones will be dominant if non-acetylated histones are less than 5.
     """
-    center = len(hst_list) // 2
-    if r_bool == 1:
-        eext_bool = 1 if t_bool is False and sample() < hst_list[center].K_PLUS else 0
-    else:
-        eext_bool = 1 if mhst_n > 2 and sample() < hst_list[center].K_PLUS else 0
+    # if transcription does not happend, then with k_nuc
+    # probability, we recover E0 to be methylated.
+    eext_bool = False
+    if t_bool is False and sample() < k_nuc:
+        eext_bool = True
+
+    # if in the locus we have more than two methylated histones,
+    # then with 100% prob, we recover E0 histone to be
+    # methylated. this is a histone memory part.
+    if mhst_n > 2:
+        eext_bool = True
 
     if eext_bool:
-        hst_list[center] = MHistoneOct4(inherited=True, inherited_hst=hst_list[center])
+        center = len(hst_list) // 2
+        hst_list[center] = MHistoneWithDNAModel(inherited=True, inherited_hst=hst_list[center])
 
-    return hst_list, t_bool
+    return hst_list, t_bool, p_bool
 
 
 def vectorize(hst_list):
@@ -480,9 +494,9 @@ def vectorize(hst_list):
     in which three bit vectors are stored. 
     """
     hst_n = len(hst_list)
-    v_mlist = zeros(hst_n, dtype=bool)
-    v_ulist = zeros(hst_n, dtype=bool)
-    v_alist = zeros(hst_n, dtype=bool)
+    v_mlist = zeros(hst_n, dtype=int8)
+    v_ulist = zeros(hst_n, dtype=int8)
+    v_alist = zeros(hst_n, dtype=int8)
     for i, h in enumerate(hst_list):
         if h.status == "m":
             v_mlist[i] = 1
@@ -497,18 +511,26 @@ def vectorize(hst_list):
                  dtype=int8)
 
 
-# TODO change the compound statements to the enumeratative for loop
-def vectorize_oct4(hst_list):
+def vectorize_with_dna_model(hst_list):
     hst_n = len(hst_list)
-    v_mlist = zeros(hst_n, dtype=bool)
-    v_ulist = zeros(hst_n, dtype=bool)
-    v_alist = zeros(hst_n, dtype=bool)
+    v_mlist = zeros(hst_n, dtype=int8)
+    v_ulist = zeros(hst_n, dtype=int8)
+    v_alist = zeros(hst_n, dtype=int8)
     v_cpg = array([sum(h.CpGislandlist) for h in hst_list])
+
+    for i, h in enumerate(hst_list):
+        if h.status == "m":
+            v_mlist[i] = 1
+        elif h.status == "u":
+            v_ulist[i] = 1
+        else:
+            v_alist[i] = 1
 
     return array([v_mlist,
                   v_ulist,
                   v_alist,
-                  v_cpg])
+                  v_cpg],
+                 dtype=int8)
 
 
 def track_epigenetic_process(hst_list,  # initial histone list
@@ -537,34 +559,28 @@ def track_epigenetic_process(hst_list,  # initial histone list
     return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list, "PList": p_list}
 
 
-def track_epigenetic_process_oct4(hst_list,  # initial histone list
-                                  time,  # time for tracking (in hour)
-                                  a_bool,  # activator bool
-                                  r_bool,  # repressor bool
-                                  t_bool,  # transcription bool
-                                  p_off,  # prob of CpG island site gets OFF
-                                  window=10  # default is 10
-                                  ):
+def track_epigenetic_process_with_dna_model(hst_list,  # initial histone list
+                                            time,  # time for tracking (in hour)
+                                            a_bool,  # activator bool
+                                            t_bool,  # transcription bool
+                                            p_bool,
+                                            ace_prob,
+                                            nuc_prob,
+                                            p_off,  # prob of CpG island site gets OFF
+                                            window=10  # default is 10
+                                            ):
     hst_n = len(hst_list)
     for i, hst in enumerate(hst_list):
-        hst_list[i].set_ka(a_bool)
+        hst_list[i].set_ka(a_bool, ace_prob)
 
     vectorizedgene_list = zeros((time, 4, hst_n))  # array of compressed data of vectors
     t_list = zeros(time, dtype=bool)  # one dimension array
+    p_list = zeros(time, dtype=bool)
+
     for t in range(time):
-        vectorizedgene_list[t] = vectorize_oct4(hst_list)
+        vectorizedgene_list[t] = vectorize_with_dna_model(hst_list)
         t_list[t] = t_bool
-        hst_list, t_bool = next_genome_oct4(hst_list, a_bool, r_bool, window, p_off)
+        p_list[t] = p_bool
+        hst_list, t_bool, p_bool = next_genome_with_dna_model(hst_list, window, k_nuc=nuc_prob, p_off=p_off)
 
-    return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list}
-
-
-# TODO inefficient implementation
-def gettime_mhst_dieout(vectorizedgene_list):
-    for time in range(len(vectorizedgene_list)):
-        if vectorizedgene_list[time][0][40] == 0:
-            for else_in_window in range(35, 45):
-                if vectorizedgene_list[time][0][else_in_window] == 1:
-                    break
-                return time
-    return -1
+    return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list, "PList": p_list}
