@@ -82,6 +82,7 @@ def submain(k_plus, k_minus, kn1, ka1, kn2, ka2):
     for ex in range(example_n):
         one_var_m[ex], one_var_hst_list[ex], one_var_pack[ex] = subsubmain(k_plus, k_minus, k_nuc1=kn1, k_ace1=ka1,
                                                                            k_nuc2=kn2, k_ace2=ka2)
+
         print("kn1:{}, ka2:{}, -> kn2:{}, ka2:{}, km:{}, kp:{}, complete {}%".format(round(kn1, 4),
                                                                                      round(ka1, 4),
                                                                                      round(kn2, 4),
