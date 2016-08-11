@@ -77,7 +77,7 @@ def submain1(kn1, kn2):
 
 def submain(k_plus, k_minus, kn1, ka1, kn2, ka2):
     one_var_m = np.zeros((example_n, TIME2, 3, HST_N))
-    one_var_hst_list = np.zeros((example_n, 24 * 7, HST_N))  # week 3 histone list
+    one_var_hst_list = np.zeros((example_n, 24 * 7, 11))  # week 3 histone list at locus
     one_var_pack = np.zeros((example_n, TIME2))
     for ex in range(example_n):
         one_var_m[ex], one_var_hst_list[ex], one_var_pack[ex] = subsubmain(k_plus, k_minus, k_nuc1=kn1, k_ace1=ka1,
@@ -137,9 +137,9 @@ def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
     tracker2 = dict2["vectorize"]
     p_list2 = dict2["PList"]
 
-    week3_hst_list = np.zeros((24 * 7, HST_N))
+    week3_hst_list = np.zeros((24 * 7, 11))
     for i, hst in enumerate(tracker2[2 * 24 * 7:]):
-        week3_hst_list[i] = hst[0] - hst[2]
+        week3_hst_list[i] = hst[0][35:46] - hst[2][35:46]
 
     return tracker2, week3_hst_list, p_list2
 
