@@ -144,6 +144,25 @@ def package(fig, p_list, row, col, num):
     ax.set_xticklabels([])
 
 
+def package_with_dna_model(fig, p_list, tracker, row, col, num):
+    cpg_num_list = np.zeros(len(tracker))
+    for t, vec in enumerate(tracker):
+        cpg_num_list[t] = (vec[3][38] + vec[3][39] + vec[3][40])/20 + 0.25
+
+    total_time = len(p_list)
+    ax = fig.add_subplot(row, col, num)
+    time = np.arange(total_time)
+    ax.plot(time, p_list, "-", color="olive")
+    ax.plot(time, cpg_num_list, "-", color="yellow")
+    ax.set_yticks([0, 0.25, 0.75, 1])
+    ax.set_yticklabels(["unpacked", "no CpG", "full CpG", "packed"])
+    ax.set_ylim(-0.1, 1.1)
+    ax.set_xlim(-0.5, total_time + 0.5)
+    ax.set_xticks([0, total_time / 2, total_time])
+    ax.set_xticklabels([])
+
+
+
 def m_stat(fig, vectorizedgenome_timeseries, row, col, num, delta=5, start_time_ratio=0.5, end_time_ratio=1):
     """
     :param fig:

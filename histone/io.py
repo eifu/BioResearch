@@ -55,9 +55,9 @@ def compress_onekp_samplelist_hstseqts(onekp_samplelist_hstseqts):
     return compressed
 
 def compress_last_week_hst_vec(last_week_hst_vec):
+    locus_n = 11
     example_n = len(last_week_hst_vec)
-    hst_n = len(last_week_hst_vec[0][0])
-    return last_week_hst_vec.reshape(example_n * 24 * 7, hst_n)
+    return last_week_hst_vec.reshape(example_n * 24 * 7, locus_n)
 
 def compress_packaging_samplelist(packaging_list):
     time = len(packaging_list[0])
