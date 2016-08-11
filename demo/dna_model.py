@@ -39,11 +39,11 @@ def main():
     a_bool2 = 1
 
     k_nuc = 1
-    k_ace = 0
+    k_ace = 0.1
     k_nuc2 = 0
-    k_ace2 = 0
+    k_ace2 = 0.1
 
-    p_off = 0.001
+    p_off = 0.01
 
     """
     init_genome
@@ -143,7 +143,7 @@ def main():
 
     histone.figure.sequence(fig, final_tracker, 3, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
     histone.figure.window_with_dna_model(fig, final_tracker, 6, 1, 3)
-    histone.figure.package(fig, final_p_list, 6, 1, 4)
+    histone.figure.package_with_dna_model(fig, final_p_list, final_tracker, 6, 1, 4)
     histone.figure.transcription(fig, final_t_list, 6, 1, 5)
     histone.figure.m_stat(fig, tracker, 6, 4, 22, start_time_ratio=0.5, end_time_ratio=1)
     histone.figure.m_stat(fig, tracker2, 6, 4, 23, start_time_ratio=0, end_time_ratio=0.5)
@@ -151,8 +151,15 @@ def main():
     plt.show()
 
     # to save a figure to pdf file
-    title = "demo/result/test__dna_model_{}____k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(strftime("%Y_%m%d_%H%M"), k_plus,
-                                                                                  k_minus, k_ace, k_nuc, percent)
+    title = "demo/result/test__dna_model_{}___poff{}_k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(
+        strftime("%Y_%m%d_%H%M"),
+        round(p_off, 4),
+        k_plus,
+        k_minus,
+        k_ace,
+        k_nuc,
+        percent
+    )
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
