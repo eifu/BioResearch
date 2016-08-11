@@ -61,9 +61,9 @@ def submain1(kn1, kn2):
         io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
 
         # for final histone list info
-        filename2d = dir2 + "final_hst_list_k+{}k-{}_examples.csv".format(round(km, 4),
-                                                                          round(kp, 4),
-                                                                          example_n)
+        filename2d = dir2 + "final_hst_list_k+{}k-{}_{}examples.csv".format(round(km, 4),
+                                                                            round(kp, 4),
+                                                                            example_n)
         compressed = io.compress_last_week_hst_vec(one_var_last_week_hst)
         io.write_dump2d_final_hst_list(compressed, filename2d, HST_N)
 
