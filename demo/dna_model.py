@@ -73,6 +73,11 @@ def main():
                                                        km=k_minus,
                                                        ka=k_ace
                                                        )
+
+    histone_list1[38].set_cpg_island_list(4)  # turn -2 pos on
+    histone_list1[39].set_cpg_island_list(4)  # turn -1 pos on
+    histone_list1[40].set_cpg_island_list(2)  # turn 0 pos on
+
     """
     track_epigenetic_process
 
