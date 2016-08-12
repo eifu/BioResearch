@@ -67,6 +67,14 @@ def compress_packaging_samplelist(packaging_list):
             compressed[t] += onesample[t]
     return compressed
 
+def compress_cpg_samplelist(cpg_list):
+    time = len(cpg_list[0])
+    compressed = np.zeros(time)
+    for _, onesample in enumerate(cpg_list):
+        for t in range(time):
+            compressed[t] += onesample[t]
+    return compressed
+
 def write_dump2d_pos_kp(kplist_samplelist_hstseqts, filename, time_inhour):
     kp_n = len(kplist_samplelist_hstseqts)
     example_n = len(kplist_samplelist_hstseqts[0])
@@ -101,10 +109,6 @@ def write_dump3d_kp_time_hst(data3d, filename, time, kp_n=24, hst_n=81):
                    newline='\n')
 
 def write_dump2d_onekp_time_hst(data2d, filename, time, kp_n=24, hst_n=81):
-    """
-    :param data3d: kp list ~> time series ~> hst seq
-    """
-    # data2d = data3d.reshape(time, hst_n) # reshape to 2d for saving data
     with open(filename, 'wb') as f:
         np.savetxt(f,
                    data2d,
@@ -116,6 +120,14 @@ def write_dump2d_final_hst_list(data2d, filename, hst_n):
     with open(filename, "wb") as f:
         np.savetxt(f,
                    data2d,
+                   fmt='%d',
+                   delimiter=',',
+                   newline='\n')
+
+def write_dump2d_cpg_sum(data, filename):
+    with open(filename, "wb") as f:
+        np.savetxt(f,
+                   data,
                    fmt='%d',
                    delimiter=',',
                    newline='\n')
