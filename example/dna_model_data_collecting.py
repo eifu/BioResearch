@@ -11,9 +11,7 @@ TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
 
 HST_N = 81
-example_n = 5
-
-# p_off = 0.01
+example_n = 100
 
 if not os.path.exists("example/data"):
     os.mkdir('example/data')
@@ -27,16 +25,17 @@ if not os.path.exists(dir1):
 
 
 def main():
-    kn1_list = [0, 1]
-    kn2_list = np.arange(0, 0.5, 0.025)
-    p_off_list = [1, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001]
-    for p_off in p_off_list:
-        for kn1 in kn1_list:
-            for kn2 in kn2_list:
-                submain1(kn1, kn2, p_off)
+    p_off = 1 # [1, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001]  # 7
+    kn1_list = [0, 1]  # length 2
+    kn2_list = np.arange(0, 0.5, 0.025)  # length 20
 
 
-def submain1(kn1, kn2, p_off):
+    for i_kn1, kn1 in enumerate(kn1_list):
+        for i_kn2, kn2 in enumerate(kn2_list):
+            submain1(kn1, kn2, p_off,  i_kn1 * 20 + i_kn2)
+
+
+def submain1(kn1, kn2, p_off, progress):
     ka1 = 0
     ka2 = 0
 
@@ -50,12 +49,8 @@ def submain1(kn1, kn2, p_off):
         os.mkdir(dir2)
 
     for km, kp in km_kp_pair:
-        one_var_tracker, one_var_week3_hst, one_var_pack, one_var_cpg_sum = submain(kp, km, kn1, ka1, kn2, ka2, p_off)
-        print("kn:{}, ka:{} ,done km:{}, kp:{}  poff".format(round(kn2, 4),
-                                                             round(ka2, 4),
-                                                             round(km, 4),
-                                                             round(kp, 4),
-                                                             round(p_off, 4)))
+        one_var_tracker, one_var_week3_hst, one_var_pack, one_var_cpg_sum = submain(kp, km, kn1, ka1, kn2, ka2, p_off, progress)
+        
 
         # for tracker info
         filename2d = dir2 + "dumpdata2d_p_off{}_k+{}k-{}_{}examples.csv".format(round(p_off, 4),
@@ -86,12 +81,11 @@ def submain1(kn1, kn2, p_off):
                                                                              round(kp, 4),
                                                                              round(km, 4),
                                                                              example_n)
-        print(one_var_cpg_sum)
         compressed = io.compress_cpg_samplelist(one_var_cpg_sum)
         io.write_dump2d_cpg_sum(compressed, filename2d)
 
 
-def submain(k_plus, k_minus, kn1, ka1, kn2, ka2, p_off):
+def submain(k_plus, k_minus, kn1, ka1, kn2, ka2, p_off, progress):
     one_var_m = np.zeros((example_n, TIME2, 4, HST_N))
     one_var_hst_list = np.zeros((example_n, 24 * 7, 11))  # week 3 histone list
     one_var_pack = np.zeros((example_n, TIME2))
@@ -104,8 +98,10 @@ def submain(k_plus, k_minus, kn1, ka1, kn2, ka2, p_off):
                                                                                                 k_nuc2=kn2,
                                                                                                 k_ace2=ka2,
                                                                                                 p_off=p_off)
-
-        print("kn1:{}, ka2:{}, -> kn2:{}, ka2:{}, km:{}, kp:{}, complete {}%".format(round(kn1, 4),
+        
+        if ex % 10 == 0:
+            print("total  {}%".format(progress*100/20*2))
+            print("kn1:{}, ka2:{}, -> kn2:{}, ka2:{}, km:{}, kp:{}, complete {}%".format(round(kn1, 4),
                                                                                      round(ka1, 4),
                                                                                      round(kn2, 4),
                                                                                      round(ka2, 4),
