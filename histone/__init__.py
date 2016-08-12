@@ -219,6 +219,10 @@ class HistoneWithDNAModel(Histone):
     def dna_methylation(self):
         return self
 
+    def set_cpg_island_list(self, num):
+        for i in range(num):
+            self.CpGislandlist[i] = 1
+
     @staticmethod
     def k(hst):
         f_list = [0, 1, 2, 3]

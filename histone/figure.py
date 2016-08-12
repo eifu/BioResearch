@@ -75,7 +75,7 @@ def window_with_dna_model(fig, vectgene_timeseries, row, col, num):
     w = 10
 
     ax = fig.add_subplot(row, col, num)
-    colors = ["black", "green", "lightgreen", "yellow"]
+    colors = ["darkgreen", "darkolivegreen", "sage", "lime"]
     for t, vectgene in enumerate(vectgene_timeseries):
         # methylated histones
         y_position_m = [i - 40 for i in range(hst_n // 2 - w // 2, hst_n // 2 + w // 2 + 1)
