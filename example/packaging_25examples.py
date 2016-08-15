@@ -68,7 +68,7 @@ def submain(p_off):
             ax.fill_between(hours, 0,  container[i_kn2][i], alpha=1/N, color=colors[i_kn2])
 
     # to save a figure to pdf file
-    title = "packaging_25examples_p_off{}.pdf".format(p_off)
+    title = "packaging_{}examples_p_off{}.pdf".format(N, p_off)
     pp = PdfPages(title)
     pp.savefig(fig1)
     pp.close()
