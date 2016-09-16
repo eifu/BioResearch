@@ -36,9 +36,6 @@ def main():
 
     percent = 100
 
-    a_bool = 1
-    a_bool2 = 1
-
     k_nuc = 1
     k_ace = 0
     k_nuc2 = 0
@@ -64,10 +61,8 @@ def main():
     a list of histone objects
     """
     histone_list1 = histone.init_genome(percentage=percent,
-                                        a_bool=a_bool,
                                         hst_n=NUM_OF_HISTONE,
                                         kp=k_plus,
-                                        kp2=k_plus,
                                         km=k_minus,
                                         ka=k_ace
                                         )
@@ -90,8 +85,7 @@ def main():
                 For the first tracking, we set up p_bool to be
                 True as a default.
     """
-    t_bool = 0  # TODO
-    p_bool = True # TODO
+
     """
     - ace_prob .. K-ace probability.
     - nuc_prob .. K-nuc probability.
@@ -103,9 +97,6 @@ def main():
     """
     dict1 = histone.track_epigenetic_process(hst_list=histone_list1,
                                              time=TIME1,
-                                             a_bool=a_bool,
-                                             t_bool=t_bool,
-                                             p_bool=p_bool,
                                              ace_prob=k_ace,
                                              nuc_prob=k_nuc
                                              )
@@ -116,9 +107,6 @@ def main():
 
     dict2 = histone.track_epigenetic_process(hst_list=hst1,
                                              time=TIME2,
-                                             a_bool=a_bool2,
-                                             t_bool=t_list1[-1],
-                                             p_bool=p_list1[-1],
                                              ace_prob=k_ace2,
                                              nuc_prob=k_nuc2
                                              )

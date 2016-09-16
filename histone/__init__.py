@@ -5,9 +5,7 @@ from numpy import zeros, array, int8
 class Histone(object):
     def __init__(self, position=0,
                  kp=0.12,
-                 kp2=0.12,
                  km=0.117,
-                 a_bool=False,
                  ka=0.12,
                  nextnode=None,
                  prenode=None,
@@ -18,7 +16,6 @@ class Histone(object):
         :param position: a position of histone, to differentiate
                   from other histone instances.
         :param kp:
-        :param kp2:
         :param km:
         :param a_bool: a boolean value, activator of transcription factors
                        if A is true, then the K_ACE is the given paramater.
@@ -49,7 +46,6 @@ class Histone(object):
 
             self.K_ACE = inherited_hst.K_ACE
             self.K_PLUS = inherited_hst.K_PLUS
-            self.K_PLUS2 = inherited_hst.K_PLUS2
             self.K_MINUS = inherited_hst.K_MINUS
 
         # create new histone object based on the arguments
@@ -58,12 +54,10 @@ class Histone(object):
             self.prenode = prenode
             self.nextnode = nextnode
             # if A_bool is false, K_ACE is set to be 0.
-            if a_bool:
-                Histone.K_ACE = ka
-            else:
-                Histone.K_ACE = 0
+
+            Histone.K_ACE = ka
+
             self.K_PLUS = kp
-            self.K_PLUS2 = kp2
             self.K_MINUS = km
 
     def set_adjhistone(self, nextnode):
@@ -76,17 +70,15 @@ class Histone(object):
         nextnode.prenode = self
 
     # BUG k_ace should be subject to k_minus
-    def set_ka(self, a_bool, k_ace):
+    def set_ka(self, k_ace):
         """
         set the default of Histone.K_ACE.
         :param k_ace:
-        :param a_bool: boolean value, if a_bool is true, then Histone.KCE is set to the
         :return:
         """
-        if a_bool:
-            self.K_ACE = k_ace
-        else:
-            self.K_ACE = 0
+
+        self.K_ACE = k_ace
+
 
     @staticmethod
     def k(hst):
@@ -178,15 +170,6 @@ class AHistone(Histone):
     def __init__(self, **kwarg):
         super().__init__(**kwarg)
         self.status = "a"
-
-    def k_plus(self):
-        if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS2:
-            # preNode is methylated and sample() gets smaller than KPLUS2
-            return UHistone(inherited=True, inherited_hst=self)
-        if self.nextnode is not None and self.nextnode.status == "m" and sample() < self.K_PLUS2:
-            # nextNode is methylated and sample() gets smaller than KPLUS2
-            return UHistone(inherited=True, inherited_hst=self)
-        return self
 
 
 class HistoneWithDNAModel(Histone):
@@ -282,22 +265,20 @@ class AHistoneWithDNAModel(HistoneWithDNAModel):
         self.status = "a"
 
     def k_plus(self):
-        if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS2:
-            # preNode is methylated and sample() gets smaller than PLUS2
+        if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS:
+            # preNode is methylated and sample() gets smaller than PLUS
             return UHistoneWithDNAModel(inherited=True, inherited_hst=self)
 
-        if self.nextnode is not None and self.nextnode.status == "m" and sample() < self.K_PLUS2:
-            # nextNode is methylated and sample() gets smaller  than PLUS2
+        if self.nextnode is not None and self.nextnode.status == "m" and sample() < self.K_PLUS:
+            # nextNode is methylated and sample() gets smaller  than PLUS
             return UHistoneWithDNAModel(inherited=True, inherited_hst=self)
 
         return self
 
 
 def init_genome(percentage=50,
-                a_bool=1,
                 hst_n=81,
                 kp=0.176,
-                kp2=0.17,
                 km=0.117,
                 ka=0.12):
     """
@@ -314,19 +295,15 @@ def init_genome(percentage=50,
         if sample() < ratio:
             hst_list.append(MHistone(position=i - before_promoter,
                                      kp=kp,
-                                     kp2=kp2,
                                      km=km,
                                      ka=ka,
-                                     a_bool=a_bool
                                      )
                             )
         else:
             hst_list.append(UHistone(position=i - before_promoter,
                                      kp=kp,
-                                     kp2=kp2,
                                      km=km,
                                      ka=ka,
-                                     a_bool=a_bool
                                      )
                             )
 
@@ -337,10 +314,8 @@ def init_genome(percentage=50,
 
 
 def init_genome_with_dna_model(percentage=50,
-                               a_bool=1,
                                hst_n=81,
                                kp=0.176,
-                               kp2=0.17,
                                km=0.117,
                                ka=0.12):
     """
@@ -356,19 +331,15 @@ def init_genome_with_dna_model(percentage=50,
         if sample() < ratio:
             hst_list.append(MHistoneWithDNAModel(position=i - before_promoter,
                                                  kp=kp,
-                                                 kp2=kp2,
                                                  km=km,
                                                  ka=ka,
-                                                 a_bool=a_bool
                                                  )
                             )
         else:
             hst_list.append(UHistoneWithDNAModel(position=i - before_promoter,
                                                  kp=kp,
-                                                 kp2=kp2,
                                                  km=km,
                                                  ka=ka,
-                                                 a_bool=a_bool
                                                  )
                             )
 
@@ -531,35 +502,29 @@ def vectorize_with_dna_model(hst_list):
 
 def track_epigenetic_process(hst_list,  # initial histone list
                              time,  # time for tracking (in hour)
-                             a_bool,  # activator bool
-                             t_bool,  # transcription bool
-                             p_bool,
                              ace_prob,
                              nuc_prob,
                              window=10,  # default is 10
                              ):
     hst_n = len(hst_list)
     for i, hst in enumerate(hst_list):
-        hst_list[i].set_ka(a_bool, ace_prob)
+        hst_list[i].set_ka(ace_prob)
 
     vectorizedgene_list = zeros((time, 3, hst_n))  # array of compressed data of vectors
     t_list = zeros(time, dtype=bool)  # one dimension array
     p_list = zeros(time, dtype=bool)
 
     for t in range(time):
+        hst_list, t_bool, p_bool = next_genome(hst_list, window, nuc_prob)
         vectorizedgene_list[t] = vectorize(hst_list)
         t_list[t] = t_bool
         p_list[t] = p_bool
-        hst_list, t_bool, p_bool = next_genome(hst_list, window, nuc_prob)
 
     return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list, "PList": p_list}
 
 
 def track_epigenetic_process_with_dna_model(hst_list,  # initial histone list
                                             time,  # time for tracking (in hour)
-                                            a_bool,  # activator bool
-                                            t_bool,  # transcription bool
-                                            p_bool,
                                             ace_prob,
                                             nuc_prob,
                                             p_off,  # prob of CpG island site gets OFF
@@ -567,16 +532,16 @@ def track_epigenetic_process_with_dna_model(hst_list,  # initial histone list
                                             ):
     hst_n = len(hst_list)
     for i, hst in enumerate(hst_list):
-        hst_list[i].set_ka(a_bool, ace_prob)
+        hst_list[i].set_ka( ace_prob)
 
     vectorizedgene_list = zeros((time, 4, hst_n))  # array of compressed data of vectors
     t_list = zeros(time, dtype=bool)  # one dimension array
     p_list = zeros(time, dtype=bool)
 
     for t in range(time):
+        hst_list, t_bool, p_bool = next_genome_with_dna_model(hst_list, window, k_nuc=nuc_prob, p_off=p_off)
         vectorizedgene_list[t] = vectorize_with_dna_model(hst_list)
         t_list[t] = t_bool
         p_list[t] = p_bool
-        hst_list, t_bool, p_bool = next_genome_with_dna_model(hst_list, window, k_nuc=nuc_prob, p_off=p_off)
 
     return {"vectorize": vectorizedgene_list, "hstL": hst_list, "TList": t_list, "PList": p_list}
