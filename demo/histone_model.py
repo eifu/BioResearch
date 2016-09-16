@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib
 import numpy as np
+import os
 
 """
 demonstlation of histone library.
@@ -24,8 +25,8 @@ the environment changes.
 """
 
 NUM_OF_HISTONE = 81
-WINDOW = 10
-TIME1 = 3 * 7 * 24  # 3 week in hours
+WINDOW = 10 
+TIME1 = 3 * 7 * 24  # 3 week in hours 
 TIME2 = 3 * 7 * 24  # 3 week in hours
 
 
@@ -89,8 +90,8 @@ def main():
                 For the first tracking, we set up p_bool to be
                 True as a default.
     """
-    t_bool = 0
-    p_bool = True
+    t_bool = 0  # TODO
+    p_bool = True # TODO
     """
     - ace_prob .. K-ace probability.
     - nuc_prob .. K-nuc probability.
@@ -136,7 +137,7 @@ def main():
 
     fig = plt.figure()
 
-    histone.figure.sequence(fig, final_tracker, 3, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
+    histone.figure.sequence(fig, final_tracker, 4, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
     histone.figure.window(fig, final_tracker, 6, 1, 3)
     histone.figure.package(fig, final_p_list, 6, 1, 4)
     histone.figure.transcription(fig, final_t_list, 6, 1, 5)
@@ -144,6 +145,9 @@ def main():
     histone.figure.m_stat(fig, tracker2, 6, 4, 23, start_time_ratio=0, end_time_ratio=0.5)
     histone.figure.m_stat(fig, tracker2, 6, 4, 24, start_time_ratio=0.5, end_time_ratio=1)
     plt.show()
+
+    if not os.path.exists("demo/result"):
+        os.mkdir("demo/result")
 
     # to save a figure to pdf file
     title = "demo/result/test_{}____k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(strftime("%Y_%m%d_%H%M"), k_plus,
