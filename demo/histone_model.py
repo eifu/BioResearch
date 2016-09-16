@@ -8,8 +8,8 @@ import numpy as np
 import os
 
 """
-demonstlation of histone library.
-In this file, we demonstlate the histone code without DNA methylation model.
+demonstration of histone library.
+In this file, we demonstrate the histone code without DNA methylation model.
 As are imported above, you have to have two libraries, numpy, matplotlib on
 your local computer.
 
@@ -28,43 +28,39 @@ NUM_OF_HISTONE = 81
 WINDOW = 10 
 TIME1 = 3 * 7 * 24  # 3 week in hours 
 TIME2 = 3 * 7 * 24  # 3 week in hours
+K_PLUS = 0.145
+K_MINUS = 0.145
+PERCENT = 100
+NUC_PROB = 1
+ACE_PROB = 0
+NUC_PROB2 = 0
+ACE_PROB2 = 0
 
 
 def main():
-    k_plus = 0.145
-    k_minus = 0.145
-
-    percent = 100
-
-    k_nuc = 1
-    k_ace = 0
-    k_nuc2 = 0
-    k_ace2 = 0
     """
     init_genome
 
     initializes a list of histone objects.
     if you want to have a list of histones with
-    specific characterestics, you can custumize it with
+    specific characteristics, you can customize it with
     keyword arguments.
     input:
     (list of keyword arguments)
     - percentage .. probability of methylated histones.
-    - a_bool .. having activator On.
     - hst_n .. number of histones in a list
     - kp .. probability of k plus
-    - kp2 .. probability of k plus 2
     - km .. probability of k minus
     - ka .. probability of k ace
 
     output:
     a list of histone objects
     """
-    histone_list1 = histone.init_genome(percentage=percent,
+    histone_list1 = histone.init_genome(percentage=PERCENT,
                                         hst_n=NUM_OF_HISTONE,
-                                        kp=k_plus,
-                                        km=k_minus,
-                                        ka=k_ace
+                                        kp=K_PLUS,
+                                        km=K_MINUS,
+                                        ka=ACE_PROB
                                         )
     """
     track_epigenetic_process
@@ -76,17 +72,6 @@ def main():
     (list of keyword arguments)
     - hst_list .. the initial condition of list of histones
     - time .. the time length of tracking
-    - a_bool
-    - r_bool
-    - t_bool .. whether transcription happened last time or
-                not. For the first tracking, we set up t_bool
-                to be 0 as a default.
-    - p_bool .. whether packaging happened last time or not.
-                For the first tracking, we set up p_bool to be
-                True as a default.
-    """
-
-    """
     - ace_prob .. K-ace probability.
     - nuc_prob .. K-nuc probability.
     output:
@@ -97,8 +82,8 @@ def main():
     """
     dict1 = histone.track_epigenetic_process(hst_list=histone_list1,
                                              time=TIME1,
-                                             ace_prob=k_ace,
-                                             nuc_prob=k_nuc
+                                             ace_prob=ACE_PROB,
+                                             nuc_prob=NUC_PROB
                                              )
     tracker = dict1["vectorize"]
     hst1 = dict1["hstL"]
@@ -107,8 +92,8 @@ def main():
 
     dict2 = histone.track_epigenetic_process(hst_list=hst1,
                                              time=TIME2,
-                                             ace_prob=k_ace2,
-                                             nuc_prob=k_nuc2
+                                             ace_prob=ACE_PROB2,
+                                             nuc_prob=NUC_PROB2
                                              )
     tracker2 = dict2["vectorize"]
     t_list2 = dict2["TList"]
@@ -125,7 +110,7 @@ def main():
 
     fig = plt.figure()
 
-    histone.figure.sequence(fig, final_tracker, 4, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
+    histone.figure.sequence(fig, final_tracker, 4, 1, 1, kace=ACE_PROB, knuc=NUC_PROB, kace2=ACE_PROB2, knuc2=NUC_PROB2)
     histone.figure.window(fig, final_tracker, 6, 1, 3)
     histone.figure.package(fig, final_p_list, 6, 1, 4)
     histone.figure.transcription(fig, final_t_list, 6, 1, 5)
@@ -138,8 +123,8 @@ def main():
         os.mkdir("demo/result")
 
     # to save a figure to pdf file
-    title = "demo/result/test_{}____k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(strftime("%Y_%m%d_%H%M"), k_plus,
-                                                                                  k_minus, k_ace, k_nuc, percent)
+    title = "demo/result/test_{}____k+{}_k-{}_kace1{}_knuc1{}_kace2{}_knuc2{}_percent{}.pdf".format(
+        strftime("%Y_%m%d_%H%M"), K_PLUS, K_MINUS, ACE_PROB, NUC_PROB, ACE_PROB2, NUC_PROB2, PERCENT)
     pp = PdfPages(title)
     pp.savefig(fig)
     pp.close()
