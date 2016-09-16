@@ -60,7 +60,6 @@ def main():
                                         hst_n=NUM_OF_HISTONE,
                                         kp=K_PLUS,
                                         km=K_MINUS,
-                                        ka=ACE_PROB
                                         )
     """
     track_epigenetic_process

@@ -6,7 +6,6 @@ class Histone(object):
     def __init__(self, position=0,
                  kp=0.12,
                  km=0.117,
-                 ka=0.12,
                  nextnode=None,
                  prenode=None,
                  inherited=False,
@@ -17,11 +16,6 @@ class Histone(object):
                   from other histone instances.
         :param kp:
         :param km:
-        :param a_bool: a boolean value, activator of transcription factors
-                       if A is true, then the K_ACE is the given paramater.
-                       else, K_ACE is 0, which means no histones can be \
-                       turned to be acetilated.
-        :param ka:
         :param nextnode: a neighbor of the instances, judged by position + 1
         :param prenode: a neighbor of the instances, judged by position - 1
         :param inherited:
@@ -44,7 +38,6 @@ class Histone(object):
             if inherited_hst.nextnode is not None:
                 inherited_hst.nextnode.prenode = self
 
-            self.K_ACE = inherited_hst.K_ACE
             self.K_PLUS = inherited_hst.K_PLUS
             self.K_MINUS = inherited_hst.K_MINUS
 
@@ -53,9 +46,6 @@ class Histone(object):
             self.position = position
             self.prenode = prenode
             self.nextnode = nextnode
-            # if A_bool is false, K_ACE is set to be 0.
-
-            Histone.K_ACE = ka
 
             self.K_PLUS = kp
             self.K_MINUS = km
@@ -69,26 +59,15 @@ class Histone(object):
         self.nextnode = nextnode
         nextnode.prenode = self
 
-    # BUG k_ace should be subject to k_minus
-    def set_ka(self, k_ace):
-        """
-        set the default of Histone.K_ACE.
-        :param k_ace:
-        :return:
-        """
-
-        self.K_ACE = k_ace
-
-
     @staticmethod
-    def k(hst):
+    def k(hst, ace_prob):
         f_list = [0, 1, 2]
         shuffle(f_list)
         for f in f_list:
-            hst = hst.k_list[f]()
+            hst = hst.k_list[f](ace_prob)
         return hst
 
-    def k_plus(self):
+    def k_plus(self, ace_prob):
         """
         the unmethylated histone will get methylated by K_PLUS probability
         return methylated object if the histone will get methylated
@@ -96,7 +75,7 @@ class Histone(object):
         """
         return self
 
-    def k_minus(self):
+    def k_minus(self, ace_prob):
         """
         the methylated histone will be get unmethylated by K_MINUS probability
         or
@@ -109,7 +88,7 @@ class Histone(object):
         else:
             return self
 
-    def k_ace(self):
+    def k_ace(self, ace_prob):
         """
         the unmethylated hitone will be get acetilated by K_ACE probability
         :return: acetilated histone if the histone will get acetilated
@@ -147,7 +126,7 @@ class UHistone(Histone):
         super().__init__(**kwarg)
         self.status = "u"
 
-    def k_plus(self):
+    def k_plus(self, ace_prob):
         if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS:
             # preNode is methylated and sample() gets smaller than K_PLUS
             return MHistone(inherited=True, inherited_hst=self)
@@ -156,11 +135,11 @@ class UHistone(Histone):
             return MHistone(inherited=True, inherited_hst=self)
         return self
 
-    def k_minus(self):
+    def k_minus(self, ace_prob):
         return self
 
-    def k_ace(self):
-        if sample() < self.K_ACE:
+    def k_ace(self, ace_prob):
+        if sample() < ace_prob:
             return AHistone(inherited=True, inherited_hst=self)
         else:
             return self
@@ -193,7 +172,7 @@ class HistoneWithDNAModel(Histone):
             else:
                 self.CpGislandlist = []
 
-    def k_minus(self):
+    def k_minus(self, ace_prob):
         if sample() < self.K_MINUS:
             return UHistoneWithDNAModel(inherited=True, inherited_hst=self)
         else:
@@ -207,11 +186,11 @@ class HistoneWithDNAModel(Histone):
             self.CpGislandlist[i] = 1
 
     @staticmethod
-    def k(hst):
+    def k(hst, ace_prob):
         f_list = [0, 1, 2, 3]
         shuffle(f_list)
         for f in f_list:
-            hst = hst.k_list[f]()
+            hst = hst.k_list[f](ace_prob)
 
         return hst
 
@@ -227,7 +206,7 @@ class UHistoneWithDNAModel(HistoneWithDNAModel):
         super().__init__(**kwargs)
         self.status = "u"
 
-    def k_plus(self):
+    def k_plus(self, ace_prob):
         if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS:
             # preNode is methylated and sample() gets smaller than K_PLUS
             return MHistoneWithDNAModel(inherited=True, inherited_hst=self)
@@ -236,17 +215,17 @@ class UHistoneWithDNAModel(HistoneWithDNAModel):
             return MHistoneWithDNAModel(inherited=True, inherited_hst=self)
         return self
 
-    def k_minus(self):
+    def k_minus(self, ace_prob):
         return self
 
-    def k_ace(self):
+    def k_ace(self, ace_prob):
         # if histone has CpG island on it
         if 1 in self.CpGislandlist:
             # histone cannnot get acetylated
             return self
 
         else:
-            if sample() < self.K_ACE:
+            if sample() < ace_prob:
                 return AHistoneWithDNAModel(inherited=True, inherited_hst=self)
             else:
                 return self
@@ -264,7 +243,7 @@ class AHistoneWithDNAModel(HistoneWithDNAModel):
         super().__init__(**kwargs)
         self.status = "a"
 
-    def k_plus(self):
+    def k_plus(self, ace_prob):
         if self.prenode is not None and self.prenode.status == "m" and sample() < self.K_PLUS:
             # preNode is methylated and sample() gets smaller than PLUS
             return UHistoneWithDNAModel(inherited=True, inherited_hst=self)
@@ -279,8 +258,7 @@ class AHistoneWithDNAModel(HistoneWithDNAModel):
 def init_genome(percentage=50,
                 hst_n=81,
                 kp=0.176,
-                km=0.117,
-                ka=0.12):
+                km=0.117):
     """
     percentage ... the probability of having methylated hitone.
     this method returns a list of histone randomly generated with respect to
@@ -296,14 +274,12 @@ def init_genome(percentage=50,
             hst_list.append(MHistone(position=i - before_promoter,
                                      kp=kp,
                                      km=km,
-                                     ka=ka,
                                      )
                             )
         else:
             hst_list.append(UHistone(position=i - before_promoter,
                                      kp=kp,
                                      km=km,
-                                     ka=ka,
                                      )
                             )
 
@@ -316,8 +292,7 @@ def init_genome(percentage=50,
 def init_genome_with_dna_model(percentage=50,
                                hst_n=81,
                                kp=0.176,
-                               km=0.117,
-                               ka=0.12):
+                               km=0.117):
     """
     this method is a modified version of createRandomHistoneList
     used for Oct4 histones.
@@ -332,14 +307,12 @@ def init_genome_with_dna_model(percentage=50,
             hst_list.append(MHistoneWithDNAModel(position=i - before_promoter,
                                                  kp=kp,
                                                  km=km,
-                                                 ka=ka,
                                                  )
                             )
         else:
             hst_list.append(UHistoneWithDNAModel(position=i - before_promoter,
                                                  kp=kp,
                                                  km=km,
-                                                 ka=ka,
                                                  )
                             )
 
@@ -349,7 +322,7 @@ def init_genome_with_dna_model(percentage=50,
     return hst_list
 
 
-def next_genome(hst_list, window, k_nuc):
+def next_genome(hst_list, window, nuc_prob, ace_prob):
     """
     this method takes histone list and returns the next generation out of them.
     """
@@ -364,7 +337,7 @@ def next_genome(hst_list, window, k_nuc):
             elif hst.status == "m":
                 mhst_n += 1
 
-        hst = Histone.k(hst)
+        hst = Histone.k(hst, ace_prob)
 
         hst_list[i] = hst
 
@@ -385,7 +358,7 @@ def next_genome(hst_list, window, k_nuc):
     # if transcription does not happen, then with k_nuc
     # probability, we recover E0 histone to be methylated.
     eext_bool = False
-    if t_bool is False and sample() < k_nuc:
+    if t_bool is False and sample() < nuc_prob:
         eext_bool = True
     # if in the locus, we have more than two methylated histones,
     # then with 100% prob, we recover E0 histone to be
@@ -400,7 +373,7 @@ def next_genome(hst_list, window, k_nuc):
     return hst_list, t_bool, p_bool
 
 
-def next_genome_with_dna_model(hst_list, window, k_nuc, p_off):
+def next_genome_with_dna_model(hst_list, window, nuc_prob, ace_prob, p_off):
     """
     this method takes histone list and returns the next generation of them.
     """
@@ -423,7 +396,7 @@ def next_genome_with_dna_model(hst_list, window, k_nuc, p_off):
                 if sample() < p_off:
                     hst.CpGislandlist[index] = 0
 
-        hst = HistoneWithDNAModel.k(hst)
+        hst = HistoneWithDNAModel.k(hst, ace_prob)
 
         hst_list[i] = hst
 
@@ -439,7 +412,7 @@ def next_genome_with_dna_model(hst_list, window, k_nuc, p_off):
     # if transcription does not happend, then with k_nuc
     # probability, we recover E0 to be methylated.
     eext_bool = False
-    if t_bool is False and sample() < k_nuc:
+    if t_bool is False and sample() < nuc_prob:
         eext_bool = True
 
     # if in the locus we have more than two methylated histones,
@@ -507,15 +480,13 @@ def track_epigenetic_process(hst_list,  # initial histone list
                              window=10,  # default is 10
                              ):
     hst_n = len(hst_list)
-    for i, hst in enumerate(hst_list):
-        hst_list[i].set_ka(ace_prob)
 
     vectorizedgene_list = zeros((time, 3, hst_n))  # array of compressed data of vectors
     t_list = zeros(time, dtype=bool)  # one dimension array
     p_list = zeros(time, dtype=bool)
 
     for t in range(time):
-        hst_list, t_bool, p_bool = next_genome(hst_list, window, nuc_prob)
+        hst_list, t_bool, p_bool = next_genome(hst_list, window, nuc_prob, ace_prob)
         vectorizedgene_list[t] = vectorize(hst_list)
         t_list[t] = t_bool
         p_list[t] = p_bool
@@ -531,15 +502,17 @@ def track_epigenetic_process_with_dna_model(hst_list,  # initial histone list
                                             window=10  # default is 10
                                             ):
     hst_n = len(hst_list)
-    for i, hst in enumerate(hst_list):
-        hst_list[i].set_ka( ace_prob)
 
     vectorizedgene_list = zeros((time, 4, hst_n))  # array of compressed data of vectors
     t_list = zeros(time, dtype=bool)  # one dimension array
     p_list = zeros(time, dtype=bool)
 
     for t in range(time):
-        hst_list, t_bool, p_bool = next_genome_with_dna_model(hst_list, window, k_nuc=nuc_prob, p_off=p_off)
+        hst_list, t_bool, p_bool = next_genome_with_dna_model(hst_list,
+                                                              window,
+                                                              nuc_prob=nuc_prob,
+                                                              ace_prob=ace_prob,
+                                                              p_off=p_off)
         vectorizedgene_list[t] = vectorize_with_dna_model(hst_list)
         t_list[t] = t_bool
         p_list[t] = p_bool
