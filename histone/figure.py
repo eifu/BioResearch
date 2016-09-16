@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import cm
 
 
-def sequence(fig, vectgene_timeseries, row, col, num, kace, knuc, kace2, knuc2):
+def sequence(fig, vectgene_timeseries, row, col, num):
     hst_n = len(vectgene_timeseries[0][0])
     time = len(vectgene_timeseries)
 
@@ -34,8 +34,6 @@ def sequence(fig, vectgene_timeseries, row, col, num, kace, knuc, kace2, knuc2):
     ax.set_ylim(-40.5, 40.5)
     ax.set_xticks([w for w in range(0, time, 168)])
     ax.set_xticklabels(("week" + str(w) for w in range(1, time // 168 + 1)))
-    ax.set_title(
-        "Kace{}, Knuc{} -> Kace{}, Knuc{}".format(round(kace, 4), round(knuc, 4), round(kace2, 4), round(knuc2, 4)))
 
 
 def window(fig, vectgene_timeseries, row, col, num):

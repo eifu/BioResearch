@@ -108,8 +108,11 @@ def main():
     matplotlib.rc('font', **font)
 
     fig = plt.figure()
+    title = "test_{}\nk+{}_k-{}\nkace1:{} knuc1:{} -> kace2:{} knuc2:{}".format(
+        strftime("%Y_%m%d_%H%M"), K_PLUS, K_MINUS, ACE_PROB, NUC_PROB, ACE_PROB2, NUC_PROB2)
+    fig.suptitle(title, size=8)
 
-    histone.figure.sequence(fig, final_tracker, 4, 1, 1, kace=ACE_PROB, knuc=NUC_PROB, kace2=ACE_PROB2, knuc2=NUC_PROB2)
+    histone.figure.sequence(fig, final_tracker, 3, 1, 1)
     histone.figure.window(fig, final_tracker, 6, 1, 3)
     histone.figure.package(fig, final_p_list, 6, 1, 4)
     histone.figure.transcription(fig, final_t_list, 6, 1, 5)
@@ -122,9 +125,12 @@ def main():
         os.mkdir("demo/result")
 
     # to save a figure to pdf file
-    title = "demo/result/test_{}____k+{}_k-{}_kace1{}_knuc1{}_kace2{}_knuc2{}_percent{}.pdf".format(
-        strftime("%Y_%m%d_%H%M"), K_PLUS, K_MINUS, ACE_PROB, NUC_PROB, ACE_PROB2, NUC_PROB2, PERCENT)
-    pp = PdfPages(title)
+    fig.tight_layout()
+    fig.subplots_adjust(top=0.88)
+
+    path = "demo/result/data_{}__k+{}k-{}__knuc1:{}kace1:{}__knuc2:{}kace2:{}.pdf".format(
+        strftime("%Y_%m%d_%H%M"), K_PLUS, K_MINUS, NUC_PROB, ACE_PROB, NUC_PROB2, ACE_PROB2)
+    pp = PdfPages(path)
     pp.savefig(fig)
     pp.close()
 
