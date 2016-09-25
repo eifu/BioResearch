@@ -178,7 +178,7 @@ class HistoneWithDNAModel(Histone):
         else:
             return self
 
-    def dna_methylation(self):
+    def dna_methylation(self, ace_prob):
         return self
 
     def set_cpg_island_list(self, num):
@@ -230,7 +230,7 @@ class UHistoneWithDNAModel(HistoneWithDNAModel):
             else:
                 return self
 
-    def dna_methylation(self):
+    def dna_methylation(self, ace_prob):
         if sample() < sum(self.CpGislandlist) * self.K_PLUS:
             # the chance gets higher, depends on the num of CpG island sites
             return MHistoneWithDNAModel(inherited=True, inherited_hst=self)
@@ -363,7 +363,7 @@ def next_genome(hst_list, window, nuc_prob, ace_prob):
     # if in the locus, we have more than two methylated histones,
     # then with 100% prob, we recover E0 histone to be
     # methylated. this is a histone memory part.
-    if mhst_n > 2:
+    if p_bool:
         eext_bool = True
 
     if eext_bool is True:

@@ -35,9 +35,6 @@ def main():
 
     percent = 100
 
-    a_bool = 1
-    a_bool2 = 1
-
     k_nuc = 1
     k_ace = 0.1
     k_nuc2 = 0
@@ -66,12 +63,9 @@ def main():
     a list of histone objects
     """
     histone_list1 = histone.init_genome_with_dna_model(percentage=percent,
-                                                       a_bool=a_bool,
                                                        hst_n=NUM_OF_HISTONE,
                                                        kp=k_plus,
-                                                       kp2=k_plus,
                                                        km=k_minus,
-                                                       ka=k_ace
                                                        )
 
     histone_list1[38].set_cpg_island_list(4)  # turn -2 pos on
@@ -110,9 +104,6 @@ def main():
     """
     dict1 = histone.track_epigenetic_process_with_dna_model(hst_list=histone_list1,
                                                             time=TIME1,
-                                                            a_bool=a_bool,
-                                                            t_bool=t_bool,
-                                                            p_bool=p_bool,
                                                             ace_prob=k_ace,
                                                             nuc_prob=k_nuc,
                                                             p_off=p_off
@@ -124,9 +115,6 @@ def main():
 
     dict2 = histone.track_epigenetic_process_with_dna_model(hst_list=hst1,
                                                             time=TIME2,
-                                                            a_bool=a_bool2,
-                                                            t_bool=t_list1[-1],
-                                                            p_bool=p_list1[-1],
                                                             ace_prob=k_ace2,
                                                             nuc_prob=k_nuc2,
                                                             p_off=p_off
@@ -146,7 +134,7 @@ def main():
 
     fig = plt.figure()
 
-    histone.figure.sequence(fig, final_tracker, 3, 1, 1, kace=k_ace, knuc=k_nuc, kace2=k_ace2, knuc2=k_nuc2)
+    histone.figure.sequence(fig, final_tracker, 3, 1, 1)
     histone.figure.window_with_dna_model(fig, final_tracker, 6, 1, 3)
     histone.figure.package_with_dna_model(fig, final_p_list, final_tracker, 6, 1, 4)
     histone.figure.transcription(fig, final_t_list, 6, 1, 5)
