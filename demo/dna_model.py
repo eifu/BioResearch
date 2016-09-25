@@ -27,45 +27,42 @@ NUM_OF_HISTONE = 81
 WINDOW = 10
 TIME1 = 3 * 7 * 24  # 3 week in hours
 TIME2 = 3 * 7 * 24  # 3 week in hours
+K_PLUS = 0.145
+K_MINUS = 0.145
+
+PERCENT = 100
+
+NUC_PROB = 1
+ACE_PROB = 0.1
+NUC_PROB2 = 0
+ACE_PROB2 = 0.1
+
+P_OFF = 0.01
 
 
 def main():
-    k_plus = 0.145
-    k_minus = 0.145
 
-    percent = 100
-
-    k_nuc = 1
-    k_ace = 0.1
-    k_nuc2 = 0
-    k_ace2 = 0.1
-
-    p_off = 0.01
 
     """
     init_genome
 
     initializes a list of histone objects.
     if you want to have a list of histones with
-    specific characterestics, you can custumize it with
+    specific characteristics, you can customize it with
     keyword arguments.
     input:
     (list of keyword arguments)
     - percentage .. probability of methylated histones.
-    - a_bool .. having activator On.
     - hst_n .. number of histones in a list
     - kp .. probability of k plus
-    - kp2 .. probability of k plus 2
     - km .. probability of k minus
-    - ka .. probability of k ace
-
     output:
     a list of histone objects
     """
-    histone_list1 = histone.init_genome_with_dna_model(percentage=percent,
+    histone_list1 = histone.init_genome_with_dna_model(percentage=PERCENT,
                                                        hst_n=NUM_OF_HISTONE,
-                                                       kp=k_plus,
-                                                       km=k_minus,
+                                                       kp=K_PLUS,
+                                                       km=K_MINUS,
                                                        )
 
     histone_list1[38].set_cpg_island_list(4)  # turn -2 pos on
@@ -82,20 +79,9 @@ def main():
     (list of keyword arguments)
     - hst_list .. the initial condition of list of histones
     - time .. the time length of tracking
-    - a_bool
-    - r_bool
-    - t_bool .. whether transcription happened last time or
-                not. For the first tracking, we set up t_bool
-                to be 0 as a default.
-    - p_bool .. whether packaging happened last time or not.
-                For the first tracking, we set up p_bool to be
-                True as a default.
-    """
-    t_bool = 0
-    p_bool = True
-    """
     - ace_prob .. K-ace probability.
     - nuc_prob .. K-nuc probability.
+    - p_off .. probability of CpG island getting unmethylated.
     output:
     dictionary object that contains three data,
     key: vectorize, value: a record of timeseries of list of histones.
@@ -104,9 +90,9 @@ def main():
     """
     dict1 = histone.track_epigenetic_process_with_dna_model(hst_list=histone_list1,
                                                             time=TIME1,
-                                                            ace_prob=k_ace,
-                                                            nuc_prob=k_nuc,
-                                                            p_off=p_off
+                                                            ace_prob=ACE_PROB,
+                                                            nuc_prob=NUC_PROB,
+                                                            p_off=P_OFF
                                                             )
     tracker = dict1["vectorize"]
     hst1 = dict1["hstL"]
@@ -115,9 +101,9 @@ def main():
 
     dict2 = histone.track_epigenetic_process_with_dna_model(hst_list=hst1,
                                                             time=TIME2,
-                                                            ace_prob=k_ace2,
-                                                            nuc_prob=k_nuc2,
-                                                            p_off=p_off
+                                                            ace_prob=ACE_PROB2,
+                                                            nuc_prob=NUC_PROB2,
+                                                            p_off=P_OFF
                                                             )
     tracker2 = dict2["vectorize"]
     t_list2 = dict2["TList"]
@@ -134,6 +120,10 @@ def main():
 
     fig = plt.figure()
 
+    title = "test_{}\nk+{}_k-{}\nkace1:{} knuc1:{} -> kace2:{} knuc2:{}".format(
+        strftime("%Y_%m%d_%H%M"), K_PLUS, K_MINUS, ACE_PROB, NUC_PROB, ACE_PROB2, NUC_PROB2)
+    fig.suptitle(title, size=8)
+
     histone.figure.sequence(fig, final_tracker, 3, 1, 1)
     histone.figure.window_with_dna_model(fig, final_tracker, 6, 1, 3)
     histone.figure.package_with_dna_model(fig, final_p_list, final_tracker, 6, 1, 4)
@@ -144,16 +134,13 @@ def main():
     plt.show()
 
     # to save a figure to pdf file
-    title = "demo/result/test__dna_model_{}___poff{}_k+{}_k-{}_kace{}_knuc{}_percent{}.pdf".format(
-        strftime("%Y_%m%d_%H%M"),
-        round(p_off, 4),
-        k_plus,
-        k_minus,
-        k_ace,
-        k_nuc,
-        percent
-    )
-    pp = PdfPages(title)
+    fig.tight_layout()
+    fig.subplots_adjust(top=0.88)
+
+    path = "demo/result/data_{}__k+{}k-{}__knuc1_{}__kace1_{}____knuc2_{}__kace2_{}.pdf".format(
+        strftime("%Y_%m%d_%H%M"), K_PLUS, K_MINUS, NUC_PROB, ACE_PROB, NUC_PROB2, ACE_PROB2)
+
+    pp = PdfPages(path)
     pp.savefig(fig)
     pp.close()
 

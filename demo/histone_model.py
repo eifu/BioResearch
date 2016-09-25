@@ -128,7 +128,7 @@ def main():
     fig.tight_layout()
     fig.subplots_adjust(top=0.88)
 
-    path = "demo/result/data_{}__k+{}k-{}__knuc1:{}kace1:{}__knuc2:{}kace2:{}.pdf".format(
+    path = "demo/result/data_{}__k+{}k-{}__knuc1_{}__kace1_{}_____knuc2_{}__kace2_{}.pdf".format(
         strftime("%Y_%m%d_%H%M"), K_PLUS, K_MINUS, NUC_PROB, ACE_PROB, NUC_PROB2, ACE_PROB2)
     pp = PdfPages(path)
     pp.savefig(fig)
