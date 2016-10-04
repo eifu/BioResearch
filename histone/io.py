@@ -54,10 +54,18 @@ def compress_onekp_samplelist_hstseqts(onekp_samplelist_hstseqts):
 
     return compressed
 
+
 def compress_last_week_hst_vec(last_week_hst_vec):
     locus_n = 11
     example_n = len(last_week_hst_vec)
     return last_week_hst_vec.reshape(example_n * 24 * 7, locus_n)
+
+
+def compress_all_week_hst_locus_vec(all_week_hst_vec):
+    locus_n = 11
+    example_n = len(all_week_hst_vec)
+    return all_week_hst_vec.reshape(example_n * 24 * 7 * 6, locus_n)
+
 
 def compress_packaging_samplelist(packaging_list):
     time = len(packaging_list[0])
@@ -67,6 +75,7 @@ def compress_packaging_samplelist(packaging_list):
             compressed[t] += onesample[t]
     return compressed
 
+
 def compress_cpg_samplelist(cpg_list):
     time = len(cpg_list[0])
     compressed = np.zeros(time)
@@ -74,6 +83,7 @@ def compress_cpg_samplelist(cpg_list):
         for t in range(time):
             compressed[t] += onesample[t]
     return compressed
+
 
 def write_dump2d_pos_kp(kplist_samplelist_hstseqts, filename, time_inhour):
     kp_n = len(kplist_samplelist_hstseqts)
