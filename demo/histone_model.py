@@ -28,13 +28,13 @@ NUM_OF_HISTONE = 81
 WINDOW = 10 
 TIME1 = 3 * 7 * 24  # 3 week in hours 
 TIME2 = 3 * 7 * 24  # 3 week in hours
-K_PLUS = 0.145
-K_MINUS = 0.145
+K_PLUS = 0.2
+K_MINUS = 0.12
 PERCENT = 100
 NUC_PROB = 1
-ACE_PROB = 0
+ACE_PROB = 0.1
 NUC_PROB2 = 0
-ACE_PROB2 = 0
+ACE_PROB2 = 0.1
 
 
 def main():
