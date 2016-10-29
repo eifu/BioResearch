@@ -3,21 +3,24 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-example_n = 1000
+example_n = 100
 dir1 = "example/data/withNUC/data{}/".format(example_n)
 hst_n = 81
 kp = 0.145
 km = 0.145
-kn2_list = np.arange(0, 0.5, 0.025)  # length 20
+kn2_list = np.arange(0, 0.05, 0.0025)  # length 20
 
 
 def main():
-    ka_list = [0, 0.025, 0.05, 0.075, 0.1]  # length 5
-    for ka in ka_list:
-        submain(ka)
+#     ka_list = [0, 0.025, 0.05, 0.075, 0.1]  # length 5
+#     for ka in ka_list:
+#         submain(ka)
+#
+#
+# def submain(ka):
 
+    ka = 0
 
-def submain(ka):
     plt.style.use('ggplot')
     font = {'family': 'sans-serif'}
     matplotlib.rc('font', **font)

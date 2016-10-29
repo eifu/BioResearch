@@ -12,7 +12,7 @@ TIME2 = 504  # 3 week in hour
 
 HST_N = 81
 
-example_n = 5
+example_n = 100
 
 if not os.path.exists("example/data"):
     os.mkdir('example/data')
@@ -27,7 +27,7 @@ if not os.path.exists(dir1):
 
 def main():
     kn1_list = [0, 1]
-    kn2_list = np.arange(0, 0.5, 0.025)
+    kn2_list = np.arange(0.03, 0.05, 0.0025)
     for kn1 in kn1_list:
         for kn2 in kn2_list:
             submain1(kn1, kn2)
@@ -105,32 +105,21 @@ def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
     P = True
 
     initial_hst_list = histone.init_genome(percentage=50,
-                                           a_bool=A,
                                            hst_n=HST_N,
                                            kp=k_plus,
-                                           kp2=k_plus,
-                                           ka=k_ace1,
                                            km=k_minus,
                                            )
 
     dict1 = histone.track_epigenetic_process(hst_list=initial_hst_list,
                                              time=TIME1,
-                                             a_bool=A,
-                                             t_bool=T,
-                                             p_bool=P,
                                              ace_prob=k_ace1,
                                              nuc_prob=k_nuc1
                                              )
     # tracker = dictH["vectorize"]
     hst_list = dict1["hstL"]
-    t_list = dict1["TList"]
-    p_list = dict1["PList"]
 
     dict2 = histone.track_epigenetic_process(hst_list=hst_list,
                                              time=TIME2,
-                                             a_bool=secA,
-                                             t_bool=t_list[-1],
-                                             p_bool=p_list[-1],
                                              ace_prob=k_ace2,
                                              nuc_prob=k_nuc2
                                              )
