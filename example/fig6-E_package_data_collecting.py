@@ -67,43 +67,24 @@ def submain(k_plus, k_minus, kn1, ka1, kn2, ka2):
 
 
 def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
-    R = 0
-    A = 1
-    secR = 1
-    secA = 1
-
-    T = 0
-    P = True
 
     histoneList1 = histone.init_genome(percentage=50,
-                                       a_bool=A,
                                        hst_n=HST_N,
                                        kp=k_plus,
-                                       kp2=k_plus,
-                                       ka=k_ace1,
                                        km=k_minus,
                                        )
 
     dictH = histone.track_epigenetic_process(hst_list=histoneList1,
                                              time=TIME1,
-                                             a_bool=A,
-                                             r_bool=R,
-                                             t_bool=T,
-                                             p_bool=P,
                                              ace_prob=k_ace1,
                                              nuc_prob=k_nuc1
                                              )
     # tracker = dictH["vectorize"]
     hstL = dictH["hstL"]
-    TList = dictH["TList"]
     PList = dictH["PList"]
 
     dictH2 = histone.track_epigenetic_process(hst_list=hstL,
                                               time=TIME2,
-                                              a_bool=secA,
-                                              r_bool=secR,
-                                              t_bool=TList[-1],
-                                              p_bool=PList[-1],
                                               ace_prob=k_ace2,
                                               nuc_prob=k_nuc2
                                               )

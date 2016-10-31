@@ -27,7 +27,7 @@ if not os.path.exists(dir1):
 
 def main():
     kn1_list = [0, 1]
-    kn2_list = np.arange(0.03, 0.05, 0.0025)
+    kn2_list = np.arange(0, 0.05, 0.0025)
     for kn1 in kn1_list:
         for kn2 in kn2_list:
             submain1(kn1, kn2)
@@ -96,13 +96,6 @@ def submain(k_plus, k_minus, kn1, ka1, kn2, ka2):
 
 
 def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2):
-    R = 0
-    A = 1
-    secR = 1
-    secA = 1
-
-    T = 0
-    P = True
 
     initial_hst_list = histone.init_genome(percentage=50,
                                            hst_n=HST_N,

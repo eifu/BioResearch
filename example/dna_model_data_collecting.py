@@ -121,11 +121,8 @@ def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2, p_off):
     P = True
 
     initial_hst_list = histone.init_genome_with_dna_model(percentage=50,
-                                                          a_bool=A,
                                                           hst_n=HST_N,
                                                           kp=k_plus,
-                                                          kp2=k_plus,
-                                                          ka=k_ace1,
                                                           km=k_minus,
                                                           )
 
@@ -136,26 +133,19 @@ def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2, p_off):
 
     dict1 = histone.track_epigenetic_process_with_dna_model(hst_list=initial_hst_list,
                                                             time=TIME1,
-                                                            a_bool=A,
-                                                            t_bool=T,
-                                                            p_bool=P,
                                                             ace_prob=k_ace1,
                                                             nuc_prob=k_nuc1,
                                                             p_off=p_off
                                                             )
     tracker = dict1["vectorize"]
     hst_list = dict1["hstL"]
-    t_list = dict1["TList"]
-    p_list = dict1["PList"]
+
     cpg_sum_list = np.zeros(TIME1 + TIME2)
     for i, hst in enumerate(tracker):
         cpg_sum_list[i] = sum(hst[3][35:46])
 
     dict2 = histone.track_epigenetic_process_with_dna_model(hst_list=hst_list,
                                                             time=TIME2,
-                                                            a_bool=secA,
-                                                            t_bool=t_list[-1],
-                                                            p_bool=p_list[-1],
                                                             ace_prob=k_ace2,
                                                             nuc_prob=k_nuc2,
                                                             p_off=p_off
