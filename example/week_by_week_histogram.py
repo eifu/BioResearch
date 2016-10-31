@@ -3,17 +3,18 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-example_n = 100
+example_n = 300
 dir1 = "example/data/withNUC/data{}/".format(example_n)
 hst_n = 81
 kp = 0.145
 km = 0.145
-kn2_list = np.arange(0.03, 0.05, 0.0025)  # length 20
+kn2_list = np.arange(0, 0.2, 0.01)  # length 20
 
 
 def main():
     for week in range(0, 7):
         submain(week)
+        print(week, " week is done")
 
 
 def submain(week):
@@ -42,11 +43,13 @@ def submain(week):
             kp,
             km, example_n)
 
-        data = np.genfromtxt(filename, delimiter=',', dtype=np.int8)
+        data = np.genfromtxt(filename, delimiter=',')
+        data = data.reshape((example_n, 24 * 7 * 6, 11))
 
         container = np.zeros(12)  # from 0 to 11. total 12 paterns
-        for _, row in enumerate(data):
-            container[sum((row + row * row) / 2)] += 1
+        for one_sample in data:
+            for _, row in enumerate(one_sample[24 * 7 * week: 24 * 7 * (week+1)]):
+                container[sum(row)] += 1
         ax.set_ylim(0, max(container))
         ax.bar([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], container)
 
@@ -66,11 +69,16 @@ def submain(week):
             km,
             example_n)
 
-        data = np.genfromtxt(filename, delimiter=',', dtype=np.int8)
+        data = np.genfromtxt(filename, delimiter=',')
+
+        data = data.reshape((example_n, 24 * 7 * 6, 11))
 
         container = np.zeros(12)  # from 0 to 11. total 12 paterns
-        for _, row in enumerate(data[24 * 7 * week: 24 * 7 * (week+1)]):
-            container[sum((row + row * row) / 2)] += 1
+        for one_sample in data:
+
+            for _, row in enumerate(one_sample[24 * 7 * week: 24 * 7 * (week+1)]):
+                container[sum((row + row * row) / 2)] += 1
+
         ax.set_ylim(0, max(container))
         ax.bar([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], container)
 
