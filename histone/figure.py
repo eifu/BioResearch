@@ -145,7 +145,7 @@ def package(fig, p_list, row, col, num):
 def package_with_dna_model(fig, p_list, tracker, row, col, num):
     cpg_num_list = np.zeros(len(tracker))
     for t, vec in enumerate(tracker):
-        cpg_num_list[t] = (vec[3][38] + vec[3][39] + vec[3][40])/20 + 0.25
+        cpg_num_list[t] = (vec[3][38] + vec[3][39] + vec[3][40] + vec[3][41] + vec[3][42])/40 + 0.25
 
     total_time = len(p_list)
     ax = fig.add_subplot(row, col, num)
@@ -160,19 +160,8 @@ def package_with_dna_model(fig, p_list, tracker, row, col, num):
     ax.set_xticklabels([])
 
 
-
 def m_stat(fig, vectorizedgenome_timeseries, row, col, num, delta=5, start_time_ratio=0.5, end_time_ratio=1):
-    """
-    :param fig:
-    :param vectorizedgenome_timeseries:
-    :param row:
-    :param col:
-    :param num:
-    :param delta:
-    :param start_time_ratio:
-    :param end_time_ratio:
-    :return:
-    """
+
     bx = fig.add_subplot(row, col, num)
     w = 11
     total_time = len(vectorizedgenome_timeseries)

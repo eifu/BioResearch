@@ -163,12 +163,8 @@ class HistoneWithDNAModel(Histone):
         # create new histone object based on the argument
         else:
             position = kwargs.pop('position', 0)
-            if position == -2:
+            if position == -2 or position == -1 or position == 0 or position == 1 or position ==2 :
                 self.CpGislandlist = [0, 0, 0, 0]
-            elif position == -1:
-                self.CpGislandlist = [0, 0, 0, 0]
-            elif position == 0:
-                self.CpGislandlist = [0, 0]
             else:
                 self.CpGislandlist = []
 

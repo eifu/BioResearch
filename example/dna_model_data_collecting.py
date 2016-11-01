@@ -1,7 +1,3 @@
-"""
-figure 6 C, E
-
-"""
 import histone
 import histone.io as io
 import numpy as np
@@ -11,35 +7,54 @@ TIME1 = 504  # 3 week in hour
 TIME2 = 504  # 3 week in hour
 
 HST_N = 81
-example_n = 100
+EXAMPLE_N = 100
+
+K_PLUS = 0.145
+K_MINUS = 0.145
+
+P_OFF = 0.001
 
 if not os.path.exists("example/data"):
     os.mkdir('example/data')
 
-if not os.path.exists('example/data/dna_model'):
-    os.mkdir('example/data/dna_model')
+if not os.path.exists('example/data/withNUC'):
+    os.mkdir('example/data/withNUC')
 
-dir1 = 'example/data/dna_model/data{}/'.format(example_n)
+dir1 = 'example/data/withNUC/data{}__DNA/'.format(EXAMPLE_N)
 if not os.path.exists(dir1):
     os.mkdir(dir1)
 
+"""
+dumpdata2d__k+0.145k-0.145_5000examples.csv
+this is 5000 examples of the main histone status data.
+the main histone status data is characterized by vectorized function. Read the function in __init__.py in histone.
+
+final_hst_list_k+0.145k-0.145_5000examples.csv
+this is 5000 examples of the all locus info. 1 is M. 0 is U. -1 is A.
+
+packaging__k+0.145k-0.145_5000examples.csv
+the packaging data from the beginning to the end to experiment. by default, it is 6 weeks, with 3 week - 3 week.
+
+transcription__k+0.145k-0.145_5000examples.csv
+the transcription data from the beginning to the end to experiment. by default, it is 6 weeks, with 3 week - 3 week.
+
+
+Play this with changing the number of EXAMPLE_N so that you can see how the data is stored.
+"""
+
 
 def main():
-    p_off = 1 # [1, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001]  # 7
-    kn1_list = [0, 1]  # length 2
-    kn2_list = np.arange(0, 0.5, 0.025)  # length 20
+    kn1_list = [0, 1]
+    kn2_list = np.arange(0.14, 0.2, 0.01)
+
+    for kn1 in kn1_list:
+        for kn2 in kn2_list:
+            _main(kn1, kn2)
 
 
-    for i_kn1, kn1 in enumerate(kn1_list):
-        for i_kn2, kn2 in enumerate(kn2_list):
-            submain1(kn1, kn2, p_off,  i_kn1 * 20 + i_kn2)
-
-
-def submain1(kn1, kn2, p_off, progress):
+def _main(kn1, kn2):
     ka1 = 0
     ka2 = 0
-
-    km_kp_pair = [(0.145, 0.145)]
 
     dir2 = dir1 + "kn{}ka{}_kn{}ka{}/".format(round(kn1, 4),
                                               round(ka1, 4),
@@ -48,119 +63,107 @@ def submain1(kn1, kn2, p_off, progress):
     if not os.path.exists(dir2):
         os.mkdir(dir2)
 
-    for km, kp in km_kp_pair:
-        one_var_tracker, one_var_week3_hst, one_var_pack, one_var_cpg_sum = submain(kp, km, kn1, ka1, kn2, ka2, p_off, progress)
-        
+        one_var_tracker, one_var_all_week_hst, one_var_pack, one_var_t = submain(kn1, ka1, kn2, ka2)
+        print("kn:{}, ka:{} ,done km:{}, kp:{}".format(round(kn2, 4),
+                                                       round(ka2, 4),
+                                                       round(K_MINUS, 4),
+                                                       round(K_PLUS, 4)))
 
         # for tracker info
-        filename2d = dir2 + "dumpdata2d_p_off{}_k+{}k-{}_{}examples.csv".format(round(p_off, 4),
-                                                                                round(kp, 4),
-                                                                                round(km, 4),
-                                                                                example_n)
+        filename2d = dir2 + "dumpdata2d__k+{}k-{}_{}examples.csv".format(round(K_MINUS, 4),
+                                                                         round(K_PLUS, 4),
+                                                                         EXAMPLE_N)
         compressed = io.compress_onekp_samplelist_hstseqts(one_var_tracker)
-        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
+        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME1 + TIME2)
 
         # for final histone list info
-        filename2d = dir2 + "final_hst_list_p_off{}_k+{}k-{}_{}examples.csv".format(round(p_off, 4),
-                                                                                    round(kp, 4),
-                                                                                    round(km, 4),
-                                                                                    example_n)
-        compressed = io.compress_last_week_hst_vec(one_var_week3_hst)
+        filename2d = dir2 + "final_hst_list_k+{}k-{}_{}examples.csv".format(round(K_MINUS, 4),
+                                                                            round(K_PLUS, 4),
+                                                                            EXAMPLE_N)
+        compressed = io.compress_all_week_hst_locus_vec(one_var_all_week_hst)
         io.write_dump2d_final_hst_list(compressed, filename2d, HST_N)
 
         # for packaging info
-        filename2d = dir2 + "packaging_p_off{}_k+{}k-{}_{}examples.csv".format(round(p_off, 4),
-                                                                               round(kp, 4),
-                                                                               round(km, 4),
-                                                                               example_n)
+        filename2d = dir2 + "packaging__k+{}k-{}_{}examples.csv".format(round(K_MINUS, 4),
+                                                                        round(K_PLUS, 4),
+                                                                        EXAMPLE_N)
         compressed = io.compress_packaging_samplelist(one_var_pack)
-        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME2)
+        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME1 + TIME2)
 
-        # for cpg sum info
-        filename2d = dir2 + "cpg_sum_p_off{}_k+{}k-{}_{}examples.csv".format(round(p_off, 4),
-                                                                             round(kp, 4),
-                                                                             round(km, 4),
-                                                                             example_n)
-        compressed = io.compress_cpg_samplelist(one_var_cpg_sum)
-        io.write_dump2d_cpg_sum(compressed, filename2d)
+        # for transcription info
+        filename2d = dir2 + "transcription__k+{}k-{}_{}examples.csv".format(round(K_MINUS, 4),
+                                                                            round(K_PLUS, 4),
+                                                                            EXAMPLE_N)
+        compressed = io.compress_packaging_samplelist(one_var_t)
+        io.write_dump2d_onekp_time_hst(compressed, filename2d, TIME1 + TIME2)
 
 
-def submain(k_plus, k_minus, kn1, ka1, kn2, ka2, p_off, progress):
-    one_var_m = np.zeros((example_n, TIME2, 4, HST_N))
-    one_var_hst_list = np.zeros((example_n, 24 * 7, 11))  # week 3 histone list
-    one_var_pack = np.zeros((example_n, TIME2))
-    one_var_cpg_sum = np.zeros((example_n, TIME1 + TIME2))
-    for ex in range(example_n):
-        one_var_m[ex], one_var_hst_list[ex], one_var_pack[ex], one_var_cpg_sum[ex] = subsubmain(k_plus=k_plus,
-                                                                                                k_minus=k_minus,
-                                                                                                k_nuc1=kn1,
-                                                                                                k_ace1=ka1,
-                                                                                                k_nuc2=kn2,
-                                                                                                k_ace2=ka2,
-                                                                                                p_off=p_off)
-        
-        if ex % 10 == 0:
-            print("total  {}%".format(progress*100/20*2))
-            print("kn1:{}, ka2:{}, -> kn2:{}, ka2:{}, km:{}, kp:{}, complete {}%".format(round(kn1, 4),
+def submain(kn1, ka1, kn2, ka2):
+    one_var_m = np.zeros((EXAMPLE_N, TIME1 + TIME2, 4, HST_N))
+    one_var_hst_list = np.zeros((EXAMPLE_N, TIME1 + TIME2, 11))
+    one_var_pack = np.zeros((EXAMPLE_N, TIME1 + TIME2))
+    one_var_t = np.zeros((EXAMPLE_N, TIME1 + TIME2))
+    for ex in range(EXAMPLE_N):
+        one_var_m[ex], one_var_hst_list[ex], one_var_pack[ex], one_var_t[ex] = subsubmain(k_nuc1=kn1, k_ace1=ka1,
+                                                                                          k_nuc2=kn2, k_ace2=ka2)
+
+        print("kn1:{}, ka2:{}, -> kn2:{}, ka2:{}, km:{}, kp:{}, complete {}%".format(round(kn1, 4),
                                                                                      round(ka1, 4),
                                                                                      round(kn2, 4),
                                                                                      round(ka2, 4),
-                                                                                     round(k_minus, 4),
-                                                                                     round(k_plus, 4),
-                                                                                     round(ex * 100 / example_n, 4)
+                                                                                     round(K_MINUS, 4),
+                                                                                     round(K_PLUS, 4),
+                                                                                     round(ex * 100 / EXAMPLE_N, 4)
                                                                                      )
               )
-    return one_var_m, one_var_hst_list, one_var_pack, one_var_cpg_sum
+    return one_var_m, one_var_hst_list, one_var_pack, one_var_t
 
 
-def subsubmain(k_plus, k_minus, k_nuc1, k_ace1, k_nuc2, k_ace2, p_off):
-    A = 0
-    secA = 0
-
-    T = 0
-    P = True
-
+def subsubmain(k_nuc1, k_ace1, k_nuc2, k_ace2):
     initial_hst_list = histone.init_genome_with_dna_model(percentage=50,
                                                           hst_n=HST_N,
-                                                          kp=k_plus,
-                                                          km=k_minus,
+                                                          kp=K_PLUS,
+                                                          km=K_MINUS,
                                                           )
 
     if k_nuc1 == 1:
-        initial_hst_list[38].set_cpg_island_list(4)
-        initial_hst_list[39].set_cpg_island_list(4)
-        initial_hst_list[40].set_cpg_island_list(2)
+        initial_hst_list[38].set_cpg_island_list(4)  # turn -2 pos on
+        initial_hst_list[39].set_cpg_island_list(4)  # turn -1 pos on
+        initial_hst_list[40].set_cpg_island_list(4)  # turn 0 pos on
+        initial_hst_list[41].set_cpg_island_list(4)
+        initial_hst_list[42].set_cpg_island_list(4)
 
     dict1 = histone.track_epigenetic_process_with_dna_model(hst_list=initial_hst_list,
                                                             time=TIME1,
                                                             ace_prob=k_ace1,
                                                             nuc_prob=k_nuc1,
-                                                            p_off=p_off
+                                                            p_off=P_OFF
                                                             )
-    tracker = dict1["vectorize"]
+    tracker1 = dict1["vectorize"]
+    p_list1 = dict1["PList"]
+    t_list1 = dict1["TList"]
     hst_list = dict1["hstL"]
-
-    cpg_sum_list = np.zeros(TIME1 + TIME2)
-    for i, hst in enumerate(tracker):
-        cpg_sum_list[i] = sum(hst[3][35:46])
 
     dict2 = histone.track_epigenetic_process_with_dna_model(hst_list=hst_list,
                                                             time=TIME2,
                                                             ace_prob=k_ace2,
                                                             nuc_prob=k_nuc2,
-                                                            p_off=p_off
+                                                            p_off=P_OFF
                                                             )
     tracker2 = dict2["vectorize"]
     p_list2 = dict2["PList"]
+    t_list2 = dict2["TList"]
 
-    week3_hst_list = np.zeros((24 * 7, 11))
-    for i, hst in enumerate(tracker2[2 * 24 * 7:]):
-        week3_hst_list[i] = hst[0][35:46] - hst[2][35:46]
+    final_tracker = np.concatenate((tracker1, tracker2))
+    final_p_list = np.concatenate((p_list1, p_list2))
+    final_t_list = np.concatenate((t_list1, t_list2))
 
-    for i, hst in enumerate(tracker2):
-        cpg_sum_list[i + TIME1] = sum(hst[3][35:46])
+    locus_hst_list = np.zeros((TIME1 + TIME2, 11))
 
-    return tracker2, week3_hst_list, p_list2, cpg_sum_list
+    for i, hst in enumerate(final_tracker):
+        locus_hst_list[i] = hst[0][35:46] - hst[2][35:46]
+
+    return final_tracker, locus_hst_list, final_p_list, final_t_list
 
 
 if __name__ == "__main__":
