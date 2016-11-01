@@ -12,7 +12,7 @@ kn2_list = np.arange(0, 0.2, 0.01)  # length 20
 
 
 def main():
-    for week in range(0, 7):
+    for week in range(3, 6):
         submain(week)
         print(week, " week is done")
 
